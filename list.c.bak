@@ -1,0 +1,33 @@
+#include <string.h>
+
+#include "list.h"
+#include "log.h"
+
+static size_t listmemory = 0;
+static size_t dlistmemory = 0;
+
+void memreport_list(void) {
+	debug(LOG_DEBUG, "List memory used: %zd", listmemory);
+	debug(LOG_DEBUG, "Double-linked list memory used: %zd", dlistmemory);
+}
+
+list_t *list_create(void) {
+	list_t *l;
+
+	l = smalloc(sizeof(*l));
+	listmemory += sizeof(*l);
+
+	l->next = l->data = NULL;
+
+	return l;
+}
+
+void list_insert(list_t *list, void *data) {
+	list_t *l = list;
+
+	while (l->next)
+		l = l->next;
+
+	l->next = list_create();
+	l->next->data = data;
+}

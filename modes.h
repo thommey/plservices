@@ -1,0 +1,26 @@
+#ifndef MODES_H_
+#define MODES_H_
+
+#include <inttypes.h>
+
+#define MODEFLAG_VALID      0xF0
+#define MODEFLAG_SETPARAM   0x01
+#define MODEFLAG_UNSETPARAM 0x02
+#define MODEFLAG_LIST       (0x04|MODEFLAG_SETPARAM|MODEFLAG_UNSETPARAM)
+#define MODEFLAG_USERMODE   (0x08|MODEFLAG_SETPARAM|MODEFLAG_UNSETPARAM)
+
+#define MODE_FLAG       (MODEFLAG_VALID)
+#define MODE_LIMIT      (MODEFLAG_VALID|MODEFLAG_SETPARAM)
+#define MODE_KEY        (MODEFLAG_VALID|MODEFLAG_SETPARAM|MODEFLAG_UNSETPARAM)
+#define MODE_BAN        (MODEFLAG_VALID|MODEFLAG_LIST)
+#define MODE_PREFIX     (MODEFLAG_VALID|MODEFLAG_USERMODE)
+
+struct modeinfo {
+	char modechar;
+	char flags;
+};
+
+typedef uint64_t chanmode;
+typedef uint64_t usermode;
+
+#endif // MODES_H_

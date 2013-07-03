@@ -1,0 +1,236 @@
+#include <string.h>
+
+#include "log.h"
+#include "parse.h"
+#include "convert.h"
+#include "tokeninfo.h"
+#include "handle.h"
+#include "utils.h"
+
+static int registered;
+
+struct tokeninfo {
+	struct parserule rules[2];
+	void (*handlers[2])(void);
+};
+
+/* single rule, if there's no short token version */
+#define MKSRULE(long, rule) { NULL, #long, h ## long, NULL, rule, "" }
+/* normal rule, short and long version of the token */
+#define MKLRULE(short, long, rule) { #short, #long, (void (*)(void))h ## long, NULL, rule, "" }
+/* complicated rule with 2 handle functions and rulesets (NICK, ..) */
+#define MK2RULE(short, long, rule1, rule2) { #short, #long, (void (*)(void))h ## long ## 1, ((void (*)(void))h ## long ## 2), rule1, rule2 }
+
+/* rule words: [flag]<integer>[type]
+ * <integer> index to take the argument from, counting starts at 1,
+ *           negative is from the end (1 = first, -1 = last)
+ * [type] optional type used to convert, see types list below.
+ * types: unum = user numeric, snum = server numeric, int = integer,
+ *        long = long, nick = nickname, time = timestamp,
+ * 	      chan = channel
+ * [flag] flag for the parsing rule, see flags list below.
+ * flags: o = optional, g = greedy.
+ */
+static struct {
+	char *shortname;
+	char *name;
+	void (*handler1)(void);
+	void (*handler2)(void);
+	char rule1[ARGSMAX*4];
+	char rule2[ARGSMAX*4];
+} rawrules[] = {
+	MKLRULE(AC,	ACCOUNT,	"1unum 2"),
+	MKLRULE(AD,	ADMIN,		"1snum"),
+	MKLRULE(LL,	ASLL,		"1 2snum"),
+	MKLRULE(A,	AWAY,		"o-1"),
+	MKLRULE(B,	BURST,		"1chan 2time g3"),
+	MKLRULE(CM,	CLEARMODE,	"1chan 2"),
+/*	MKSRULE(	CLOSE,		""), */
+/* 	MKLRULE(CN,	CNOTICE,	""), */
+ 	MKLRULE(CO,	CONNECT,	"1 2int 3snum"),
+/*	MKLRULE(CP,	CPRIVMSG,	""), */
+	MKLRULE(C,	CREATE,		"1 2"),
+	MKLRULE(DE,	DESTRUCT,	"1cnum 2time"),
+	MKLRULE(DS,	DESYNCH,	"-1"),
+/*	MKSRULE(	DIE,		""), */
+/*	MKSRULE(	DNS,		""), */
+	MKLRULE(EB,	END_OF_BURST,""),
+	MKLRULE(EA,	EOB_ACK,	""),
+	MKLRULE(Y,	ERROR,		"o-1"),
+/*	MKSRULE(	GET,		""), */
+	MK2RULE(GL,	GLINE,		"1snum 2 3time -1", "1snum 2 3time 4time -1"),
+/*	MKSRULE(	HASH,		""), */
+/*	MKSRULE(	HELP,		""), */
+	MKLRULE(F,	INFO,		"1snum"),
+	MKLRULE(I,	INVITE,		"1nick 2chan"),
+/*	MKSRULE(	ISON,		""), */
+	MKLRULE(J,	JOIN, 		"1chan o2time"),
+	MKLRULE(JU,	JUPE, 		"1snum 2 3time 4time -1"),
+	MKLRULE(K,	KICK,		"1chan 2unum -1"),
+	MKLRULE(D,	KILL,		"1unum -1"),
+	MKLRULE(LI,	LINKS, 		"1snum 2"),
+/*	MKSRULE(	LIST, 		""), */
+	MKLRULE(LU,	LUSERS, 	"1 2snum"),
+/*	MKSRULE(	MAP, 		""), */
+	MK2RULE(M,	MODE,		"1nick g2", "1chan g2 o-1time"),
+	MKLRULE(MO,	MOTD,		"1snum"),
+	MKLRULE(E,	NAMES, 		"1chan 2snum"),
+	MK2RULE(N,	NICK,		"1 2time", "1 2int 3time 4 5 g6 -3ip -2 -1"),
+	MKLRULE(O,	NOTICE, 	"1 -1"),
+/*	MKSRULE(	OPER,		""), */
+	MKLRULE(OM,	OPMODE, 	"1chan g2 o-1time"),
+	MKLRULE(L,	PART,		"1 -1"),
+	MKLRULE(PA,	PASS,		"-1"),
+	MKLRULE(G,	PING,		"1 2 3"),
+	MKLRULE(Z,	PONG,		"1snum 2"),
+/*	MKSRULE(	POST,		""), */
+	MKLRULE(P,	PRIVMSG,	"1 -1"),
+/*	MKSRULE(	PRIVS,		""), */
+/*	MKSRULE(	PROTO,		""), */
+	MKLRULE(Q,	QUIT,		"-1"),
+/*	MKSRULE(	REHASH,		""), */
+/*	MKSRULE(	RESET,		""), */
+/*	MKSRULE(	RESTART,	""), */
+	MK2RULE(RI,	RPING,		"1 2snum 3", "1snum 2unum 3time 4time o5"),
+	MK2RULE(RO,	RPONG,		"1 2unum 3time 4time o5", "1unum 2 3long o4"),
+	MKLRULE(S,	SERVER,		"1 2int 3time 4time 5 6 7 -1"),
+/*	MKSRULE(	SET,		""), */
+	MKLRULE(SH,	SETHOST,	"1unum 2 3"),
+	MKLRULE(SE,	SETTIME,	"1time o2snum"),
+	MKLRULE(U,	SILENCE,	"1 2"),
+	MKLRULE(SQ,	SQUIT,		"1 2time o-1"),
+	MKLRULE(R,	STATS,		"1 2snum o3"),
+/*	MKLRULE(TI,	TIME,		""), */
+	MKLRULE(T,	TOPIC,		"1chan o-3time o-2time -1"),
+	MKLRULE(TR,	TRACE,		"1 2snum"),
+	MKLRULE(UP,	UPING,		"1 2int 3snum 4int"),
+/*	MKSRULE(	USER,		""), */
+/*	MKSRULE(	USERHOST,	""), */
+/*	MKSRULE(	USERIP,		""), */
+	MKLRULE(V,	VERSION,	"1snum"),
+	MKLRULE(WC,	WALLCHOPS,	"1chan -1"),
+	MKLRULE(WA,	WALLOPS,	"-1"),
+	MKLRULE(WU,	WALLUSERS,	"-1"),
+	MKLRULE(WV,	WALLVOICES,	"1chan -1"),
+/*	MKLRULE(H,	WHO,		""), */
+	MKLRULE(W,	WHOIS,		"1snum 2"),
+/*	MKLRULE(X,	WHOWAS,		""), */
+	{NULL, NULL, NULL, NULL, "", ""}
+};
+
+/* parse a single word of an arrangement rule (e.g. "o7unum") */
+static void parse_argrule(struct argrule *rule, char *rulestr) {
+	char *type;
+
+	if (rulestr[0] == 'o') {
+		rule->flags = RULE_OPTIONAL;
+	} else if (rulestr[0] == 'g') {
+		rule->flags = RULE_GREEDY;
+	} else
+		rule->flags = RULE_NORMAL;
+
+	if (rule->flags != RULE_NORMAL)
+		rulestr++;
+
+	rule->offset = (int)strtol(rulestr, &type, 10);
+
+	if (!type[0])
+		return;
+
+#define NEWTYPE(name) do { if (!strcmp(type, #name)) { rule->convert = (void *(*)(char *))convert_ ## name; return; } } while (0)
+	NEWTYPE(unum);
+	NEWTYPE(snum);
+	NEWTYPE(int);
+	NEWTYPE(long);
+	NEWTYPE(nick);
+	NEWTYPE(time);
+	NEWTYPE(chan);
+#undef NEWTYPE
+	rule->convert = NULL;
+}
+
+void add_token_rule(char *rulestr, struct parserule *r) {
+	struct manyargs *arg;
+	int i;
+
+	arg = rfc_split(rulestr);
+	r->c = arg->c;
+
+	for (i = 0; i < arg->c; i++)
+		parse_argrule(r->r + i, arg->v[i]);
+}
+
+/* Add a token with a parsing rule. Individual words with numbers and
+ * an optional prefix (o = optional, g = greedy), and type name after it
+ * (e.g. "1 o2unum g3time o-1") */
+void add_token(char *shortname, char *name, char *rulestr1, char *rulestr2, void (*handler1)(void), void (*handler2)(void)) {
+	struct tokeninfo *t;
+
+	t = zmalloc(sizeof(*t));
+
+	add_token_rule(rulestr1, &t->rules[0]);
+	t->handlers[0] = handler1;
+
+	if (handler2) {
+		add_token_rule(rulestr2, &t->rules[1]);
+		t->handlers[1] = handler2;
+	}
+
+	if (shortname)
+		add_tokeninfo(shortname, t);
+	add_tokeninfo(name, t);
+}
+
+void init_tokens(void) {
+	int i = -1;
+
+	while (rawrules[++i].name)
+		add_token(rawrules[i].shortname, rawrules[i].name, rawrules[i].rule1, rawrules[i].rule2, rawrules[i].handler1, rawrules[i].handler2);
+}
+
+void set_registered(int reg) {
+	registered = reg;
+}
+
+void handle_input(char *str) {
+	struct manyargs *raw, cpy;
+	struct args *arg;
+	struct tokeninfo *info;
+
+	raw = rfc_split(str);
+
+	/* ignore empty lines */
+	if (!raw->c)
+		return;
+
+	if (registered && raw->c < 2) {
+		debug(LOG_WARNING, "Input message '%s' has no token", str);
+		return;
+	}
+
+	/* fetch token information (rule to arrange/convert arguments + handling function) */
+	info = get_tokeninfo(registered ? raw->v[1] : raw->v[0]);
+
+	/* copy because arrange_args modifies first arg, TODO find better way */
+	if (info->handlers[1])
+		memcpy(&cpy, raw, sizeof(cpy));
+
+	/* arrange+convert arguments */
+	arg = arrange_args(raw, &info->rules[0], registered ? 2 : 1);
+
+	if (!arg) {
+		/* second variant */
+		if (info->handlers[1]) {
+			arg = arrange_args(&cpy, &info->rules[1], registered ? 2 : 1);
+			if (!arg) {
+				debug(LOG_WARNING, "Failed to deal last input\n");
+				return;
+			}
+			call_handler(registered ? raw->v[0] : NULL, arg->c, arg->v, info->handlers[1]);
+			return;
+		}
+		debug(LOG_WARNING, "Failed to deal with last input\n");
+		return;
+	}
+	call_handler(registered ? raw->v[0] : NULL, arg->c, arg->v, info->handlers[0]);
+}
