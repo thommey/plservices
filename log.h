@@ -1,8 +1,6 @@
 #ifndef LOG_H_
 #define LOG_H_
 
-#include <stdlib.h>
-
 #define LOG_FATAL      0x0001
 #define LOG_ERROR      0x0010
 #define LOG_WARNING    0x0100

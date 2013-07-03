@@ -1,19 +1,34 @@
 #ifndef CHANNELS_H_
 #define CHANNELS_H_
 
-#include "jtable.h"
-#include "modes.h"
-
 #define MAGIC_CHANNEL 0x2ED4
 
 #define CNAMELEN 200
+#define KEYLEN 50
 
 struct channel {
 	unsigned int magic;
 	char name[CNAMELEN+1];
+	char key[KEYLEN+1];
+	long limit;
 	time_t ts;
 	chanmode mode;
-	jtable ops, voices, users; /* o = opped users, v = voiced users, users = all users */
+	jtable ops, voices, users;  /* o = opped users, v = voiced users, users = all users */
+	jtable bans;
+};
+
+struct maskfrom {
+	char nick[NICKLEN+1];
+	char user[USERLEN+1];
+	char host[HOSTLEN+1];
+	char account[ACCOUNTLEN+1];
+};
+
+/* bans etc */
+struct mask {
+	char mask[NICKLEN+1+USERLEN+1+HOSTLEN+1];
+	struct maskfrom from;
+	time_t ts;
 };
 
 #define verify_channel(e) ((e)->magic == MAGIC_CHANNEL)

@@ -1,3 +1,5 @@
+#include <Judy.h>
+
 #include "jtable.h"
 
 void *jtableS_insert(jtable *table, char *key, void *data) {

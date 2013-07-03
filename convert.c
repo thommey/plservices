@@ -2,11 +2,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include "servers.h"
-#include "users.h"
-#include "entities.h"
-#include "parse.h"
-#include "log.h"
+#include "main.h"
 
 #define CACHESIZE 32
 

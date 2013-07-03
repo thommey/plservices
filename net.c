@@ -7,13 +7,17 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "log.h"
+#include "parse.h"
 #include "tokens.h"
 
 #define POSIXERR(str) do { debug(LOG_FATAL, "POSIX error: %s", strerror(errno)); error(str); } while(0)
 
 static int conn;
+
+extern int now;
 
 void net_connect(const char *servername, const char *port) {
 	struct sockaddr_in server;
@@ -79,6 +83,7 @@ void net_read(void) {
 	debug(LOG_DEBUGIO, "---- Old (%d): '%s' ----\n", oldlen, buf);
 	debug(LOG_DEBUGIO, "Reading/Waiting...");
 	r = select(conn+1, &fds, NULL, NULL, NULL);
+	now = time(NULL);
 	if (r <= 0) {
 		POSIXERR("select() error");
 		return;

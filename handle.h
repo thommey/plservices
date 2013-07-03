@@ -1,9 +1,6 @@
 #ifndef HANDLE_H_
 #define HANDLE_H_
 
-#include <time.h>
-#include "entities.h"
-
 void hACCOUNT(struct entity *from, struct user *user, char *accname);
 void hADMIN(struct entity *from, struct server *server);
 void hASLL(struct entity *from, char *smark, struct server *target);

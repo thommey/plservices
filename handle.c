@@ -2,12 +2,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "log.h"
-#include "parse.h"
-#include "entities.h"
-#include "net.h"
-#include "utils.h"
-#include "tokens.h"
+#include "main.h"
 
 #define VERIFY_SERVER(e) do { if (!e || !verify_server(e)) { debug(LOG_WARNING, "Server verification failed."); return; } } while (0);
 #define VERIFY_USER(e) do { if (!e || !verify_user(e)) { debug(LOG_WARNING, "User verification failed."); return; } } while (0);
@@ -59,7 +54,7 @@ void hCREATE(struct user *from, char *channels, time_t *ts) {
 		}
 		c = add_channel(chlist->v[i], *ts);
 		channel_add_user(c, from);
-		channel_op(c, from);
+		channel_plsprefix(c, from, 'o');
 	}
 }
 

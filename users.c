@@ -6,6 +6,7 @@
 #include "log.h"
 
 static jtable userlist = (jtable)NULL;
+static jtable opers = (jtable)NULL;
 
 struct user *get_user_by_numeric(char *numeric) {
 	return jtableS_get(&userlist, numeric);
@@ -27,6 +28,7 @@ struct user *add_user(char *numeric, int hops, const char *nick, const char *use
 }
 
 void del_user(struct user *user) {
+	jtableS_remove(&opers, user->numeric);
 	jtableS_remove(&userlist, user->numeric);
 	free(user);
 }

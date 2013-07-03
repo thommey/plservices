@@ -1,11 +1,8 @@
 #include <string.h>
 
-#include "log.h"
-#include "parse.h"
+#include "main.h"
 #include "convert.h"
-#include "tokeninfo.h"
 #include "handle.h"
-#include "utils.h"
 
 static int registered;
 

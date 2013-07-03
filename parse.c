@@ -1,11 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "log.h"
-#include "parse.h"
-#include "tokens.h"
-#include "entities.h"
-#include "utils.h"
+#include "main.h"
 #include "convert.h"
 
 /* splits something (P10/RFC1459) into individual arguments.

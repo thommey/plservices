@@ -5,9 +5,11 @@
 #define NICKLEN 15
 #define USERLEN 9
 #define HOSTLEN 63
+#define ACCOUNTLEN NICKLEN
 #define REALNAMELEN 150
 #define USERMODELEN 20
 #define AWAYMSGLEN 150
+
 
 #define MAGIC_USER 0x49F1
 

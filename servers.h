@@ -1,8 +1,6 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-#include <time.h>
-
 #define MAGIC_SERVER 0xA839
 
 #define SNUMLEN 2

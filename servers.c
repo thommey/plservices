@@ -1,9 +1,6 @@
 #include <string.h>
 
-#include "servers.h"
-#include "jtable.h"
-#include "log.h"
-#include "utils.h"
+#include "main.h"
 
 static jtable serverlist = (jtable)NULL;
 
