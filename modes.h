@@ -1,10 +1,42 @@
+/**
+ *
+ * Copyright (c) 2013 Thomas Sader (thommey)
+ *
+ *  This file is part of PLservices.
+ *
+ *  PLservices is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  PLservices is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+**/
+
 #ifndef MODES_H_
 #define MODES_H_
 
 typedef uint64_t chanmode;
 typedef uint64_t usermode;
+typedef uint64_t servermode;
 
 typedef int (*modehook)(struct entity *from, struct entity *target, int pls, char modechange, char *param);
+
+int mode_apply(struct entity *from, struct entity *target, uint64_t *modes, char *modechanges, struct manyargs *arg, int skip, modehook func);
+void init_modes();
+int mode_check1(uint64_t *modes, char modechar);
+void mode_set1(uint64_t *modes, char modechar);
+void mode_unset1(uint64_t *modes, char modechar);
+
+void uplink_with_opername(void);
+void uplink_without_opername(void);
 
 #define MODEFLAG_VALID      0x80
 #define MODEFLAG_SETPARAM   0x01

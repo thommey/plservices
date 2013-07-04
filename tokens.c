@@ -1,3 +1,25 @@
+/**
+ *
+ * Copyright (c) 2013 Thomas Sader (thommey)
+ *
+ *  This file is part of PLservices.
+ *
+ *  PLservices is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  PLservices is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+**/
+
 #include <string.h>
 
 #include "main.h"
@@ -23,8 +45,7 @@ struct tokeninfo {
  *           negative is from the end (1 = first, -1 = last)
  * [type] optional type used to convert, see types list below.
  * types: unum = user numeric, snum = server numeric, int = integer,
- *        long = long, nick = nickname, time = timestamp,
- * 	      chan = channel
+ *        long = long, time = timestamp, chan = channel
  * [flag] flag for the parsing rule, see flags list below.
  * flags: o = optional, g = greedy.
  */
@@ -40,13 +61,13 @@ static struct {
 	MKLRULE(AD,	ADMIN,		"1snum"),
 	MKLRULE(LL,	ASLL,		"1 2snum"),
 	MKLRULE(A,	AWAY,		"o-1"),
-	MKLRULE(B,	BURST,		"1chan 2time g3"),
+	MKLRULE(B,	BURST,		"1 2time g3"),
 	MKLRULE(CM,	CLEARMODE,	"1chan 2"),
 /*	MKSRULE(	CLOSE,		""), */
 /* 	MKLRULE(CN,	CNOTICE,	""), */
  	MKLRULE(CO,	CONNECT,	"1 2int 3snum"),
 /*	MKLRULE(CP,	CPRIVMSG,	""), */
-	MKLRULE(C,	CREATE,		"1 2"),
+	MKLRULE(C,	CREATE,		"1 2time"),
 	MKLRULE(DE,	DESTRUCT,	"1cnum 2time"),
 	MKLRULE(DS,	DESYNCH,	"-1"),
 /*	MKSRULE(	DIE,		""), */
@@ -59,7 +80,7 @@ static struct {
 /*	MKSRULE(	HASH,		""), */
 /*	MKSRULE(	HELP,		""), */
 	MKLRULE(F,	INFO,		"1snum"),
-	MKLRULE(I,	INVITE,		"1nick 2chan"),
+	MKLRULE(I,	INVITE,		"1 2chan"),
 /*	MKSRULE(	ISON,		""), */
 	MKLRULE(J,	JOIN, 		"1chan o2time"),
 	MKLRULE(JU,	JUPE, 		"1snum 2 3time 4time -1"),
@@ -76,10 +97,10 @@ static struct {
 	MKLRULE(O,	NOTICE, 	"1 -1"),
 /*	MKSRULE(	OPER,		""), */
 	MKLRULE(OM,	OPMODE, 	"1chan g2 o-1time"),
-	MKLRULE(L,	PART,		"1 -1"),
+	MKLRULE(L,	PART,		"1 o-1"),
 	MKLRULE(PA,	PASS,		"-1"),
-	MKLRULE(G,	PING,		"1 2 3"),
-	MKLRULE(Z,	PONG,		"1snum 2"),
+	MKLRULE(G,	PING,		"g1"),
+	MKLRULE(Z,	PONG,		"1snum g2"),
 /*	MKSRULE(	POST,		""), */
 	MKLRULE(P,	PRIVMSG,	"1 -1"),
 /*	MKSRULE(	PRIVS,		""), */
@@ -201,7 +222,7 @@ void handle_input(char *str) {
 		return;
 
 	if (registered && raw->c < 2) {
-		debug(LOG_WARNING, "Input message '%s' has no token", str);
+		logfmt(LOG_WARNING, "Input message '%s' has no token", str);
 		return;
 	}
 
@@ -220,13 +241,13 @@ void handle_input(char *str) {
 		if (info->handlers[1]) {
 			arg = arrange_args(&cpy, &info->rules[1], registered ? 2 : 1);
 			if (!arg) {
-				debug(LOG_WARNING, "Failed to deal last input\n");
+				logtxt(LOG_WARNING, "Failed to deal last input\n");
 				return;
 			}
 			call_handler(registered ? raw->v[0] : NULL, arg->c, arg->v, info->handlers[1]);
 			return;
 		}
-		debug(LOG_WARNING, "Failed to deal with last input\n");
+		logtxt(LOG_WARNING, "Failed to deal with last input\n");
 		return;
 	}
 	call_handler(registered ? raw->v[0] : NULL, arg->c, arg->v, info->handlers[0]);

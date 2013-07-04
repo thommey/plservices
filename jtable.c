@@ -1,6 +1,30 @@
+/**
+ *
+ * Copyright (c) 2013 Thomas Sader (thommey)
+ *
+ *  This file is part of PLservices.
+ *
+ *  PLservices is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  PLservices is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+**/
+
 #include <Judy.h>
 
 #include "jtable.h"
+
+/* Convenience functions for judy tables. jtableS = string keyed, jtableP = word keyed 0/1 bits */
 
 void *jtableS_insert(jtable *table, char *key, void *data) {
 	PWord_t PValue;
@@ -22,6 +46,30 @@ int jtableS_remove(jtable *table, char *key) {
 
 	JSLD(ret, *table, (uint8_t*)key);
 	return ret;
+}
+
+void jtableS_iterate0(jtable *table, void (*f)(char *key, void *data)) {
+	PWord_t PValue;
+	uint8_t key[512];
+
+	key[0] = '\0';
+	JSLF(PValue, *table, key);
+	while (PValue) {
+		f((char *)key, (void *)* PValue);
+		JSLN(PValue, *table, key);
+	}
+}
+
+void jtableS_iterate1(jtable *table, void (*f)(char *key, void *data, void *arg), void *arg) {
+	Word_t *PValue;
+	uint8_t key[512];
+
+	key[0] = '\0';
+	JSLF(PValue, *table, key);
+	while (PValue) {
+		f((char *)key, (void *)*PValue, arg);
+		JSLN(PValue, *table, key);
+	}
 }
 
 int jtableP_set(jtable *table, void *key) {
@@ -59,13 +107,24 @@ int jtableP_count(jtable *table) {
 	return ret;
 }
 
-void jtableP_iterate(jtable *table, void (*f)(void *key)) {
+void jtableP_iterate0(jtable *table, void (*f)(void *key)) {
 	int ret;
-	Word_t key;
+	Word_t key = 0;
 
 	J1F(ret, *table, key);
 	while (ret) {
 		f((void *)key);
+		J1N(ret, *table, key);
+	}
+}
+
+void jtableP_iterate1(jtable *table, void (*f)(void *key, void *arg), void *arg) {
+	int ret;
+	Word_t key = 0;
+
+	J1F(ret, *table, key);
+	while (ret) {
+		f((void *)key, arg);
 		J1N(ret, *table, key);
 	}
 }

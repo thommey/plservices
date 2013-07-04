@@ -1,8 +1,52 @@
+/**
+ *
+ * Copyright (c) 2013 Thomas Sader (thommey)
+ *
+ *  This file is part of PLservices.
+ *
+ *  PLservices is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  PLservices is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+**/
+
 #include <string.h>
 #include <stdio.h>
 
 #include "main.h"
 #include "convert.h"
+
+static char rfc_tolower_table[256];
+static char *rfc_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[]\\";
+static char *rfc_lower = "abcdefghijklmnopqrstuvwxyz{}|";
+
+void init_parse(void) {
+	int i;
+	for (i = 0; i < sizeof(rfc_tolower_table); i++)
+		rfc_tolower_table[i] = i;
+	for (i = 0; rfc_upper[i]; i++)
+		rfc_tolower_table[(unsigned char)rfc_upper[i]] = rfc_lower[i];
+}
+
+char *rfc_tolower(const char *str) {
+	int i;
+	static char buf[513];
+
+	for (i = 0; str[i]; i++)
+		buf[i] = rfc_tolower_table[(unsigned char)str[i]];
+	buf[i] = '\0';
+	return buf;
+}
 
 /* splits something (P10/RFC1459) into individual arguments.
  * ignores a leading ':', ':' at wordbeginning introduces last argument
@@ -20,8 +64,8 @@ struct manyargs *rfc_split(char *line) {
 		line++;
 
 	arg.v[arg.c++] = line;
-	while ((line = strpbrk(line, " "))) {
-		while (*line == ' ')
+	while ((line = strpbrk(line, " \r\n"))) {
+		while (*line == ' ' || *line == '\r' || *line == '\n')
 			*line++ = '\0';
 		if (*line == ':' || !*line) {
 			line++;
@@ -49,11 +93,13 @@ char *rfc_join(struct manyargs *arg, int forcecolon) {
 		strncpyz(pos, (char *)arg->v[i], sizeof(buf)-(buf-pos));
 		pos += len;
 	}
+	*pos++ = '\r';
+	*pos++ = '\n';
 	*pos = '\0';
 	return buf;
 }
 
-struct manyargs *commasplit(char *line) {
+struct manyargs *split(char *line, char delim) {
 	static struct manyargs arg;
 
 	arg.c = 0;
@@ -61,12 +107,12 @@ struct manyargs *commasplit(char *line) {
 	if (!line || !line[0])
 		return &arg;
 
-	while (*line == ' ' || *line == ',')
+	while (*line == ' ' || *line == delim)
 		*line++ = '\0';
 
 	arg.v[arg.c++] = line;
-	while ((line = strpbrk(line, ", "))) {
-		while (*line == ' ' || *line == ',')
+	while ((line = strchr(line, delim))) {
+		while (*line == ' ' || *line == delim)
 			*line++ = '\0';
 		if (!*line)
 			break;
@@ -114,6 +160,12 @@ struct args *arrange_args(struct manyargs *args, struct parserule *rule, int ski
 		/* conversion to perform? */
 		if (rule->r[ret.c].convert) {
 			ret.v[ret.c] = (rule->r[ret.c].convert)(args->v[argsrc]);
+			if (!ret.v[ret.c]) {
+				if (!rule_optional(rule->r[ret.c]))
+					return NULL;
+				/* conversion failed */
+				continue;
+			}
 		} else {
 			ret.v[ret.c] = args->v[argsrc];
 		}

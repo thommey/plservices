@@ -1,3 +1,25 @@
+/**
+ *
+ * Copyright (c) 2013 Thomas Sader (thommey)
+ *
+ *  This file is part of PLservices.
+ *
+ *  PLservices is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  PLservices is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+**/
+
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
@@ -5,6 +27,8 @@
 #include "main.h"
 
 #define CACHESIZE 32
+
+/* Argument conversion when parsing tokens, small cache (because they only get pointers), free'd after every handler call */
 
 static int intcache[CACHESIZE];
 static long longcache[CACHESIZE];
@@ -25,7 +49,10 @@ struct timecache {
 };
 
 struct user *convert_nick(char *str) {
-	return NULL;
+	if (!str || !str[0])
+		return NULL;
+
+	return get_user_by_nick(str);
 }
 
 struct user *convert_unum(char *str) {
@@ -55,7 +82,12 @@ struct entity *convert_num(char *str) {
 }
 
 struct channel *convert_chan(char *str) {
-	return NULL;
+	static struct channel chan0 = { MAGIC_CHANNEL0 };
+
+	if (!strcmp(str, "0"))
+		return &chan0;
+
+	return get_channel_by_name(str);
 }
 
 struct ip *convert_ip(char *str) {
@@ -63,28 +95,52 @@ struct ip *convert_ip(char *str) {
 }
 
 int *convert_int(char *str) {
+	char *endptr;
+
+	if (!str[0])
+		return NULL;
+
 	if (intcacheidx >= CACHESIZE)
 		error("intcache exhausted");
 
-	intcache[intcacheidx] = (int)strtol(str, NULL, 10);
+	intcache[intcacheidx] = (int)strtol(str, &endptr, 10);
+
+	if (*endptr != '\0')
+		return NULL;
 
 	return &intcache[intcacheidx++];
 }
 
 long *convert_long(char *str) {
+	char *endptr;
+
+	if (!str[0])
+		return NULL;
+
 	if (intcacheidx >= CACHESIZE)
 		error("longcache exhausted");
 
-	longcache[intcacheidx] = strtol(str, NULL, 10);
+	longcache[intcacheidx] = strtol(str, &endptr, 10);
+
+	if (*endptr != '\0')
+		return NULL;
 
 	return &longcache[longcacheidx++];
 }
 
 time_t *convert_time(char *str) {
+	char *endptr;
+
+	if (!str[0])
+		return NULL;
+
 	if (timecacheidx >= CACHESIZE)
 		error("timecache exhausted");
 
-	timecache[timecacheidx] = (time_t)strtoll(str, NULL, 10);
+	timecache[timecacheidx] = (time_t)strtoll(str, &endptr, 10);
+
+	if (*endptr != '\0')
+		return NULL;
 
 	return &timecache[timecacheidx++];
 }
