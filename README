@@ -1,0 +1,10 @@
+PLservices are P10 Lua-scriptable services, intended for the use on 
+snircd.
+
+Requirements:
+  * Judy - C library that implements efficient dynamic arrays
+      @ http://judy.sourceforge.net/ (LGPL 2.1)
+  * Lua - Embeddable scripting language
+      @ http://www.lua.org (MIT license)
+
+Runtime arguments: <ip> <port> <pass>. That's it.
