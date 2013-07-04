@@ -106,6 +106,8 @@ char *nextnum(void) {
 	if (!numeric[0])
 		sprintf(numeric, "%s%s", ME, "AAA");
 	numeric[4]++;
+	if (numeric[4] == 'Z')
+		error("Numerics exhausted, fixme");
 	return numeric;
 }
 
