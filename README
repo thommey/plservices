@@ -8,3 +8,6 @@ Requirements:
       @ http://www.lua.org (MIT license)
 
 Runtime arguments: <ip> <port> <pass>. That's it.
+
+At the moment it instantly attempts to load labspace.lua, you can get it 
+at http://hg.quakenet.org/lua-labspace/.
