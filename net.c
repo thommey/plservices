@@ -49,9 +49,9 @@ extern int now;
 
 extern struct server *me;
 
-static void net_connected(const char*);
+static void net_connected(const char*, const char*, const char*);
 
-void net_connect(const char *servername, const char *port, const char *pass) {
+void net_connect(const char *servername, const char *port, const char *pass, const char *sname, const char *sdescr) {
 	int flag = 1;
 	struct sockaddr_in server;
 
@@ -66,7 +66,7 @@ void net_connect(const char *servername, const char *port, const char *pass) {
 
 	if (connect(conn, (struct sockaddr *) &server, sizeof(server)) < 0)
 		POSIXERR("Failed to connect to server");
-	net_connected(pass);
+	net_connected(pass, sname, sdescr);
 }
 
 void send_raw(char *str) {
@@ -107,9 +107,9 @@ void send_format(const char *fmt, ...) {
 	send_raw(buf);
 }
 
-static void net_connected(const char *pass) {
+static void net_connected(const char *pass, const char *name, const char *descr) {
 	send_format("PASS :%s\r\n", pass);
-	send_format("SERVER plservices.metairc.net 1 %ld %ld J10 AC]]] +sn :Lua Services\r\n", now, now);
+	send_format("SERVER %s 1 %ld %ld J10 AC]]] +sn :%s\r\n", name, now, now, descr);
 }
 
 void net_read(void) {

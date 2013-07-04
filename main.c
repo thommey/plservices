@@ -34,8 +34,8 @@ void debug_print_users(void);
 int main(int argc, char **argv) {
 	time_t last;
 
-	if (argc != 4) {
-		fprintf(stderr, "Syntax: %s <IP> <PORT> <PASS>\n", argv[0]);
+	if (argc != 6) {
+		fprintf(stderr, "Syntax: %s <IP> <PORT> <PASS> <NAME (ex services.whatever.org)> <DESCR (here are my services)>\n", argv[0]);
 		return 1;
 	}
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 	init_modes();
 
 	now = time(NULL);
-	net_connect(argv[1], argv[2], argv[3]);
+	net_connect(argv[1], argv[2], argv[3], argv[4], argv[5]);
 
 	last = now = time(NULL);
 	while (1) {
