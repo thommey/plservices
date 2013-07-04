@@ -22,6 +22,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <string.h>
@@ -51,12 +52,14 @@ extern struct server *me;
 static void net_connected(const char*);
 
 void net_connect(const char *servername, const char *port, const char *pass) {
+	int flag = 1;
 	struct sockaddr_in server;
 
 	if ((conn = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 		POSIXERR("Could not create socket");
 
-    memset(&server, 0, sizeof(server));
+	setsockopt(conn, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
+	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = inet_addr(servername);
 	server.sin_port = htons(atoi(port));       /* server port */
