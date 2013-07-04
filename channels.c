@@ -235,6 +235,7 @@ int channel_apply_clearmode(struct entity *from, struct entity *target, char *mo
 		default:
 			mode_unset1(&channel->mode, *modes);
 		}
+		modes++;
 	}
 	return 0;
 }
