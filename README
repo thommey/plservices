@@ -12,5 +12,5 @@ Compiling:
 
 Runtime arguments: ./plservices <ip> <port> <pass> <servername> <server description>.
 
-At the moment it instantly attempts to load labspace.lua, you can get it 
-at http://hg.quakenet.org/lua-labspace/.
+At the moment it instantly attempts to load ./labspace.lua after ./stubs.lua into the same lua interpreter.
+stubs.lua is included, labspace.lua is over at http://hg.quakenet.org/lua-labspace/ - put it into the working directory.
