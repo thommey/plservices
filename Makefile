@@ -18,4 +18,4 @@ $(EXEC): $(OBJS)
 .PHONY: clean
 
 clean:
-	rm -f $(EXEC) $(OBJS)
+	rm -f $(EXEC) $(OBJS) *.i *.s

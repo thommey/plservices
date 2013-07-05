@@ -29,6 +29,7 @@
 #include <assert.h>
 
 #include "log.h"
+#include "base64.h"
 #include "parse.h"
 #include "jtable.h"
 #include "entities.h"

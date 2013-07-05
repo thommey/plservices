@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
+	init_base64();
 	init_parse();
 	init_tokens();
 	init_modes();

@@ -105,10 +105,9 @@ void lua_init() {
 char *nextnum(void) {
 	static char numeric[6] = "";
 	if (!numeric[0])
-		sprintf(numeric, "%s%s", ME, "AAA");
-	numeric[4]++;
-	if (numeric[4] == 'Z')
-		error("Numerics exhausted, fixme");
+		sprintf(numeric, "%s%s", ME, base64_encode_padded(0, numeric + 2, 4));
+	else if (base64_incr(numeric + 2, 4))
+			error("No numerics left");
 	return numeric;
 }
 
