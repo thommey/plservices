@@ -1,4 +1,5 @@
 /**
+ * tokeninfo.c - Table of P10 tokens and their parsing rules
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *

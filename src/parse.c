@@ -1,4 +1,6 @@
 /**
+ * parse.c - Various RFC1459 routines (split, tolower, join),
+ *           handler calling for tokens and argument conversion/arrangement
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *

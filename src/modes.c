@@ -1,4 +1,5 @@
 /**
+ * modes.c - Mode handling and mode definitions as bitfields (all [a-zA-Z0-9])
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *

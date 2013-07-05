@@ -1,4 +1,5 @@
 /**
+ * server.c - Server management
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *

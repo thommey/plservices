@@ -1,4 +1,5 @@
 /**
+ * lua.c - Base of lua integration and helper functions
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *

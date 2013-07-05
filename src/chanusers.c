@@ -1,4 +1,6 @@
 /**
+ * chanusers.c - Manages relationship between channels and users in both ways
+ *               (channels have userlist, users have channellist)
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *
@@ -21,9 +23,6 @@
 **/
 
 #include "main.h"
-
-/* Manages relationship between users and channels. Referenced in both directions (user has channellist, channel has userlist) */
-/* only these should be called from outside, not channel_add_user/user_add_channel directly */
 
 void chanusers_del_channel(struct channel *c) {
 	jtableP_iterate1(&c->users, (void (*)(void *, void *))user_del_channel, c);

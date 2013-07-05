@@ -1,4 +1,5 @@
 /**
+ * channels.c - Channel management, including channel modes
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *

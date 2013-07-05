@@ -1,4 +1,5 @@
 /**
+ * handle.c - Handling routines for all P10 tokens
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *
@@ -25,8 +26,6 @@
 #include <assert.h>
 
 #include "main.h"
-
-/* everything and the kitchen sink here, a huge lot TODO */
 
 #define VERIFY_SERVER(e) do { if (!e || !verify_server(e)) { logtxt(LOG_WARNING, "Server verification failed."); return; } } while (0);
 #define VERIFY_USER(e) do { if (!e || !verify_user(e)) { logtxt(LOG_WARNING, "User verification failed."); return; } } while (0);

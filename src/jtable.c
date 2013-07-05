@@ -1,4 +1,7 @@
 /**
+ * jtable.c - Wrappers around judy tables:
+ *            jtableS_* for string keyed
+ *            jtableP_* for word/ptr keyed booleans
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *

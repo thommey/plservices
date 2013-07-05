@@ -1,4 +1,5 @@
 /**
+ * convert.c - Argument conversion (string to time_t, struct chan/user*)
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *
@@ -27,8 +28,6 @@
 #include "main.h"
 
 #define CACHESIZE 32
-
-/* Argument conversion when parsing tokens, small cache (because they only get pointers), free'd after every handler call */
 
 static int intcache[CACHESIZE];
 static long longcache[CACHESIZE];
