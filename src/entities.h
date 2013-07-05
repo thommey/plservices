@@ -1,4 +1,5 @@
 /**
+ * entities.h - Polymorphic struct, magic identifies real type
  *
  * Copyright (c) 2013 Thomas Sader (thommey)
  *
