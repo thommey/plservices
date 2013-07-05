@@ -4,8 +4,8 @@ LDFLAGS=
 LD=gcc
 LIBS=-lJudy -llua
 
-HDRS = $(wildcard *.h)
-SRCS = $(wildcard *.c)
+HDRS = $(wildcard src/*.h)
+SRCS = $(wildcard src/*.c)
 OBJS = $(SRCS:.c=.o)
 EXEC = plservices
 
