@@ -94,7 +94,7 @@ static struct {
 	MK2RULE(M,	MODE,		"1nick g2", "1chan g2 o-1time"),
 	MKLRULE(MO,	MOTD,		"1snum"),
 	MKLRULE(E,	NAMES, 		"1chan 2snum"),
-	MK2RULE(N,	NICK,		"1 2time", "1 2int 3time 4 5 g6 -3ip -2 -1"),
+	MK2RULE(N,	NICK,		"1 2time", "1 2int 3time 4 5 g6 -3 -2 -1"),
 	MKLRULE(O,	NOTICE, 	"1 -1"),
 /*	MKSRULE(	OPER,		""), */
 	MKLRULE(OM,	OPMODE, 	"1chan g2 o-1time"),

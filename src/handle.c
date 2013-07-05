@@ -240,7 +240,7 @@ void hNICK1(struct user *from, char *newnick, time_t *ts) {
 	user_nickchange(from, newnick);
 }
 
-void hNICK2(struct entity *from, char *nick, int *hops, time_t *ts, char *ident, char *host, struct manyargs *mode, struct ip *ip, char *unum, char *realname) {
+void hNICK2(struct entity *from, char *nick, int *hops, time_t *ts, char *ident, char *host, struct manyargs *mode, char *ip, char *unum, char *realname) {
 	struct user *u;
 
 	u = add_user(unum, *hops, nick, ident, host, realname);

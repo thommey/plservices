@@ -51,7 +51,7 @@ void hMODE2(struct entity *from, struct channel *chan, struct manyargs *modechan
 void hMOTD(struct entity *from, struct server *target);
 void hNAMES(struct entity *from, struct server *server);
 void hNICK1(struct entity *from, char *newnick, time_t *ts);
-void hNICK2(struct entity *from, char *nick, int *hops, time_t *ts, char *ident, char *host, struct manyargs *mode, struct ip *ip, char *unum, char *realname);
+void hNICK2(struct entity *from, char *nick, int *hops, time_t *ts, char *ident, char *host, struct manyargs *mode, char *ip, char *unum, char *realname);
 void hNOTICE(struct entity *from, char *target, char *msg);
 void hOPMODE(struct entity *from, struct channel *chan, struct manyargs *mode, time_t *ts);
 void hPART(struct entity *from, char *channels, char *reason);

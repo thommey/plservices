@@ -89,10 +89,6 @@ struct channel *convert_chan(char *str) {
 	return get_channel_by_name(str);
 }
 
-struct ip *convert_ip(char *str) {
-	return NULL;
-}
-
 int *convert_int(char *str) {
 	char *endptr;
 
