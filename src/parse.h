@@ -69,14 +69,9 @@ struct parserule {
 void init_parse(void);
 char *rfc_tolower(char *buf, size_t bufsize, const char *str);
 struct manyargs *rfc_split(struct manyargs *arg, char *line);
-struct manyargs *split(char *line, char delim);
+struct manyargs *split(struct manyargs *arg, char *line, char delim);
 char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon);
 struct args *arrange_args(int argc, char **argv, struct parserule *rule);
 void call_varargs(void (*f)(), int argc, void **v);
-
-#define rfc_qtolower(s) rfc_tolower(NULL, 0, s)
-#define rfc_qsplit(s) rfc_split(NULL, s)
-#define qsplit(s, d) split(NULL, s, d)
-#define rfc_qjoin(c, v, f) rfc_join(NULL, 0, c, v, f)
 
 #endif // PARSE_H_

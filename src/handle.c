@@ -54,7 +54,7 @@ void hAWAY(struct user *from, char *reason) {
 }
 
 void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) {
-	struct manyargs *list;
+	struct manyargs list;
 	struct channel *c;
 	struct user *u;
 	char *tmp;
@@ -79,20 +79,20 @@ void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) 
 	if (rest->c - 1 > nextpos)
 		tmp = rest->v[rest->c - 1];
 	if (tmp && tmp[0] == '%') {
-		list = split(rest->v[rest->c - 1] + 1, ' ');
-		for (i = 0; i < list->c; i++)
-			channel_plsban(c, NULL, list->v[i]);
+		split(&list, rest->v[rest->c - 1] + 1, ' ');
+		for (i = 0; i < list.c; i++)
+			channel_plsban(c, NULL, list.v[i]);
 		rest->c--;
 	}
 	assert(nextpos+1 == rest->c);
-	list = split(rest->v[nextpos], ',');
+	split(&list, rest->v[nextpos], ',');
 	/* all that's left from rest->v[i .. rest->c] are user entries with tmps */
-	for (i = 0; i < list->c; i++) {
-		tmp = list->v[i];
+	for (i = 0; i < list.c; i++) {
+		tmp = list.v[i];
 		if ((tmp = strchr(tmp, ':')))
 			*tmp++ = '\0';
 
-		u = get_user_by_numeric(list->v[i]);
+		u = get_user_by_numeric(list.v[i]);
 		if (!u) {
 			logtxt(LOG_WARNING, "Burst join for non-existant user.");
 			continue;
@@ -113,19 +113,19 @@ void hCONNECT(struct entity *from, char *servername, int *port, struct server *s
 
 void hCREATE(struct user *from, char *channels, time_t *ts) {
 	int i;
-	struct manyargs *chlist;
+	struct manyargs chlist;
 	struct channel *c;
 
 	VERIFY_USER(from);
 
-	chlist = split(channels, ',');
-	for (i = 0; i < chlist->c; i++) {
-		c = get_channel_by_name(chlist->v[i]);
+	split(&chlist, channels, ',');
+	for (i = 0; i < chlist.c; i++) {
+		c = get_channel_by_name(chlist.v[i]);
 		if (c) {
-			logfmt(LOG_WARNING, "CREATE for existing channel: %s. Deleting.", chlist->v[i]);
+			logfmt(LOG_WARNING, "CREATE for existing channel: %s. Deleting.", chlist.v[i]);
 			del_channel(c);
 		}
-		c = add_channel(chlist->v[i], *ts);
+		c = add_channel(chlist.v[i], *ts);
 		chanusers_join(from, c);
 		channel_plsprefix(c, from, 'o');
 	}
@@ -264,14 +264,14 @@ void hOPMODE(struct entity *from, struct channel *chan, struct manyargs *modecha
 }
 
 void hPART(struct user *user, char *channels, char *reason) {
-	struct manyargs *chlist;
+	struct manyargs chlist;
 	struct channel *c;
 	int i;
 	VERIFY_USER(user);
 
-	chlist = split(channels, ',');
-	for (i = 0; i < chlist->c; i++) {
-		c = get_channel_by_name(chlist->v[i]);
+	split(&chlist, channels, ',');
+	for (i = 0; i < chlist.c; i++) {
+		c = get_channel_by_name(chlist.v[i]);
 		VERIFY_CHANNEL(c);
 		chanusers_leave(user, c);
 	}

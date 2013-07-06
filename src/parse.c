@@ -43,12 +43,6 @@ void init_parse(void) {
 
 char *rfc_tolower(char *buf, size_t bufsize, const char *str) {
 	int i;
-	static char mybuf[513];
-
-	if (!buf) {
-		buf = mybuf;
-		bufsize = sizeof(mybuf);
-	}
 
 	for (i = 0; i < bufsize - 1 && str[i]; i++)
 		buf[i] = rfc_tolower_table[(unsigned char)str[i]];
@@ -62,12 +56,7 @@ char *rfc_tolower(char *buf, size_t bufsize, const char *str) {
  * writes result into arg, arg->c *must* be initialized to the first free number
  */
 struct manyargs *rfc_split(struct manyargs *arg, char *line) {
-	static struct manyargs myargs;
-
-	if (!arg) {
-		arg = &myargs;
-		arg->c = 0;
-	}
+	arg->c = 0;
 
 	if (!line || !line[0])
 		return arg;
@@ -95,15 +84,9 @@ struct manyargs *rfc_split(struct manyargs *arg, char *line) {
 }
 
 char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon) {
-	static char mybuf[513];
 	char *pos;
 	int i;
 	size_t len;
-
-	if (!buf) {
-		buf = mybuf;
-		bufsize = sizeof(mybuf);
-	}
 
 	for (pos = buf, i = 0; i < argc; i++) {
 		if (i)
@@ -120,29 +103,27 @@ char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon)
 	return buf;
 }
 
-struct manyargs *split(char *line, char delim) {
-	static struct manyargs arg;
-
-	arg.c = 0;
+struct manyargs *split(struct manyargs *arg, char *line, char delim) {
+	arg->c = 0;
 
 	if (!line || !line[0])
-		return &arg;
+		return arg;
 
 	while (*line == ' ' || *line == delim)
 		*line++ = '\0';
 
-	arg.v[arg.c++] = line;
+	arg->v[arg->c++] = line;
 	while ((line = strchr(line, delim))) {
 		while (*line == ' ' || *line == delim)
 			*line++ = '\0';
 		if (!*line)
 			break;
-		arg.v[arg.c++] = line;
+		arg->v[arg->c++] = line;
 	}
 	if (line && line[0])
-		arg.v[arg.c++] = line;
+		arg->v[arg->c++] = line;
 
-	return &arg;
+	return arg;
 }
 
 /* Takes a set of rules to parse a list of arguments into another list of args,

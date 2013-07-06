@@ -169,14 +169,14 @@ static void parse_argrule(struct argrule *rule, char *rulestr) {
 }
 
 void add_token_rule(char *rulestr, struct parserule *r) {
-	struct manyargs *arg;
+	struct manyargs arg;
 	int i;
 
-	arg = rfc_qsplit(rulestr);
-	r->c = arg->c;
+	rfc_split(&arg, rulestr);
+	r->c = arg.c;
 
-	for (i = 0; i < arg->c; i++)
-		parse_argrule(r->r + i, arg->v[i]);
+	for (i = 0; i < arg.c; i++)
+		parse_argrule(r->r + i, arg.v[i]);
 }
 
 /* Add a token with a parsing rule. Individual words with numbers and
@@ -212,7 +212,7 @@ void set_registered(int reg) {
 }
 
 void handle_input(char *str) {
-	struct manyargs raw = { 0 };
+	struct manyargs raw;
 	struct args *arg;
 	struct tokeninfo *info;
 	int skipargs = 1 + registered;

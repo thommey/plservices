@@ -34,10 +34,12 @@ struct user *get_user_by_numeric(char *numeric) {
 }
 
 struct user *get_user_by_nick(const char *nick) {
-	return jtableS_get(&userlist_nick, rfc_qtolower(nick));
+	char buf[NICKLEN+1];
+	return jtableS_get(&userlist_nick, rfc_tolower(buf, sizeof(buf), nick));
 }
 
 struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname) {
+	char buf[NICKLEN+1];
 	struct user *u;
 
 	u = zmalloc(sizeof(*u));
@@ -50,21 +52,23 @@ struct user *add_user(char *numeric, int hops, char *nick, const char *user, con
 	strbufcpy(u->realname, realname);
 	u->channels = (jtable)NULL;
 
-	jtableS_insert(&userlist_nick, rfc_qtolower(nick), u);
+	jtableS_insert(&userlist_nick, rfc_tolower(buf, sizeof(buf), nick), u);
 	return jtableS_insert(&userlist_num, numeric, u);
 }
 
 void del_user(struct user *user) {
+	char buf[NICKLEN+1];
 	chanusers_del_user(user);
-	jtableS_remove(&userlist_nick, rfc_qtolower(user->nick));
+	jtableS_remove(&userlist_nick, rfc_tolower(buf, sizeof(buf), user->nick));
 	jtableS_remove(&userlist_num, user->numeric);
 	jtableS_remove(&opers, user->numeric);
 	free(user);
 }
 
 void user_nickchange(struct user *u, char *newnick) {
-	jtableS_remove(&userlist_nick, rfc_qtolower(u->nick));
-	jtableS_insert(&userlist_nick, rfc_qtolower(newnick), u);
+	char buf[NICKLEN+1];
+	jtableS_remove(&userlist_nick, rfc_tolower(buf, sizeof(buf), u->nick));
+	jtableS_insert(&userlist_nick, rfc_tolower(buf, sizeof(buf), newnick), u);
 	strbufcpy(u->nick, newnick);
 }
 

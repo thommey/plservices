@@ -86,6 +86,7 @@ void send_raw(char *str) {
 }
 
 void send_words(int forcecolon, ...) {
+	char buf[513];
 	struct manyargs arg;
 	char *word;
 	va_list ap;
@@ -95,7 +96,7 @@ void send_words(int forcecolon, ...) {
 	while ((word = va_arg(ap, char *)))
 		arg.v[arg.c++] = word;
 	va_end(ap);
-	send_raw(rfc_qjoin(arg.c, arg.v, forcecolon));
+	send_raw(rfc_join(buf, sizeof(buf), arg.c, arg.v, forcecolon));
 }
 
 void send_format(const char *fmt, ...) {
