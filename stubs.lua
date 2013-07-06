@@ -23,7 +23,7 @@ function nickpusher.accountid(user)
 end
 
 function channelusers_iter(chan, dataselectors)
-  local i = 1
+  local i = 0
   local chanusers = irc_channeluserlist(chan)
   local n = table.getn(chanusers)
   return function()

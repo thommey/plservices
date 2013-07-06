@@ -104,9 +104,10 @@ static int lua_localjoin(lua_State *L) {
 
 	c = get_channel_by_name(chan);
 
-	if (c)
+	if (c) {
 		send_format("%s J %s %ld", num, chan, c->ts);
-	else
+		send_format("%s M %s +o %s", ME, chan, num);
+	} else
 		send_format("%s C %s %ld", num, chan, now);
 	return 0;
 }
@@ -121,7 +122,7 @@ static int lua_localsimplechanmode(lua_State *L) {
 }
 
 static int lua_channeluserlist(lua_State *L) {
-	int i = 0;
+	int i = 1;
 	struct luapushuserdata lpud;
 	char *chan = (char *)luaL_checkstring(L, 1);
 	struct channel *c = get_channel_by_name(chan);

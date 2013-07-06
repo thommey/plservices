@@ -94,7 +94,7 @@ char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon)
 		if (i == argc - 1 && (forcecolon || strpbrk(argv[i], " ")))
 			*pos++ = ':';
 		len = strlen(argv[i]);
-		strncpyz(pos, argv[i], bufsize-(buf-pos));
+		strncpy(pos, argv[i], bufsize-(buf-pos)-3);
 		pos += len;
 	}
 	*pos++ = '\r';

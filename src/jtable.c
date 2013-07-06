@@ -97,7 +97,7 @@ int jtableP_unset(jtable *table, void *key) {
 
 	J1U(ret, *table, (Word_t)key);
 	if (!ret)
-		logtxt(LOG_DEBUG, "Deletion if non-existant elemtn in jtableP");
+		logtxt(LOG_DEBUG, "Deletion of non-existant element in jtableP");
 	return ret;
 }
 
