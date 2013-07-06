@@ -34,17 +34,23 @@ static char *rfc_lower = "abcdefghijklmnopqrstuvwxyz{}|";
 
 void init_parse(void) {
 	int i;
+
 	for (i = 0; i < sizeof(rfc_tolower_table); i++)
 		rfc_tolower_table[i] = i;
 	for (i = 0; rfc_upper[i]; i++)
 		rfc_tolower_table[(unsigned char)rfc_upper[i]] = rfc_lower[i];
 }
 
-char *rfc_tolower(const char *str) {
+char *rfc_tolower(char *buf, size_t bufsize, const char *str) {
 	int i;
-	static char buf[513];
+	static char mybuf[513];
 
-	for (i = 0; str[i]; i++)
+	if (!buf) {
+		buf = mybuf;
+		bufsize = sizeof(mybuf);
+	}
+
+	for (i = 0; i < bufsize - 1 && str[i]; i++)
 		buf[i] = rfc_tolower_table[(unsigned char)str[i]];
 	buf[i] = '\0';
 	return buf;
@@ -53,19 +59,23 @@ char *rfc_tolower(const char *str) {
 /* splits something (P10/RFC1459) into individual arguments.
  * ignores a leading ':', ':' at wordbeginning introduces last argument
  * otherwise whitespace splitting, stepping over multiple whitespaces
+ * writes result into arg, arg->c *must* be initialized to the first free number
  */
-struct manyargs *rfc_split(char *line) {
-	static struct manyargs arg;
+struct manyargs *rfc_split(struct manyargs *arg, char *line) {
+	static struct manyargs myargs;
 
-	arg.c = 0;
+	if (!arg) {
+		arg = &myargs;
+		arg->c = 0;
+	}
 
 	if (!line || !line[0])
-		return &arg;
+		return arg;
 
 	if (line[0] == ':')
 		line++;
 
-	arg.v[arg.c++] = line;
+	arg->v[arg->c++] = line;
 	while ((line = strpbrk(line, " \r\n"))) {
 		while (*line == ' ' || *line == '\r' || *line == '\n')
 			*line++ = '\0';
@@ -73,26 +83,35 @@ struct manyargs *rfc_split(char *line) {
 			line++;
 			break;
 		}
-		arg.v[arg.c++] = line;
+		arg->v[arg->c++] = line;
 	}
-	if (line && line[0])
-		arg.v[arg.c++] = line;
+	if (line && line[0]) {
+		arg->v[arg->c++] = line;
+		if ((line = strpbrk(line, "\r\n")))
+			*line = '\0';
+	}
 
-	return &arg;
+	return arg;
 }
 
-char *rfc_join(struct manyargs *arg, int forcecolon) {
-	static char buf[513], *pos;
+char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon) {
+	static char mybuf[513];
+	char *pos;
 	int i;
 	size_t len;
 
-	for (pos = buf, i = 0; i < arg->c; i++) {
+	if (!buf) {
+		buf = mybuf;
+		bufsize = sizeof(mybuf);
+	}
+
+	for (pos = buf, i = 0; i < argc; i++) {
 		if (i)
 			*pos++ = ' ';
-		if (i == arg->c - 1 && (forcecolon || strpbrk(arg->v[i], " ")))
+		if (i == argc - 1 && (forcecolon || strpbrk(argv[i], " ")))
 			*pos++ = ':';
-		len = strlen(arg->v[i]);
-		strncpyz(pos, (char *)arg->v[i], sizeof(buf)-(buf-pos));
+		len = strlen(argv[i]);
+		strncpyz(pos, argv[i], sizeof(buf)-(buf-pos));
 		pos += len;
 	}
 	*pos++ = '\r';
@@ -129,26 +148,28 @@ struct manyargs *split(char *line, char delim) {
 /* Takes a set of rules to parse a list of arguments into another list of args,
  * that's properly sorted, the greedy argument is handled and optional args
  * set to NULL if not present. */
-struct args *arrange_args(struct manyargs *args, struct parserule *rule, int skip) {
+struct args *arrange_args(int argc, char **argv, struct parserule *rule) {
 	int argsrc, greedyargsrc, greedyarg, consumed;
+	int usedarg[256] = { 0 };
 	static struct args ret;
 	static struct manyargs greed;
 
 	consumed = 0;
 	greedyarg = -1;
+
 	for (ret.c = 0; ret.c < rule->c; ret.c++) {
 		argsrc = rule->r[ret.c].offset;
 
 		if (argsrc < 0)
-			argsrc = args->c + argsrc;
+			argsrc = argc + argsrc;
 		else
-			argsrc = argsrc + skip - 1;
+			argsrc = argsrc - 1;
 
 		/* invalid argsrc (out of bounds or already consumed), optional? */
-		if (argsrc < skip || argsrc > args->c || args->v[argsrc] == NULL) {
+		if (argsrc < 0 || argsrc > argc || usedarg[argsrc]) {
 			if (!rule_optional(rule->r[ret.c]))
 				return NULL; /* non-optional parameter not found */
-			ret.v[ret.c] = NULL;
+			ret.v[ret.c + 1] = NULL;
 			continue;
 		}
 
@@ -161,84 +182,59 @@ struct args *arrange_args(struct manyargs *args, struct parserule *rule, int ski
 
 		/* conversion to perform? */
 		if (rule->r[ret.c].convert) {
-			ret.v[ret.c] = (rule->r[ret.c].convert)(args->v[argsrc]);
-			if (!ret.v[ret.c]) {
-				if (!rule_optional(rule->r[ret.c]))
+			ret.v[ret.c + 1] = (rule->r[ret.c].convert)(argv[argsrc]);
+			if (!ret.v[ret.c + 1]) {
+				if (!rule_optional(rule->r[ret.c + 1]))
 					return NULL;
 				/* conversion failed */
 				continue;
 			}
 		} else {
-			ret.v[ret.c] = args->v[argsrc];
+			ret.v[ret.c + 1] = argv[argsrc];
 		}
-		args->v[argsrc] = NULL;
+		usedarg[argsrc] = 1;
 		consumed++;
 	}
 	/* postponed greedy arg consuming */
 	if (greedyarg != -1) {
-		greed.c = 0;
-		while (greedyargsrc+greed.c < args->c && (greed.v[greed.c] = args->v[greedyargsrc+greed.c]))
-			consumed++, greed.c++;
-
-		ret.v[greedyarg] = (char *)&greed;
+		for (greed.c = 0; greedyargsrc+greed.c < argc && !usedarg[greedyargsrc+greed.c]; consumed++, greed.c++)
+			greed.v[greed.c] = argv[greedyargsrc+greed.c];
+		ret.v[greedyarg + 1] = (char *)&greed;
 	}
 	/* sanity check to detect protocol mismatches, not all arguments used? */
-	if (consumed != args->c - skip)
+	if (consumed != argc)
 		return NULL;
 
+	/* + 1 for the reserved FROM argument */
+	ret.c++;
 	return &ret;
 };
 
-void call_handler(void *from, int argc, void **v, void (*f)(void)) {
-	if (from)
-		from = convert_num(from);
-
-	/* ugly here, beautiful in the handling routines */
-	#define CAST0  ((void (*)(void *))f)
-	#define CAST1  ((void (*)(void *, void *))f)
-	#define CAST2  ((void (*)(void *, void *, void *))f)
-	#define CAST3  ((void (*)(void *, void *, void *, void *))f)
-	#define CAST4  ((void (*)(void *, void *, void *, void *, void *))f)
-	#define CAST5  ((void (*)(void *, void *, void *, void *, void *, void *))f)
-	#define CAST6  ((void (*)(void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST7  ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST8  ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST9  ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST10 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST11 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST12 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST13 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST14 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST15 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST16 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST17 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST18 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-	#define CAST19 ((void (*)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *))f)
-
-	/* look away, you shouldn't be here */
-	#define PARAM0  (from)
-	#define PARAM1  (from, v[0])
-	#define PARAM2  (from, v[0], v[1])
-	#define PARAM3  (from, v[0], v[1], v[2])
-	#define PARAM4  (from, v[0], v[1], v[2], v[3])
-	#define PARAM5  (from, v[0], v[1], v[2], v[3], v[4])
-	#define PARAM6  (from, v[0], v[1], v[2], v[3], v[4], v[5])
-	#define PARAM7  (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6])
-	#define PARAM8  (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7])
-	#define PARAM9  (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
-	#define PARAM10 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9])
-	#define PARAM11 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10])
-	#define PARAM12 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11])
-	#define PARAM13 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12])
-	#define PARAM14 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
-	#define PARAM15 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14])
-	#define PARAM16 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15])
-	#define PARAM17 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16])
-	#define PARAM18 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17])
-	#define PARAM19 (from, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17], v[18])
+/* ugly, but I want the functions to get proper arguments without having to extract them from something */
+void call_varargs(void (*f)(), int argc, void **v) {
+	#define PARAM0  ()
+	#define PARAM1  (v[0])
+	#define PARAM2  (v[0], v[1])
+	#define PARAM3  (v[0], v[1], v[2])
+	#define PARAM4  (v[0], v[1], v[2], v[3])
+	#define PARAM5  (v[0], v[1], v[2], v[3], v[4])
+	#define PARAM6  (v[0], v[1], v[2], v[3], v[4], v[5])
+	#define PARAM7  (v[0], v[1], v[2], v[3], v[4], v[5], v[6])
+	#define PARAM8  (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7])
+	#define PARAM9  (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
+	#define PARAM10 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9])
+	#define PARAM11 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10])
+	#define PARAM12 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11])
+	#define PARAM13 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12])
+	#define PARAM14 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
+	#define PARAM15 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14])
+	#define PARAM16 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15])
+	#define PARAM17 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16])
+	#define PARAM18 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17])
+	#define PARAM19 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17], v[18])
 
 	#define CALLCASE(n) case n:          \
-				CAST ## n PARAM ## n ;   \
+				f PARAM ## n ;   \
 				break;
 
 	/* don't look at me, seriously now! */

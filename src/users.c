@@ -34,7 +34,7 @@ struct user *get_user_by_numeric(char *numeric) {
 }
 
 struct user *get_user_by_nick(const char *nick) {
-	return jtableS_get(&userlist_nick, rfc_tolower(nick));
+	return jtableS_get(&userlist_nick, rfc_qtolower(nick));
 }
 
 struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname) {
@@ -50,13 +50,13 @@ struct user *add_user(char *numeric, int hops, char *nick, const char *user, con
 	strbufcpy(u->realname, realname);
 	u->channels = (jtable)NULL;
 
-	jtableS_insert(&userlist_nick, rfc_tolower(nick), u);
+	jtableS_insert(&userlist_nick, rfc_qtolower(nick), u);
 	return jtableS_insert(&userlist_num, numeric, u);
 }
 
 void del_user(struct user *user) {
 	chanusers_del_user(user);
-	jtableS_remove(&userlist_nick, rfc_tolower(user->nick));
+	jtableS_remove(&userlist_nick, rfc_qtolower(user->nick));
 	jtableS_remove(&userlist_num, user->numeric);
 	jtableS_remove(&opers, user->numeric);
 	free(user);
@@ -68,8 +68,8 @@ void user_join0(struct user *user) {
 }
 
 void user_nickchange(struct user *u, char *newnick) {
-	jtableS_remove(&userlist_nick, rfc_tolower(u->nick));
-	jtableS_insert(&userlist_nick, rfc_tolower(newnick), u);
+	jtableS_remove(&userlist_nick, rfc_qtolower(u->nick));
+	jtableS_insert(&userlist_nick, rfc_qtolower(newnick), u);
 	strbufcpy(u->nick, newnick);
 }
 

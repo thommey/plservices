@@ -95,7 +95,7 @@ void send_words(int forcecolon, ...) {
 	while ((word = va_arg(ap, char *)))
 		arg.v[arg.c++] = word;
 	va_end(ap);
-	send_raw(rfc_join(&arg, forcecolon));
+	send_raw(rfc_qjoin(arg.c, arg.v, forcecolon));
 }
 
 void send_format(const char *fmt, ...) {

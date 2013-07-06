@@ -172,7 +172,7 @@ void add_token_rule(char *rulestr, struct parserule *r) {
 	struct manyargs *arg;
 	int i;
 
-	arg = rfc_split(rulestr);
+	arg = rfc_qsplit(rulestr);
 	r->c = arg->c;
 
 	for (i = 0; i < arg->c; i++)
@@ -212,44 +212,43 @@ void set_registered(int reg) {
 }
 
 void handle_input(char *str) {
-	struct manyargs *raw, cpy;
+	struct manyargs raw = { 0 };
 	struct args *arg;
 	struct tokeninfo *info;
+	int skipargs = 1 + registered;
 
-	raw = rfc_split(str);
+	rfc_split(&raw, str);
 
 	/* ignore empty lines */
-	if (!raw->c)
+	if (!raw.c)
 		return;
 
-	if (registered && raw->c < 2) {
+	if (registered && raw.c < 2) {
 		logfmt(LOG_WARNING, "Input message '%s' has no token", str);
 		return;
 	}
 
 	/* fetch token information (rule to arrange/convert arguments + handling function) */
-	info = get_tokeninfo(registered ? raw->v[1] : raw->v[0]);
-
-	/* copy because arrange_args modifies first arg, TODO find better way */
-	if (info->handlers[1])
-		memcpy(&cpy, raw, sizeof(cpy));
+	info = get_tokeninfo(registered ? raw.v[1] : raw.v[0]);
 
 	/* arrange+convert arguments */
-	arg = arrange_args(raw, &info->rules[0], registered ? 2 : 1);
+	arg = arrange_args(raw.c - skipargs, raw.v + skipargs, &info->rules[0]);
 
 	if (!arg) {
 		/* second variant */
 		if (info->handlers[1]) {
-			arg = arrange_args(&cpy, &info->rules[1], registered ? 2 : 1);
+			arg = arrange_args(raw.c - skipargs, raw.v + skipargs, &info->rules[1]);
 			if (!arg) {
-				logtxt(LOG_WARNING, "Failed to deal last input\n");
+				logtxt(LOG_WARNING, "Failed to deal last input");
 				return;
 			}
-			call_handler(registered ? raw->v[0] : NULL, arg->c, arg->v, info->handlers[1]);
+			arg->v[0] = registered ? convert_num(raw.v[0]) : NULL;
+			call_varargs(info->handlers[1], arg->c, arg->v);
 			return;
 		}
-		logtxt(LOG_WARNING, "Failed to deal with last input\n");
+		logtxt(LOG_WARNING, "Failed to deal with last input");
 		return;
 	}
-	call_handler(registered ? raw->v[0] : NULL, arg->c, arg->v, info->handlers[0]);
+	arg->v[0] = registered ? convert_num(raw.v[0]) : NULL;
+	call_varargs(info->handlers[0], arg->c, arg->v);
 }
