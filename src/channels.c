@@ -26,10 +26,13 @@
 
 #include "main.h"
 
+extern time_t now;
+
+struct channel chan0 = { MAGIC_CHANNEL0 };
+
 /* jtableS of channels, key = channel name, value = struct channel ptr */
 static jtable channels = (jtable)NULL;
 
-extern time_t now;
 
 /* channel list management */
 struct channel *add_channel(char *name, time_t ts) {

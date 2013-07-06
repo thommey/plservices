@@ -29,23 +29,13 @@
 
 #define CACHESIZE 32
 
-static int intcache[CACHESIZE];
+static unsigned int uintcache[CACHESIZE];
 static long longcache[CACHESIZE];
 static time_t timecache[CACHESIZE];
 
-static size_t intcacheidx;
+static size_t uintcacheidx;
 static size_t longcacheidx;
 static size_t timecacheidx;
-
-struct longcache {
-	int isused;
-	long data;
-};
-
-struct timecache {
-	int isused;
-	time_t data;
-};
 
 struct user *convert_nick(char *str) {
 	if (!str || !str[0])
@@ -89,21 +79,21 @@ struct channel *convert_chan(char *str) {
 	return get_channel_by_name(str);
 }
 
-int *convert_int(char *str) {
+unsigned int *convert_uint(char *str) {
 	char *endptr;
 
 	if (!str[0])
 		return NULL;
 
-	if (intcacheidx >= CACHESIZE)
-		error("intcache exhausted");
+	if (uintcacheidx >= CACHESIZE)
+		error("uintcache exhausted");
 
-	intcache[intcacheidx] = (int)strtol(str, &endptr, 10);
+	uintcache[uintcacheidx] = (int)strtol(str, &endptr, 10);
 
 	if (*endptr != '\0')
 		return NULL;
 
-	return &intcache[intcacheidx++];
+	return &uintcache[uintcacheidx++];
 }
 
 long *convert_long(char *str) {
@@ -112,10 +102,10 @@ long *convert_long(char *str) {
 	if (!str[0])
 		return NULL;
 
-	if (intcacheidx >= CACHESIZE)
+	if (longcacheidx >= CACHESIZE)
 		error("longcache exhausted");
 
-	longcache[intcacheidx] = strtol(str, &endptr, 10);
+	longcache[longcacheidx] = strtol(str, &endptr, 10);
 
 	if (*endptr != '\0')
 		return NULL;
@@ -141,7 +131,7 @@ time_t *convert_time(char *str) {
 }
 
 void free_conversion(void) {
-	intcacheidx = 0;
+	uintcacheidx = 0;
 	longcacheidx = 0;
 	timecacheidx = 0;
 }

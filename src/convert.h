@@ -28,9 +28,9 @@ struct user *convert_unum(char *str);
 struct server *convert_snum(char *str);
 struct entity *convert_num(char *str);
 struct channel *convert_chan(char *str);
-int *convert_int(char *str);
-long *convert_long(char *str);
-time_t *convert_time(char *str);
+unsigned int *convert_uint(unsigned int *dest, char *str);
+long *convert_long(long *dest, char *str);
+time_t *convert_time(time_t *dest, char *str);
 void free_conversion(void);
 
 #endif // CONVERT_H_

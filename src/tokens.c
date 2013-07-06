@@ -45,7 +45,7 @@ struct tokeninfo {
  * <integer> index to take the argument from, counting starts at 1,
  *           negative is from the end (1 = first, -1 = last)
  * [type] optional type used to convert, see types list below.
- * types: unum = user numeric, snum = server numeric, int = integer,
+ * types: unum = user numeric, snum = server numeric, uint = unsigned integer,
  *        long = long, time = timestamp, chan = channel
  * [flag] flag for the parsing rule, see flags list below.
  * flags: o = optional, g = greedy.
@@ -66,7 +66,7 @@ static struct {
 	MKLRULE(CM,	CLEARMODE,	"1chan 2"),
 /*	MKSRULE(	CLOSE,		""), */
 /* 	MKLRULE(CN,	CNOTICE,	""), */
- 	MKLRULE(CO,	CONNECT,	"1 2int 3snum"),
+ 	MKLRULE(CO,	CONNECT,	"1 2uint 3snum"),
 /*	MKLRULE(CP,	CPRIVMSG,	""), */
 	MKLRULE(C,	CREATE,		"1 2time"),
 	MKLRULE(DE,	DESTRUCT,	"1cnum 2time"),
@@ -94,7 +94,7 @@ static struct {
 	MK2RULE(M,	MODE,		"1nick g2", "1chan g2 o-1time"),
 	MKLRULE(MO,	MOTD,		"1snum"),
 	MKLRULE(E,	NAMES, 		"1chan 2snum"),
-	MK2RULE(N,	NICK,		"1 2time", "1 2int 3time 4 5 g6 -3 -2 -1"),
+	MK2RULE(N,	NICK,		"1 2time", "1 2uint 3time 4 5 g6 -3 -2 -1"),
 	MKLRULE(O,	NOTICE, 	"1 -1"),
 /*	MKSRULE(	OPER,		""), */
 	MKLRULE(OM,	OPMODE, 	"1chan g2 o-1time"),
@@ -112,7 +112,7 @@ static struct {
 /*	MKSRULE(	RESTART,	""), */
 	MK2RULE(RI,	RPING,		"1 2snum 3", "1snum 2unum 3time 4time o5"),
 	MK2RULE(RO,	RPONG,		"1 2unum 3time 4time o5", "1unum 2 3long o4"),
-	MKLRULE(S,	SERVER,		"1 2int 3time 4time 5 6 7 -1"),
+	MKLRULE(S,	SERVER,		"1 2uint 3time 4time 5 6 7 -1"),
 /*	MKSRULE(	SET,		""), */
 	MKLRULE(SH,	SETHOST,	"1unum 2 3"),
 	MKLRULE(SE,	SETTIME,	"1time o2snum"),
@@ -122,7 +122,7 @@ static struct {
 /*	MKLRULE(TI,	TIME,		""), */
 	MKLRULE(T,	TOPIC,		"1chan o-3time o-2time -1"),
 	MKLRULE(TR,	TRACE,		"1 2snum"),
-	MKLRULE(UP,	UPING,		"1 2int 3snum 4int"),
+	MKLRULE(UP,	UPING,		"1 2uint 3snum 4uint"),
 /*	MKSRULE(	USER,		""), */
 /*	MKSRULE(	USERHOST,	""), */
 /*	MKSRULE(	USERIP,		""), */
@@ -159,7 +159,7 @@ static void parse_argrule(struct argrule *rule, char *rulestr) {
 #define NEWTYPE(name) do { if (!strcmp(type, #name)) { rule->convert = (void *(*)(char *))convert_ ## name; return; } } while (0)
 	NEWTYPE(unum);
 	NEWTYPE(snum);
-	NEWTYPE(int);
+	NEWTYPE(uint);
 	NEWTYPE(long);
 	NEWTYPE(nick);
 	NEWTYPE(time);
