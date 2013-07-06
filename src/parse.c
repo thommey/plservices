@@ -165,7 +165,7 @@ struct args *arrange_args(int argc, char **argv, struct parserule *rule) {
 		if (rule->r[ret.c].convert) {
 			ret.v[ret.c + 1] = (rule->r[ret.c].convert)(argv[argsrc]);
 			if (!ret.v[ret.c + 1]) {
-				if (!rule_optional(rule->r[ret.c + 1]))
+				if (!rule_optional(rule->r[ret.c]))
 					return NULL;
 				/* conversion failed */
 				continue;
