@@ -234,11 +234,11 @@ static void debug_print_chanuser(struct user *u) {
 	logfmt(LOG_DEBUG, "    '%s!%s@%s' (%s)", u->nick, u->user, u->host, u->numeric);
 }
 
-static void debug_print_ban(char *mask, struct mask *b) {
+static void debug_print_ban(const char *mask, struct mask *b) {
 	logfmt(LOG_DEBUG, "    '%s' == '%s' (from %s @ %ld)", mask, b->mask, b->from.nick[0] ? b->from.nick : "/unknown/", b->ts);
 }
 
-static void debug_print_channel(char *name, struct channel *c) {
+static void debug_print_channel(const char *name, struct channel *c) {
 	static char modebuf[64], *t;
 	char i;
 
@@ -258,7 +258,7 @@ static void debug_print_channel(char *name, struct channel *c) {
 	*t++ = '\0';
 	logfmt(LOG_DEBUG, "  Mode: +%s", modebuf);
 	logtxt(LOG_DEBUG, "  Bans:");
-	jtableS_iterate0(&c->bans, (void (*)(char *, void *))debug_print_ban);
+	jtableS_iterate0(&c->bans, (void (*)(const char *, void *))debug_print_ban);
 	logtxt(LOG_DEBUG, "  Users:");
 	jtableP_iterate0(&c->users, (void (*)(void *))debug_print_chanuser);
 	logtxt(LOG_DEBUG, "  Ops:");
@@ -269,5 +269,5 @@ static void debug_print_channel(char *name, struct channel *c) {
 
 void debug_print_users(void) {
 	logtxt(LOG_DEBUG, "------------- Channel -------------");
-	jtableS_iterate0(&channels, (void (*)(char *, void *))debug_print_channel);
+	jtableS_iterate0(&channels, (void (*)(const char *, void *))debug_print_channel);
 }

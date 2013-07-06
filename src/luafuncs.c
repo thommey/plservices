@@ -75,7 +75,7 @@ static int lua_localchanmsg(lua_State *L) {
 }
 
 static int lua_getnickbynumeric(lua_State *L) {
-	char *numeric = (char *)luaL_checkstring(L, 1);
+	const char *numeric = luaL_checkstring(L, 1);
 
 	lua_pushuser(L, get_user_by_numeric(numeric));
 	return 1;
@@ -163,7 +163,7 @@ static int lua_localovmode(lua_State *L) {
 static int lua_localjoin(lua_State *L) {
 	struct channel *c;
 	const char *num = luaL_checkstring(L, 1);
-	char *chan = (char *)luaL_checkstring(L, 2);
+	const char *chan = luaL_checkstring(L, 2);
 
 	c = get_channel_by_name(chan);
 
@@ -177,7 +177,7 @@ static int lua_localjoin(lua_State *L) {
 
 static int lua_localsimplechanmode(lua_State *L) {
 	const char *unum = luaL_checkstring(L, 1);
-	char *chan = (char *)luaL_checkstring(L, 2);
+	const char *chan = luaL_checkstring(L, 2);
 	const char *mode = luaL_checkstring(L, 3);
 
 	send_words(0, unum, "M", chan, mode);
@@ -187,7 +187,7 @@ static int lua_localsimplechanmode(lua_State *L) {
 static int lua_channeluserlist(lua_State *L) {
 	int i = 1;
 	struct luapushuserdata lpud;
-	char *chan = (char *)luaL_checkstring(L, 1);
+	const char *chan = luaL_checkstring(L, 1);
 	struct channel *c = get_channel_by_name(chan);
 
 	lpud.L = L;
@@ -211,7 +211,7 @@ static int lua_localnotice(lua_State *L) {
 }
 
 static int lua_getchaninfo(lua_State *L) {
-	char *chan = (char *)luaL_checkstring(L, 1);
+	const char *chan = luaL_checkstring(L, 1);
 	lua_pushinteger(L, get_channel_by_name(chan) ? 1 : 0);
 	return 1;
 }
@@ -240,7 +240,7 @@ static int lua_getuserchanmodes(lua_State *L) {
 }
 
 static int lua_ontlz(lua_State *L) {
-	char *num = (char *)luaL_checkstring(L, 1);
+	const char *num = luaL_checkstring(L, 1);
 	struct user *u = get_user_by_numeric(num);
 
 	logfmt(LOG_LUA, "ontlz? %d", u ? user_isoper(u) : 0);

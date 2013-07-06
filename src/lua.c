@@ -244,12 +244,12 @@ void lua_clienthook(char *numeric, ...) {
 	L_chook(lc, &arg);
 }
 
-static void L_chanhook(char *numeric, struct luaclient *lc, struct args *arg) {
+static void L_chanhook(const char *numeric, struct luaclient *lc, struct args *arg) {
 	struct user *u = get_user_by_numeric(lc->numeric);
 	struct channel *c = get_channel_by_name(arg->v[3]);
 
 	if (u && c && chanusers_ison(u, c)) {
-		arg->v[0] = numeric;
+		arg->v[0] = (char *)numeric;
 		L_chook(lc, arg);
 	}
 }
@@ -265,5 +265,5 @@ void lua_channelhook(char *channel, ...) {
 	while ((arg.v[arg.c++] = va_arg(ap, char *))) ; /* empty */
 	va_end(ap);
 	arg.c--;
-	jtableS_iterate1(&L_users, (void (*)(char *, void *, void *))L_chanhook, &arg);
+	jtableS_iterate1(&L_users, (void (*)(const char *, void *, void *))L_chanhook, &arg);
 }

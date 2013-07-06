@@ -128,7 +128,7 @@ static void debug_print_userchan(struct channel *c, struct user *u) {
 	logfmt(LOG_DEBUG, "    %s%s%s", channel_isop(c, u) ? "@" : " ", channel_isvoice(c, u) ? "+" : " ", c->name);
 }
 
-static void debug_print_user(char *name, struct user *u) {
+static void debug_print_user(const char *name, struct user *u) {
 	if (!verify_user(u)) {
 		logtxt(LOG_DEBUG, "INVALID USER");
 		return;
@@ -142,5 +142,5 @@ static void debug_print_user(char *name, struct user *u) {
 
 void debug_print_channels(void) {
 	logtxt(LOG_DEBUG, "-------------- User ---------------");
-	jtableS_iterate0(&userlist_num, (void (*)(char *, void *))debug_print_user);
+	jtableS_iterate0(&userlist_num, (void (*)(const char *, void *))debug_print_user);
 }

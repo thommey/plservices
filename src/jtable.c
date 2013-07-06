@@ -52,26 +52,26 @@ int jtableS_remove(jtable *table, const char *key) {
 	return ret;
 }
 
-void jtableS_iterate0(jtable *table, void (*f)(char *key, void *data)) {
+void jtableS_iterate0(jtable *table, void (*f)(const char *key, void *data)) {
 	PWord_t PValue;
 	uint8_t key[512];
 
 	key[0] = '\0';
 	JSLF(PValue, *table, key);
 	while (PValue) {
-		f((char *)key, (void *)* PValue);
+		f((const char *)key, (void *)* PValue);
 		JSLN(PValue, *table, key);
 	}
 }
 
-void jtableS_iterate1(jtable *table, void (*f)(char *key, void *data, void *arg), void *arg) {
+void jtableS_iterate1(jtable *table, void (*f)(const char *key, void *data, void *arg), void *arg) {
 	Word_t *PValue;
 	uint8_t key[512];
 
 	key[0] = '\0';
 	JSLF(PValue, *table, key);
 	while (PValue) {
-		f((char *)key, (void *)*PValue, arg);
+		f((const char *)key, (void *)*PValue, arg);
 		JSLN(PValue, *table, key);
 	}
 }

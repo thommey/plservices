@@ -31,8 +31,8 @@ typedef Pvoid_t jtable;
 void *jtableS_insert(jtable *table, const char *key, void *data);
 void *jtableS_get(jtable *table, const char *key);
 int jtableS_remove(jtable *table, const char *key);
-void jtableS_iterate0(jtable *table, void (*f)(char *key, void *data));
-void jtableS_iterate1(jtable *table, void (*f)(char *key, void *data, void *arg), void *arg);
+void jtableS_iterate0(jtable *table, void (*f)(const char *key, void *data));
+void jtableS_iterate1(jtable *table, void (*f)(const char *key, void *data, void *arg), void *arg);
 
 /* pointer indexed table without data (0/1 only) */
 int jtableP_set(jtable *table, void *key);
