@@ -88,12 +88,89 @@ static int lua_getnickbynick(lua_State *L) {
 	return 1;
 }
 
-static int lua_localmode(lua_State *L) {
+static int lua_localovmode(lua_State *L) {
 	const char *numeric = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
-	const char *modestr = luaL_checkstring(L, 3);
+	struct user *u = get_user_by_numeric(numeric);
+	struct channel *c = get_channel_by_name(chan);
+	int plsmns, lastplsmns; /* + or -, what was the last one */
+	char *modestrpos, modestr[6 * 2 + 1]; /* 6x [+-][ov] + '\0' */
+	char *targetstrpos, targetstr[6 * 6 + 1]; /* 6x " SSCCC" + '\0' */
+	const char *modechar, *target; /* pointers for luaL_getstring */
+	int n = lua_objlen(L, 3); /* list length */
+	int i, current = 6; /* current is the current modecount 0..6 in the buffers */
 
-	send_format("%s M %s %s", numeric, chan, modestr);
+	if (!u)
+		return luaL_error(L, "User does not exist on the network: %s", numeric);
+	if (!c)
+		return luaL_error(L, "Channel does not exist on the network: %s", chan);
+	if (n % 3)
+		return luaL_error(L, "Invalid mode table format");
+
+	/* silently throw away modes from non-ops */
+	if (!channel_isop(c, u))
+		return 0;
+
+	modestrpos = modestr;
+	targetstrpos = targetstr;
+	lastplsmns = -1;
+	current = 0;
+
+	/* 3 element strides (plsmns, modechar, target numeric) */
+	for (i = 0; i < n; i += 3) {
+		/* lua list counting starts at 1 => +1 all the things */
+		/* first - plus or minus */
+		lua_pushinteger(L, i + 1);
+		lua_gettable(L, -2);
+		if (!lua_isboolean(L, -1))
+			return luaL_error(L, "Mode table element is not boolean");
+		plsmns = lua_toboolean(L, -1);
+		lua_pop(L, 1);
+		/* second - mode char */
+		lua_pushinteger(L, i + 2);
+		lua_gettable(L, -2);
+		modechar = luaL_checkstring(L, -1);
+		lua_pop(L, 1);
+		/* third - target */
+		lua_pushinteger(L, i + 3);
+		lua_gettable(L, -2);
+		target = luaL_checkstring(L, -1);
+		lua_pop(L, 1);
+		/* ignore already set and invalid modes */
+		u = get_user_by_numeric(target);
+		if (!u || !chanusers_ison(u, c)) {
+			logtxt(LOG_WARNING, "Attempted to set mode for invalid user or not on channel");
+			continue;
+		}
+		if (modechar[0] == 'v' && plsmns == channel_isvoice(c, u))
+			continue;
+		if (modechar[0] == 'o' && plsmns == channel_isop(c, u))
+			continue;
+		if (lastplsmns != plsmns) {
+			*modestrpos++ = plsmns ? '+' : '-';
+			lastplsmns = plsmns;
+		}
+		*modestrpos++ = modechar[0];
+		*targetstrpos++ = ' ';
+		/* user numerics always have length 5 */
+		strncpy(targetstrpos, u->numeric, 5);
+		targetstrpos += 5;
+		current++;
+		if (current == 6) {
+			*modestrpos = '\0';
+			*targetstrpos = '\0';
+			send_format("%s M %s%s", numeric, modestr, targetstr);
+			modestrpos = modestr;
+			targetstrpos = targetstr;
+			lastplsmns = -1;
+			current = 0;
+		}
+	}
+	if (current) {
+		*modestrpos = '\0';
+		*targetstrpos = '\0';
+		send_format("%s M %s%s", numeric, modestr, targetstr);
+	}
 	return 0;
 }
 
@@ -200,7 +277,7 @@ static struct luafunctable luafuncs[] = {
 	MKLFUNC(localchanmsg),
 	MKLFUNC(getnickbynumeric),
 	MKLFUNC(getnickbynick),
-	MKLFUNC(localmode),
+	MKLFUNC(localovmode),
 	MKLFUNC(localjoin),
 	MKLFUNC(localsimplechanmode),
 	MKLFUNC(channeluserlist),

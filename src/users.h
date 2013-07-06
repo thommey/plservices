@@ -56,7 +56,7 @@ struct user {
 
 struct channel;
 
-struct user *get_user_by_numeric(char *numeric);
+struct user *get_user_by_numeric(const char *numeric);
 struct user *get_user_by_nick(const char *nick);
 struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname);
 void del_user(struct user *user);

@@ -38,44 +38,6 @@ function channelusers_iter(chan, dataselectors)
   end
 end
 
-function mode_iter(t)
-  local n = 1
-  local max = table.getn(t)
-  return function()
-    local o
-    if n <= max then
-      o = {plsmns = t[n], mode = t[n+1], target = t[n+2]}
-    end
-    n = n + 3
-    return o
-  end
-end
-
-function irc_localovmode(bot, chan, modes)
-  local modestr, targets, lastplsmns, modecount = "", "", nil, 0
-
-  for m in mode_iter(modes) do
-    if lastplsmns == nil or m.plsmns ~= lastplsmns then
-      if m.plsmns then
-        modestr = modestr .. "+"
-      else
-        modestr = modestr .. "-"
-      end
-      lastplsmns = m.plsmns
-    end
-    modestr = modestr .. m.mode
-    targets = targets .. " " .. m.target
-    modecount = modecount + 1
-    if modecount == 6 then
-      irc_localmode(bot, chan, modestr .. targets)
-      modestr, targets, lastplsmns, modecount = "", "", nil, 0
-    end
-  end
-  if modestr ~= "" then
-    irc_localmode(bot, chan, modestr .. targets)
-  end
-end
-
 -- TODO: database management
 function basepath()
   return ""

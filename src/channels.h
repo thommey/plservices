@@ -59,7 +59,7 @@ struct mask {
 #define verify_channel(e)  ((e)->magic == MAGIC_CHANNEL)
 #define verify_channel0(e) ((e)->magic == MAGIC_CHANNEL0)
 
-struct channel *get_channel_by_name(char *name);
+struct channel *get_channel_by_name(const char *name);
 struct channel *add_channel(char *name, time_t ts);
 void del_channel(struct channel *c);
 void channel_op(struct channel *c, struct user *u);

@@ -29,7 +29,7 @@ static jtable userlist_num = (jtable)NULL;
 static jtable userlist_nick = (jtable)NULL;
 static jtable opers = (jtable)NULL;
 
-struct user *get_user_by_numeric(char *numeric) {
+struct user *get_user_by_numeric(const char *numeric) {
 	return jtableS_get(&userlist_num, numeric);
 }
 

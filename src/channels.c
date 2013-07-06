@@ -59,7 +59,7 @@ void del_channel(struct channel *c) {
 	free(c);
 }
 
-struct channel *get_channel_by_name(char *name) {
+struct channel *get_channel_by_name(const char *name) {
 	return jtableS_get(&channels, name);
 }
 

@@ -30,25 +30,25 @@
 
 /* Convenience functions for judy tables. jtableS = string keyed, jtableP = word keyed 0/1 bits */
 
-void *jtableS_insert(jtable *table, char *key, void *data) {
+void *jtableS_insert(jtable *table, const char *key, void *data) {
 	PWord_t PValue;
 
-	JSLI(PValue, *table, (uint8_t*)key);
+	JSLI(PValue, *table, (const uint8_t*)key);
 	*PValue = (Word_t)data;
 	return data;
 }
 
-void *jtableS_get(jtable *table, char *key) {
+void *jtableS_get(jtable *table, const char *key) {
 	PWord_t PValue;
-	JSLG(PValue, *table, (uint8_t*)key);
+	JSLG(PValue, *table, (const uint8_t*)key);
 
 	return PValue ? (void *)*PValue : NULL;
 }
 
-int jtableS_remove(jtable *table, char *key) {
+int jtableS_remove(jtable *table, const char *key) {
 	int ret;
 
-	JSLD(ret, *table, (uint8_t*)key);
+	JSLD(ret, *table, (const uint8_t*)key);
 	return ret;
 }
 
