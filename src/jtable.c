@@ -25,6 +25,7 @@
 
 #include <Judy.h>
 
+#include "log.h"
 #include "jtable.h"
 
 /* Convenience functions for judy tables. jtableS = string keyed, jtableP = word keyed 0/1 bits */
@@ -79,6 +80,8 @@ int jtableP_set(jtable *table, void *key) {
 	int ret;
 
 	J1S(ret, *table, (Word_t)key);
+	if (!ret)
+		logtxt(LOG_DEBUG, "Duplicate insert into jtableP");
 	return ret;
 }
 
@@ -93,6 +96,8 @@ int jtableP_unset(jtable *table, void *key) {
 	int ret;
 
 	J1U(ret, *table, (Word_t)key);
+	if (!ret)
+		logtxt(LOG_DEBUG, "Deletion if non-existant elemtn in jtableP");
 	return ret;
 }
 

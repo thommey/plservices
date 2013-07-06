@@ -25,7 +25,9 @@
 
 void chanusers_del_channel(struct channel *c);
 void chanusers_del_user(struct user *u);
-void chanusers_join(struct channel *c, struct user *u);
-void chanusers_leave(struct channel *c, struct user *u);
+void chanusers_join(struct user *u, struct channel *c);
+void chanusers_leave(struct user *u, struct channel *c);
+int chanusers_ison(struct user *u, struct channel *c);
+void chanusers_join0(struct user *u);
 
-#endif // CHANUSERS_H_
+#endif // CHANUSERS_H

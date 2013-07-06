@@ -60,20 +60,8 @@ struct channel *get_channel_by_name(char *name) {
 	return jtableS_get(&channels, name);
 }
 
-/* channel user management and modes */
-void channel_add_user(struct channel *c, struct user *u) {
-	jtableP_set(&c->users, u);
-	jtableP_set(&u->channels, c);
-}
-
-void channel_del_user(struct channel *c, struct user *u) {
-	jtableP_unset(&c->ops, u);
-	jtableP_unset(&c->voices, u);
-	jtableP_unset(&c->users, u);
-}
-
 void channel_plsprefix(struct channel *c, struct user *u, char mc) {
-	assert(jtableP_check(&c->users, u));
+	assert(chanusers_ison(u, c));
 	if (mc == 'o')
 		jtableP_set(&c->ops, u);
 	else if (mc == 'v')
@@ -83,7 +71,7 @@ void channel_plsprefix(struct channel *c, struct user *u, char mc) {
 }
 
 void channel_mnsprefix(struct channel *c, struct user *u, char mc) {
-	assert(jtableP_check(&c->users, u));
+	assert(chanusers_ison(u, c));
 	if (mc == 'o')
 		jtableP_unset(&c->ops, u);
 	else if (mc == 'v')
@@ -137,10 +125,6 @@ int channel_isoporvoice(struct channel *c, struct user *u) {
 
 int channel_isregular(struct channel *c, struct user *u) {
 	return !channel_isoporvoice(c, u);
-}
-
-int channel_ison(struct channel *c, struct user *u) {
-	return jtableP_check(&c->users, u);
 }
 
 /* deal with anything that's not just a trivial flag mode */

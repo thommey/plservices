@@ -216,7 +216,7 @@ static void L_chanhook(char *numeric, struct luaclient *lc, struct args *arg) {
 	struct user *u = get_user_by_numeric(lc->numeric);
 	struct channel *c = get_channel_by_name(arg->v[3]);
 
-	if (u && c && user_ison(u, c)) {
+	if (u && c && chanusers_ison(u, c)) {
 		arg->v[0] = numeric;
 		L_chook(lc, arg);
 	}

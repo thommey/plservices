@@ -158,7 +158,7 @@ static int lua_getuserchanmodes(lua_State *L) {
 	struct user *u = get_user_by_numeric(unum);
 	struct channel *c = get_channel_by_name(chan);
 
-	if (!u || !c || !user_ison(u, c)) {
+	if (!u || !c || !chanusers_ison(u, c)) {
 		lua_pushnil(L);
 		return 1;
 	}

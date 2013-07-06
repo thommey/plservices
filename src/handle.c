@@ -97,7 +97,7 @@ void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) 
 			logtxt(LOG_WARNING, "Burst join for non-existant user.");
 			continue;
 		}
-		chanusers_join(c, u);
+		chanusers_join(u, c);
 		if (tmp)
 			channel_burstmode(c, u, tmp);
 	}
@@ -126,7 +126,7 @@ void hCREATE(struct user *from, char *channels, time_t *ts) {
 			del_channel(c);
 		}
 		c = add_channel(chlist->v[i], *ts);
-		channel_add_user(c, from);
+		chanusers_join(from, c);
 		channel_plsprefix(c, from, 'o');
 	}
 }
@@ -182,7 +182,7 @@ void hJOIN(struct user *from, struct channel *chan, time_t *ts) {
 	VERIFY_USER(from);
 
 	if (verify_channel0(chan)) {
-		user_join0(from);
+		chanusers_join0(from);
 		return;
 	}
 
@@ -192,7 +192,7 @@ void hJOIN(struct user *from, struct channel *chan, time_t *ts) {
 		ts = &chan->ts;
 	else if (chan->ts != *ts)
 		logtxt(LOG_WARNING, "JOIN with wrong channel ts.");
-	chanusers_join(chan, from);
+	chanusers_join(from, chan);
 }
 
 void hJUPE(struct entity *from, struct server *target, char *server, time_t *duration, time_t *lastmod, char *reason) {
@@ -202,7 +202,7 @@ void hKICK(struct entity *from, struct channel *chan, struct user *target, char 
 	VERIFY_CHANNEL(chan);
 	VERIFY_USER(target);
 
-	chanusers_leave(chan, target);
+	chanusers_leave(target, chan);
 }
 
 void hKILL(struct entity *from, struct user *target, char *reason) {
@@ -273,7 +273,7 @@ void hPART(struct user *user, char *channels, char *reason) {
 	for (i = 0; i < chlist->c; i++) {
 		c = get_channel_by_name(chlist->v[i]);
 		VERIFY_CHANNEL(c);
-		chanusers_leave(c, user);
+		chanusers_leave(user, c);
 	}
 }
 

@@ -62,11 +62,6 @@ void del_user(struct user *user) {
 	free(user);
 }
 
-void user_join0(struct user *user) {
-	chanusers_del_user(user);
-	jtableP_free(&user->channels);
-}
-
 void user_nickchange(struct user *u, char *newnick) {
 	jtableS_remove(&userlist_nick, rfc_qtolower(u->nick));
 	jtableS_insert(&userlist_nick, rfc_qtolower(newnick), u);
@@ -121,23 +116,8 @@ void user_apply_mode(struct entity *from, struct user *target, char *modechanges
 	mode_apply(from, (struct entity *)target, &target->mode, modechanges, arg, skip, user_modehook);
 }
 
-void user_add_channel(struct user *u, struct channel *c) {
-	jtableP_set(&u->channels, c);
-}
-
-int user_ison(struct user *u, struct channel *c) {
-	return jtableP_check(&u->channels, c);
-}
-
 int user_isoper(struct user *u) {
 	return jtableP_check(&opers, u);
-}
-
-void user_del_channel(struct user *u, struct channel *c) {
-	if (!verify_user(u) || !verify_channel(c))
-		logtxt(LOG_WARNING, "user_del_channel with invalid entities");
-	else
-		jtableP_unset(&u->channels, c);
 }
 
 static void debug_print_userchan(struct channel *c, struct user *u) {

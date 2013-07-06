@@ -35,6 +35,7 @@ struct channel {
 	char key[KEYLEN+1];
 	long limit;
 	time_t ts;
+	int usercount;
 	chanmode mode;
 	jtable ops, voices, users;  /* o = opped users, v = voiced users, users = all users */
 	jtable bans;
@@ -61,14 +62,11 @@ struct mask {
 struct channel *get_channel_by_name(char *name);
 struct channel *add_channel(char *name, time_t ts);
 void del_channel(struct channel *c);
-void channel_add_user(struct channel *c, struct user *u);
-void channel_del_user(struct channel *c, struct user *u);
 void channel_op(struct channel *c, struct user *u);
 int channel_isop(struct channel *c, struct user *u);
 int channel_isvoice(struct channel *c, struct user *u);
 int channel_isoporvoice(struct channel *c, struct user *u);
 int channel_isregular(struct channel *c, struct user *u);
-int channel_ison(struct channel *c, struct user *u);
 void channel_plsban(struct channel *c, struct entity *e, char *str);
 void channel_mnsban(struct channel *c, struct entity *e, char *str);
 void channel_plsprefix(struct channel *c, struct user *u, char mc);

@@ -48,6 +48,7 @@ struct user {
 	unsigned int accountid;
 	char awaymsg[AWAYMSGLEN+1];
 	usermode mode;
+	int channelcount;
 	jtable channels;
 };
 
@@ -60,10 +61,6 @@ struct user *get_user_by_nick(const char *nick);
 struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname);
 void del_user(struct user *user);
 void user_apply_mode(struct entity *from, struct user *target, char *modechanges, struct manyargs *arg, int skip);
-void user_add_channel(struct user *u, struct channel *c);
-int user_ison(struct user *u, struct channel *c);
-void user_del_channel(struct user *u, struct channel *c);
-void user_join0(struct user *user);
 void user_nickchange(struct user *u, char *newnick);
 int user_isoper(struct user *u);
 
