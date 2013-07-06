@@ -148,6 +148,38 @@ struct luaclient *lua_newuser(lua_State *L, const char *nick, const char *user, 
 	return lc;
 }
 
+int lua_getbooleanfromarray(lua_State *L, int tableidx, int idx) {
+	int result;
+
+	lua_pushinteger(L, idx);
+	lua_gettable(L, tableidx > 0 ? tableidx : tableidx - 1);
+	if (!lua_isboolean(L, -1))
+		return luaL_error(L, "Table element is not boolean");
+	result = lua_toboolean(L, -1);
+	lua_pop(L, 1);
+	return result;
+}
+
+int lua_getintfromarray(lua_State *L, int tableidx, int idx) {
+	int result;
+
+	lua_pushinteger(L, idx);
+	lua_gettable(L, tableidx > 0 ? tableidx : tableidx - 1);
+	result = luaL_checkint(L, -1);
+	lua_pop(L, 1);
+	return result;
+}
+
+const char *lua_getstringfromarray(lua_State *L, int tableidx, int idx) {
+	const char *result;
+
+	lua_pushinteger(L, idx);
+	lua_gettable(L, tableidx > 0 ? tableidx : tableidx - 1);
+	result = luaL_checkstring(L, -1);
+	lua_pop(L, 1);
+	return result;
+}
+
 static int L_chook(struct luaclient *lc, struct args *arg) {
 	int err, i;
 

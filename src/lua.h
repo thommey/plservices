@@ -46,6 +46,9 @@ void lua_ghook(char *str, struct args *arg);
 struct luaclient *lua_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref);
 void lua_pushuser(lua_State *L, struct user *u);
 void lua_pushuser_iter(struct user *u, struct luapushuserdata *lpud);
+int lua_getbooleanfromarray(lua_State *L, int tableidx, int idx);
+int lua_getintfromarray(lua_State *L, int tableidx, int idx);
+const char *lua_getstringfromarray(lua_State *L, int tableidx, int idx);
 
 void lua_clienthook(char *numeric, ...);
 void lua_channelhook(char *channel, ...);

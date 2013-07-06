@@ -119,23 +119,9 @@ static int lua_localovmode(lua_State *L) {
 	/* 3 element strides (plsmns, modechar, target numeric) */
 	for (i = 0; i < n; i += 3) {
 		/* lua list counting starts at 1 => +1 all the things */
-		/* first - plus or minus */
-		lua_pushinteger(L, i + 1);
-		lua_gettable(L, -2);
-		if (!lua_isboolean(L, -1))
-			return luaL_error(L, "Mode table element is not boolean");
-		plsmns = lua_toboolean(L, -1);
-		lua_pop(L, 1);
-		/* second - mode char */
-		lua_pushinteger(L, i + 2);
-		lua_gettable(L, -2);
-		modechar = luaL_checkstring(L, -1);
-		lua_pop(L, 1);
-		/* third - target */
-		lua_pushinteger(L, i + 3);
-		lua_gettable(L, -2);
-		target = luaL_checkstring(L, -1);
-		lua_pop(L, 1);
+		plsmns = lua_getbooleanfromarray(L, -1, i + 1);
+		modechar = lua_getstringfromarray(L, -1, i + 2);
+		target = lua_getstringfromarray(L, -1, i + 3);
 		/* ignore already set and invalid modes */
 		u = get_user_by_numeric(target);
 		if (!u || !chanusers_ison(u, c)) {
@@ -159,7 +145,7 @@ static int lua_localovmode(lua_State *L) {
 		if (current == 6) {
 			*modestrpos = '\0';
 			*targetstrpos = '\0';
-			send_format("%s M %s%s", numeric, modestr, targetstr);
+			send_format("%s M %s %s%s", numeric, c->name, modestr, targetstr);
 			modestrpos = modestr;
 			targetstrpos = targetstr;
 			lastplsmns = -1;
@@ -169,7 +155,7 @@ static int lua_localovmode(lua_State *L) {
 	if (current) {
 		*modestrpos = '\0';
 		*targetstrpos = '\0';
-		send_format("%s M %s%s", numeric, modestr, targetstr);
+		send_format("%s M %s %s%s", numeric, c->name, modestr, targetstr);
 	}
 	return 0;
 }
