@@ -35,8 +35,8 @@ void debug_print_users(void);
 int main(int argc, char **argv) {
 	time_t last;
 
-	if (argc != 6) {
-		fprintf(stderr, "Syntax: %s <IP> <PORT> <PASS> <NAME (ex services.whatever.org)> <DESCR (here are my services)>\n", argv[0]);
+	if (argc > 2) {
+		fprintf(stderr, "Syntax: %s <configfile>\n", argv[0]);
 		return 1;
 	}
 

@@ -114,10 +114,6 @@ static int luafunc_irc_localovmode(lua_State *L) {
 		plsmns = luabase_getbooleanfromarray(L, -1, i + 1);
 		modechar = luabase_getstringfromarray(L, -1, i + 2);
 		target = luabase_getstringfromarray(L, -1, i + 3);
-		if (!u || !chanusers_ison(u, c)) {
-			logtxt(LOG_WARNING, "Attempted to set mode for invalid user or not on channel");
-			continue;
-		}
 		modebuf = mode_pushmode(u, c, plsmns, modechar[0], target, strlen(target));
 	}
 	mode_flushmode(modebuf);
@@ -146,7 +142,7 @@ static int luafunc_irc_localsimplechanmode(lua_State *L) {
 	struct user *u = get_user_by_numeric(unum);
 	struct channel *c = get_channel_by_name(chan);
 
-	if (!u || !c || lua_objlen(L, 3) != 2 || (mode[0] != '+' && mode[0] != '-'))
+	if (!u || !c || strlen(mode) != 2 || (mode[0] != '+' && mode[0] != '-'))
 		luaL_error(L, "Invalid modechange: %s %s %s", chan, mode, unum);
 
 	mode_pushmode(u, c, mode[0] == '+', mode[1], NULL, 0);

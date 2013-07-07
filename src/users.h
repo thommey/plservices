@@ -25,12 +25,12 @@
 
 #define UNUMLEN 5
 #define NICKLEN 15
-#define USERLEN 9
+#define USERLEN 10
 #define HOSTLEN 63
 #define ACCOUNTLEN NICKLEN
-#define REALNAMELEN 150
+#define REALNAMELEN 50
 #define USERMODELEN 20
-#define AWAYMSGLEN 150
+#define AWAYMSGLEN 160
 
 #define MAGIC_USER 0x49F1
 

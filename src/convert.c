@@ -27,7 +27,7 @@
 
 #include "main.h"
 
-#define CACHESIZE 32
+#define CACHESIZE 30
 
 static unsigned int uintcache[CACHESIZE];
 static long longcache[CACHESIZE];

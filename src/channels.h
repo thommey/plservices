@@ -28,11 +28,13 @@
 
 #define CNAMELEN 200
 #define KEYLEN 23
+#define TOPICLEN 250
 
 struct channel {
 	unsigned int magic;
 	char name[CNAMELEN+1];
 	char key[KEYLEN+1];
+	char topic[TOPICLEN+1];
 	long limit;
 	time_t ts;
 	int usercount;
