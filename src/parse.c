@@ -218,7 +218,6 @@ void call_varargs(void (*f)(), int argc, void **v) {
 				f PARAM ## n ;   \
 				break;
 
-	/* don't look at me, seriously now! */
 	switch (argc) {
 		CALLCASE(0)
 		CALLCASE(1)
@@ -243,6 +242,4 @@ void call_varargs(void (*f)(), int argc, void **v) {
 		default:
 			error("Callhandler has too many arguments");
 	}
-
-	free_conversion();
 }

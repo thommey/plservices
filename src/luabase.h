@@ -41,25 +41,20 @@ struct luapushuserdata {
 	int *i;
 };
 
-void lua_init(void);
-void lua_ghook(char *str, struct args *arg);
-struct luaclient *lua_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref);
-void lua_pushuser(lua_State *L, struct user *u);
-void lua_pushuser_iter(struct user *u, struct luapushuserdata *lpud);
-int lua_getbooleanfromarray(lua_State *L, int tableidx, int idx);
-int lua_getintfromarray(lua_State *L, int tableidx, int idx);
-const char *lua_getstringfromarray(lua_State *L, int tableidx, int idx);
+void luabase_init(void);
+void luabase_ghook(char *str, struct args *arg);
+struct luaclient *luabase_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref);
+void luabase_pushuser(lua_State *L, struct user *u);
+void luabase_pushuser_iter(struct user *u, struct luapushuserdata *lpud);
+int luabase_getbooleanfromarray(lua_State *L, int tableidx, int idx);
+int luabase_getintfromarray(lua_State *L, int tableidx, int idx);
+const char *luabase_getstringfromarray(lua_State *L, int tableidx, int idx);
 
-void lua_clienthook(char *numeric, ...);
-void lua_channelhook(char *channel, ...);
-#define lua_clienthook(...) lua_clienthook(__VA_ARGS__, NULL)
-#define lua_channelhook(...) lua_channelhook(__VA_ARGS__, NULL)
+void luabase_clienthook(char *numeric, ...);
+void luabase_channelhook(char *channel, ...);
+#define luabase_clienthook(...) luabase_clienthook(__VA_ARGS__, NULL)
+#define luabase_channelhook(...) luabase_channelhook(__VA_ARGS__, NULL)
 
-struct luafunctable {
-	char *fname;
-	int (*f)(lua_State*);
-};
-
-struct luafunctable *getluafunctable(void);
+const struct luaL_reg *luafuncs_functable(void);
 
 #endif // LUA_H_

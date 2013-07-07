@@ -1,4 +1,9 @@
+os = {}
 nickpusher = {}
+
+function os.time()
+  return os_time()
+end
 
 function nickpusher.nick(user)
   return user.nick
@@ -54,7 +59,7 @@ end
 setmetatable(Scheduler, { __call = function(_, ...) return Scheduler.new(...) end })
 
 function Scheduler:add(secs, func, ...)
-  local future = irc_now() + secs
+  local future = os.time() + secs
   local f = { func = func, args = { ... } }
 
   if not self.tasks[future] then
@@ -79,10 +84,10 @@ function Scheduler:remove(call)
 end
 
 function Scheduler:check()
-  local now = irc_now()
+  local time = os.time()
   local newtasks = {}
   for time, funcs in pairs(self.tasks) do
-    if time <= now then
+    if time <= time then
       for _, f in ipairs(funcs) do
         f.func(unpack(f.args))
       end

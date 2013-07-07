@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
 	last = now = time(NULL);
 	while (1) {
 		if (last != now) {
-			lua_ghook("ontick", NULL);
-			lua_ghook("ontick2", NULL); // TODO scheduler in C?
+			luabase_ghook("ontick", NULL);
+			luabase_ghook("ontick2", NULL); // TODO scheduler in C?
 			last = now;
 		}
 //		debug_print_channels();

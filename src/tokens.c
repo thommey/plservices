@@ -230,6 +230,7 @@ void handle_input(char *str) {
 
 	/* fetch token information (rule to arrange/convert arguments + handling function) */
 	info = get_tokeninfo(registered ? raw.v[1] : raw.v[0]);
+	free_conversion();
 
 	/* arrange+convert arguments */
 	arg = arrange_args(raw.c - skipargs, raw.v + skipargs, &info->rules[0]);
@@ -238,15 +239,17 @@ void handle_input(char *str) {
 		/* second variant */
 		if (info->handlers[1]) {
 			arg = arrange_args(raw.c - skipargs, raw.v + skipargs, &info->rules[1]);
+			free_conversion();
+
 			if (!arg) {
-				logtxt(LOG_WARNING, "Failed to deal last input");
+				logtxt(LOG_WARNING, "Failed to deal last input (2 rules)");
 				return;
 			}
 			arg->v[0] = registered ? convert_num(raw.v[0]) : NULL;
 			call_varargs(info->handlers[1], arg->c, arg->v);
 			return;
 		}
-		logtxt(LOG_WARNING, "Failed to deal with last input");
+		logtxt(LOG_WARNING, "Failed to deal with last input (1 rule)");
 		return;
 	}
 	arg->v[0] = registered ? convert_num(raw.v[0]) : NULL;

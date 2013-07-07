@@ -28,15 +28,15 @@
 
 #include "main.h"
 
-extern time_t now;
 extern struct server *me;
+extern time_t now;
 
-static int lua_now(lua_State *L) {
+static int luafunc_os_time(lua_State *L) {
 	lua_pushnumber(L, now);
 	return 1;
 }
 
-static int lua_localregisteruser(lua_State *L) {
+static int luafunc_irc_localregisteruser(lua_State *L) {
 	struct luaclient *lc;
 	const char *nick = luaL_checkstring(L, 1);
 	const char *user = luaL_checkstring(L, 2);
@@ -45,12 +45,12 @@ static int lua_localregisteruser(lua_State *L) {
 	const char *umode = luaL_checkstring(L, 6);
 	luaL_checktype(L, -1, LUA_TFUNCTION);
 
-	lc = lua_newuser(L, nick, user, host, umode, NULL, realname, luaL_ref(L, LUA_REGISTRYINDEX));
+	lc = luabase_newuser(L, nick, user, host, umode, NULL, realname, luaL_ref(L, LUA_REGISTRYINDEX));
 	lua_pushstring(L, lc->numeric);
 	return 1;
 }
 
-static int lua_localregisteruserid(lua_State *L) {
+static int luafunc_irc_localregisteruserid(lua_State *L) {
 	struct luaclient *lc;
 	const char *nick = luaL_checkstring(L, 1);
 	const char *user = luaL_checkstring(L, 2);
@@ -60,12 +60,12 @@ static int lua_localregisteruserid(lua_State *L) {
 	const char *umode = luaL_checkstring(L, 7);
 	luaL_checktype(L, -1, LUA_TFUNCTION);
 
-	lc = lua_newuser(L, nick, user, host, umode, account, realname, luaL_ref(L, LUA_REGISTRYINDEX));
+	lc = luabase_newuser(L, nick, user, host, umode, account, realname, luaL_ref(L, LUA_REGISTRYINDEX));
 	lua_pushstring(L, lc->numeric);
 	return 1;
 }
 
-static int lua_localchanmsg(lua_State *L) {
+static int luafunc_irc_localchanmsg(lua_State *L) {
 	const char *numeric = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
 	const char *msg = luaL_checkstring(L, 3);
@@ -74,21 +74,21 @@ static int lua_localchanmsg(lua_State *L) {
 	return 0;
 }
 
-static int lua_getnickbynumeric(lua_State *L) {
+static int luafunc_irc_getnickbynumeric(lua_State *L) {
 	const char *numeric = luaL_checkstring(L, 1);
 
-	lua_pushuser(L, get_user_by_numeric(numeric));
+	luabase_pushuser(L, get_user_by_numeric(numeric));
 	return 1;
 }
 
-static int lua_getnickbynick(lua_State *L) {
+static int luafunc_irc_getnickbynick(lua_State *L) {
 	const char *nick = luaL_checkstring(L, 1);
 
-	lua_pushuser(L, get_user_by_nick(nick));
+	luabase_pushuser(L, get_user_by_nick(nick));
 	return 1;
 }
 
-static int lua_localovmode(lua_State *L) {
+static int luafunc_irc_localovmode(lua_State *L) {
 	const char *numeric = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
 	struct user *u = get_user_by_numeric(numeric);
@@ -119,9 +119,9 @@ static int lua_localovmode(lua_State *L) {
 	/* 3 element strides (plsmns, modechar, target numeric) */
 	for (i = 0; i < n; i += 3) {
 		/* lua list counting starts at 1 => +1 all the things */
-		plsmns = lua_getbooleanfromarray(L, -1, i + 1);
-		modechar = lua_getstringfromarray(L, -1, i + 2);
-		target = lua_getstringfromarray(L, -1, i + 3);
+		plsmns = luabase_getbooleanfromarray(L, -1, i + 1);
+		modechar = luabase_getstringfromarray(L, -1, i + 2);
+		target = luabase_getstringfromarray(L, -1, i + 3);
 		/* ignore already set and invalid modes */
 		u = get_user_by_numeric(target);
 		if (!u || !chanusers_ison(u, c)) {
@@ -160,7 +160,7 @@ static int lua_localovmode(lua_State *L) {
 	return 0;
 }
 
-static int lua_localjoin(lua_State *L) {
+static int luafunc_irc_localjoin(lua_State *L) {
 	struct channel *c;
 	const char *num = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
@@ -175,7 +175,7 @@ static int lua_localjoin(lua_State *L) {
 	return 0;
 }
 
-static int lua_localsimplechanmode(lua_State *L) {
+static int luafunc_irc_localsimplechanmode(lua_State *L) {
 	const char *unum = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
 	const char *mode = luaL_checkstring(L, 3);
@@ -184,7 +184,7 @@ static int lua_localsimplechanmode(lua_State *L) {
 	return 0;
 }
 
-static int lua_channeluserlist(lua_State *L) {
+static int luafunc_irc_channeluserlist(lua_State *L) {
 	int i = 1;
 	struct luapushuserdata lpud;
 	const char *chan = luaL_checkstring(L, 1);
@@ -197,11 +197,11 @@ static int lua_channeluserlist(lua_State *L) {
 		return 1;
 	}
 	lua_newtable(L);
-	jtableP_iterate1(&c->users, (void (*)(void *, void*))lua_pushuser_iter, &lpud);
+	jtableP_iterate1(&c->users, (void (*)(void *, void*))luabase_pushuser_iter, &lpud);
 	return 1;
 }
 
-static int lua_localnotice(lua_State *L) {
+static int luafunc_irc_localnotice(lua_State *L) {
 	const char *unum = luaL_checkstring(L, 1);
 	const char *target = luaL_checkstring(L, 2);
 	const char *msg = luaL_checkstring(L, 3);
@@ -210,13 +210,13 @@ static int lua_localnotice(lua_State *L) {
 	return 0;
 }
 
-static int lua_getchaninfo(lua_State *L) {
+static int luafunc_irc_getchaninfo(lua_State *L) {
 	const char *chan = luaL_checkstring(L, 1);
 	lua_pushinteger(L, get_channel_by_name(chan) ? 1 : 0);
 	return 1;
 }
 
-static int lua_getuserchanmodes(lua_State *L) {
+static int luafunc_irc_getuserchanmodes(lua_State *L) {
 	char *unum = (char*)luaL_checkstring(L, 1);
 	char *chan = (char*)luaL_checkstring(L, 2);
 	struct user *u = get_user_by_numeric(unum);
@@ -239,7 +239,7 @@ static int lua_getuserchanmodes(lua_State *L) {
 	return 1;
 }
 
-static int lua_tolower(lua_State *L) {
+static int luafunc_irctolower(lua_State *L) {
 	static char buf[513];
 	const char *src = luaL_checkstring(L, 1);
 
@@ -249,7 +249,7 @@ static int lua_tolower(lua_State *L) {
 	return 1;
 }
 
-static int lua_ontlz(lua_State *L) {
+static int luafunc_ontlz(lua_State *L) {
 	const char *num = luaL_checkstring(L, 1);
 	struct user *u = get_user_by_numeric(num);
 
@@ -258,35 +258,32 @@ static int lua_ontlz(lua_State *L) {
 	return 1;
 }
 
-static int lua_onstaff(lua_State *L) {
-	return lua_ontlz(L);
+static int luafunc_onstaff(lua_State *L) {
+	return luafunc_ontlz(L);
 }
 
-#define IRCPREFIX(name) "irc_" # name
-#define LUAPREFIX(name) lua_ ## name
-#define STRINGIFY(x) # x
-#define MKLFUNC(name) { IRCPREFIX(name) , LUAPREFIX(name) }
+#define MKLFUNC(name) { # name , luafunc_ ## name }
 
-static struct luafunctable luafuncs[] = {
-	MKLFUNC(localregisteruser),
-	MKLFUNC(localregisteruserid),
-	MKLFUNC(localchanmsg),
-	MKLFUNC(getnickbynumeric),
-	MKLFUNC(getnickbynick),
-	MKLFUNC(localovmode),
-	MKLFUNC(localjoin),
-	MKLFUNC(localsimplechanmode),
-	MKLFUNC(channeluserlist),
-	MKLFUNC(localnotice),
-	MKLFUNC(getuserchanmodes),
-	MKLFUNC(now),
-	MKLFUNC(getchaninfo),
-	{ "irctolower", lua_tolower },
-	{ "onstaff", lua_onstaff },
-	{ "ontlz", lua_ontlz },
+static const struct luaL_reg luafuncs[] = {
+	MKLFUNC(irc_localregisteruser),
+	MKLFUNC(irc_localregisteruserid),
+	MKLFUNC(irc_localchanmsg),
+	MKLFUNC(irc_getnickbynumeric),
+	MKLFUNC(irc_getnickbynick),
+	MKLFUNC(irc_localovmode),
+	MKLFUNC(irc_localjoin),
+	MKLFUNC(irc_localsimplechanmode),
+	MKLFUNC(irc_channeluserlist),
+	MKLFUNC(irc_localnotice),
+	MKLFUNC(irc_getuserchanmodes),
+	MKLFUNC(irc_getchaninfo),
+	MKLFUNC(irctolower),
+	MKLFUNC(onstaff),
+	MKLFUNC(ontlz),
+	MKLFUNC(os_time),
 	{ NULL, NULL }
 };
 
-struct luafunctable *getluafunctable(void) {
+const struct luaL_reg *luafuncs_functable(void) {
 	return luafuncs;
 };

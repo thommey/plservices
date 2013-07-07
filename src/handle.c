@@ -157,7 +157,7 @@ void hEOB_ACK(struct server *from) {
 	if (from == me)
 		me->protocol[0] = 'P';
 	else if (from == uplink)
-		lua_init();
+		luabase_init();
 }
 
 void hERROR(struct entity *from, char *msg) {
@@ -255,7 +255,7 @@ void hNOTICE(struct entity *from, char *target, char *msg) {
 	if (!strncmp(u->numeric, ME, 2))
 		return;
 
-	lua_clienthook(target, "irc_onnotice", u->numeric, msg);
+	luabase_clienthook(target, "irc_onnotice", u->numeric, msg);
 }
 
 void hOPMODE(struct entity *from, struct channel *chan, struct manyargs *modechange, time_t *ts) {
@@ -297,9 +297,9 @@ void hPRIVMSG(struct entity *from, char *target, char *msg) {
 		return;
 
 	if (*target == '#')
-		lua_channelhook(target, "irc_onchanmsg", u->numeric, target, msg);
+		luabase_channelhook(target, "irc_onchanmsg", u->numeric, target, msg);
 	else
-		lua_clienthook(target, "irc_onmsg", u->numeric, msg);
+		luabase_clienthook(target, "irc_onmsg", u->numeric, msg);
 }
 
 void hQUIT(struct user *from, char *reason) {

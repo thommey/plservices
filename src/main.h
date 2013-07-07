@@ -42,6 +42,6 @@
 #include "tokeninfo.h"
 #include "tokens.h"
 #include "utils.h"
-#include "lua.h"
+#include "luabase.h"
 
 #endif // TYPES_H_
