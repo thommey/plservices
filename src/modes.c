@@ -227,7 +227,9 @@ struct modebuf *mode_pushmode(struct user *from, struct channel *c, int plsmns, 
 		if ((mode == 'o' && plsmns == channel_isop(c, u)) ||
 			(mode == 'v' && plsmns == channel_isvoice(c, u)))
 			return &m;
-	}
+	} else if (plsmns == mode_check1(&c->mode, mode))
+		return &m;
+
 	/* write mode char and opt. prefix */
 	if (m.lastplsmns != plsmns) {
 		*m.modestrpos++ = plsmns ? '+' : '-';
