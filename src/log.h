@@ -39,4 +39,4 @@ void logtxt(int loglevel, const char *text);
 #define logtxt(l, f) logtxt(l, f "\n")
 #define logfmt(l, f, ...) logfmt(l, f "\n", __VA_ARGS__)
 
-#endif // LOG_H_
+#endif /* LOG_H_ */

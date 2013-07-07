@@ -52,4 +52,4 @@ struct server *add_server(char *numeric, char *maxusers, char *name, int hops, t
 void del_server(struct server *user);
 void server_apply_mode(struct entity *from, struct entity *target, char *modechanges, struct manyargs *arg, int skip);
 
-#endif // SERVER_H_
+#endif /* SERVER_H_ */

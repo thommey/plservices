@@ -80,4 +80,4 @@ void hWALLUSERS(struct entity *from, char *msg);
 void hWALLVOICES(struct entity *from, struct channel *chan, char *msg);
 void hWHOIS(struct entity *from, struct server *server, char *search);
 
-#endif // HANDLE_H_
+#endif /* HANDLE_H_ */

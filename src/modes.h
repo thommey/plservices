@@ -23,6 +23,14 @@
 #ifndef MODES_H_
 #define MODES_H_
 
+struct modebuf {
+	struct user *from;
+	struct channel *chan;
+	int modecount, lastplsmns;
+	char *modestrpos, modestr[64];
+	char *targetstrpos, targetstr[256];
+};
+
 typedef uint64_t chanmode;
 typedef uint64_t usermode;
 typedef uint64_t servermode;
@@ -34,6 +42,8 @@ void init_modes();
 int mode_check1(uint64_t *modes, char modechar);
 void mode_set1(uint64_t *modes, char modechar);
 void mode_unset1(uint64_t *modes, char modechar);
+struct modebuf *mode_pushmode(struct user *from, struct channel *c, int plsmns, char mode, const char *target, size_t targetlen);
+void mode_flushmode(struct modebuf *m);
 
 void uplink_with_opername(void);
 void uplink_without_opername(void);
@@ -71,4 +81,4 @@ void uplink_without_opername(void);
 #define MODEHOOK_IGNORE    -2
 #define MODEHOOK_ERROR     -3
 
-#endif // MODES_H_
+#endif /* MODES_H_ */

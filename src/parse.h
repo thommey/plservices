@@ -74,4 +74,4 @@ char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon)
 struct args *arrange_args(int argc, char **argv, struct parserule *rule);
 void call_varargs(void (*f)(), int argc, void **v);
 
-#endif // PARSE_H_
+#endif /* PARSE_H_ */

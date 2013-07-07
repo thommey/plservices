@@ -52,11 +52,11 @@ int main(int argc, char **argv) {
 	while (1) {
 		if (last != now) {
 			luabase_ghook("ontick", NULL);
-			luabase_ghook("ontick2", NULL); // TODO scheduler in C?
+			luabase_ghook("ontick2", NULL); /* TODO scheduler in C? */
 			last = now;
 		}
-//		debug_print_channels();
-//		debug_print_users();
+/*		debug_print_channels(); */
+/*		debug_print_users(); */
 		net_read();
 		now = time(NULL);
 	}

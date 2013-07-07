@@ -73,4 +73,4 @@ ADDBUFPROTO(awaymsg)
 #undef ADDBUFPROTO
 
 
-#endif // USER_H_
+#endif /* USER_H_ */

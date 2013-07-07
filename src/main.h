@@ -44,4 +44,4 @@
 #include "utils.h"
 #include "luabase.h"
 
-#endif // TYPES_H_
+#endif /* TYPES_H_ */

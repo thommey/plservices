@@ -28,4 +28,4 @@ struct entity {
 	unsigned int magic;
 };
 
-#endif // ENTITIES_H_
+#endif /* ENTITIES_H_ */

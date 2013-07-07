@@ -93,12 +93,9 @@ static int luafunc_irc_localovmode(lua_State *L) {
 	const char *chan = luaL_checkstring(L, 2);
 	struct user *u = get_user_by_numeric(numeric);
 	struct channel *c = get_channel_by_name(chan);
-	int plsmns, lastplsmns; /* + or -, what was the last one */
-	char *modestrpos, modestr[6 * 2 + 1]; /* 6x [+-][ov] + '\0' */
-	char *targetstrpos, targetstr[6 * 6 + 1]; /* 6x " SSCCC" + '\0' */
-	const char *modechar, *target; /* pointers for luaL_getstring */
-	int n = lua_objlen(L, 3); /* list length */
-	int i, current = 6; /* current is the current modecount 0..6 in the buffers */
+	const char *modechar, *target; /* pointers for luaL_getstring later */
+	int plsmns, i, n = lua_objlen(L, 3); /* n: list length */
+	struct modebuf *modebuf;
 
 	if (!u)
 		return luaL_error(L, "User does not exist on the network: %s", numeric);
@@ -111,52 +108,19 @@ static int luafunc_irc_localovmode(lua_State *L) {
 	if (!channel_isop(c, u))
 		return 0;
 
-	modestrpos = modestr;
-	targetstrpos = targetstr;
-	lastplsmns = -1;
-	current = 0;
-
 	/* 3 element strides (plsmns, modechar, target numeric) */
 	for (i = 0; i < n; i += 3) {
 		/* lua list counting starts at 1 => +1 all the things */
 		plsmns = luabase_getbooleanfromarray(L, -1, i + 1);
 		modechar = luabase_getstringfromarray(L, -1, i + 2);
 		target = luabase_getstringfromarray(L, -1, i + 3);
-		/* ignore already set and invalid modes */
-		u = get_user_by_numeric(target);
 		if (!u || !chanusers_ison(u, c)) {
 			logtxt(LOG_WARNING, "Attempted to set mode for invalid user or not on channel");
 			continue;
 		}
-		if (modechar[0] == 'v' && plsmns == channel_isvoice(c, u))
-			continue;
-		if (modechar[0] == 'o' && plsmns == channel_isop(c, u))
-			continue;
-		if (lastplsmns != plsmns) {
-			*modestrpos++ = plsmns ? '+' : '-';
-			lastplsmns = plsmns;
-		}
-		*modestrpos++ = modechar[0];
-		*targetstrpos++ = ' ';
-		/* user numerics always have length 5 */
-		strncpy(targetstrpos, u->numeric, 5);
-		targetstrpos += 5;
-		current++;
-		if (current == 6) {
-			*modestrpos = '\0';
-			*targetstrpos = '\0';
-			send_format("%s M %s %s%s", numeric, c->name, modestr, targetstr);
-			modestrpos = modestr;
-			targetstrpos = targetstr;
-			lastplsmns = -1;
-			current = 0;
-		}
+		modebuf = mode_pushmode(u, c, plsmns, modechar[0], target, strlen(target));
 	}
-	if (current) {
-		*modestrpos = '\0';
-		*targetstrpos = '\0';
-		send_format("%s M %s %s%s", numeric, c->name, modestr, targetstr);
-	}
+	mode_flushmode(modebuf);
 	return 0;
 }
 

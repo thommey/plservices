@@ -75,4 +75,4 @@ int channel_apply_mode(struct entity *from, struct channel *target, char *modech
 void channel_burstmode(struct channel *chan, struct user *user, char *modes);
 int channel_apply_clearmode(struct entity *from, struct entity *target, char *modes);
 
-#endif // CHANNELS_H_
+#endif /* CHANNELS_H_ */

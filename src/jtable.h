@@ -43,4 +43,4 @@ int jtableP_count(jtable *table);
 void jtableP_iterate1(jtable *table, void (*f)(void *arg, void *key), void *arg);
 void jtableP_iterate0(jtable *table, void (*f)(void *key));
 
-#endif // JTABLE_H_
+#endif /* JTABLE_H_ */

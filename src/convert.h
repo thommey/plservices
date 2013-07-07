@@ -33,4 +33,4 @@ long *convert_long(long *dest, char *str);
 time_t *convert_time(time_t *dest, char *str);
 void free_conversion(void);
 
-#endif // CONVERT_H_
+#endif /* CONVERT_H_ */

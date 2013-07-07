@@ -168,3 +168,81 @@ int mode_apply(struct entity *from, struct entity *target, uint64_t *modes, char
 	}
 	return argsused;
 }
+
+void mode_flushmode(struct modebuf *m) {
+	if (!m->modecount)
+		return;
+	/* targetstr and modestr aren't \0 terminated */
+	send_format("%s M %s %.*s%.*s", m->from->numeric, m->chan->name, m->modestrpos - m->modestr, m->modestr, m->targetstrpos - m->targetstr, m->targetstr);
+	m->from = NULL;
+	m->chan = NULL;
+	m->modecount = 0;
+	m->lastplsmns = -1;
+	m->modestrpos = m->modestr;
+	m->targetstrpos = m->targetstr;
+}
+
+/* TODO: modebuffer per channel? per origin user? with timer to flush? */
+struct modebuf *mode_pushmode(struct user *from, struct channel *c, int plsmns, char mode, const char *target, size_t targetlen) {
+	static struct modebuf m = {NULL, NULL, 0, -1, NULL, "", NULL, ""};
+	struct user *u;
+
+	if (!m.modestrpos)
+		m.modestrpos = m.modestr;
+	if (!m.targetstrpos)
+		m.targetstrpos = m.targetstr;
+
+	/* check general validity of modechar */
+	if (!hasmode_valid(chanmodelist, mode)) {
+		logfmt(LOG_WARNING, "Invalid mode change: %c'%c'", plsmns ? '+' : '-', mode);
+		return &m;
+	}
+
+	/* check mode parameter requirement */
+	if (target == NULL && (plsmns ? hasmode_setparam(chanmodelist, mode) : hasmode_unsetparam(chanmodelist, mode))) {
+		logfmt(LOG_WARNING, "Invalid mode change: %c'%c', needs parameter.", plsmns ? '+' : '-', mode);
+		return &m;
+	}
+
+	/* ignore modes from non-ops */
+	if (!chanusers_ison(from, c) || !channel_isop(c, from))
+		return &m;
+
+	/* only aggregate from same user on same channel */
+	if (m.from != from || m.chan != c) {
+		mode_flushmode(&m);
+		m.from = from;
+		m.chan = c;
+	}
+
+	/* check target validity, ignore redundant modes */
+	if (ismode_prefix(chanmodelist, mode)) {
+		u = get_user_by_numeric(target);
+		if (!u || !chanusers_ison(u, c)) {
+			logfmt(LOG_WARNING, "Mode change target user not found or not on channel: '%s' on '%s'", target, c->name);
+			return &m;
+		}
+		if ((mode == 'o' && plsmns == channel_isop(c, u)) ||
+			(mode == 'v' && plsmns == channel_isvoice(c, u)))
+			return &m;
+	}
+	/* write mode char and opt. prefix */
+	if (m.lastplsmns != plsmns) {
+		*m.modestrpos++ = plsmns ? '+' : '-';
+		m.lastplsmns = plsmns;
+	}
+	*m.modestrpos++ = mode;
+
+	/* write target */
+	if (target) {
+		*m.targetstrpos++ = ' ';
+		strncpy(m.targetstrpos, target, targetlen);
+		m.targetstrpos += targetlen;
+		m.modecount++; /* only count modes with target, that's where the limit of 6 is at */
+	}
+
+	if (m.modecount == 6)
+		mode_flushmode(&m);
+
+	return &m;
+}

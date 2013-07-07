@@ -57,4 +57,4 @@ void luabase_channelhook(char *channel, ...);
 
 const struct luaL_reg *luafuncs_functable(void);
 
-#endif // LUA_H_
+#endif /* LUA_H_ */

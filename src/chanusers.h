@@ -30,4 +30,4 @@ void chanusers_leave(struct user *u, struct channel *c);
 int chanusers_ison(struct user *u, struct channel *c);
 void chanusers_join0(struct user *u);
 
-#endif // CHANUSERS_H
+#endif /* CHANUSERS_H */

@@ -33,4 +33,4 @@ void net_read(void);
 #define send_format(f, ...) send_format(f "\r\n", __VA_ARGS__)
 #define send_words(f, ...) send_words(f, __VA_ARGS__, NULL)
 
-#endif // NET_H_
+#endif /* NET_H_ */

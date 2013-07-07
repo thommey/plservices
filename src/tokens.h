@@ -29,4 +29,4 @@ void memreport_tokens(void);
 void handle_input(char *str);
 void set_registered(int reg);
 
-#endif // TOKENS_H_
+#endif /* TOKENS_H_ */

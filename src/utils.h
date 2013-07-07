@@ -30,4 +30,4 @@ void *smalloc(size_t s);
 void *zmalloc(size_t s);
 char *strncpyz(char *dest, const char *src, size_t n);
 
-#endif // UTILS_H_
+#endif /* UTILS_H_ */
