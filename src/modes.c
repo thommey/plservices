@@ -66,7 +66,7 @@ static struct {
 	{ NULL, 0 }
 };
 
-static char getmodeflags(char *modelist, char modechar) {
+static unsigned char getmodeflags(char *modelist, char modechar) {
 	return modelist[(unsigned char)modechar];
 }
 

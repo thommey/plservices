@@ -143,8 +143,13 @@ static int luafunc_irc_localsimplechanmode(lua_State *L) {
 	const char *unum = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
 	const char *mode = luaL_checkstring(L, 3);
+	struct user *u = get_user_by_numeric(unum);
+	struct channel *c = get_channel_by_name(chan);
 
-	send_words(0, unum, "M", chan, mode);
+	if (!u || !c || lua_objlen(L, 3) != 2 || (mode[0] != '+' && mode[0] != '-'))
+		luaL_error(L, "Invalid modechange: %s %s %s", chan, mode, unum);
+
+	mode_pushmode(u, c, mode[0] == '+', mode[1], NULL, 0);
 	return 0;
 }
 

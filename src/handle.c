@@ -57,7 +57,7 @@ void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) 
 	struct manyargs list;
 	struct channel *c;
 	struct user *u;
-	char *tmp;
+	char *tmp, *burstmode = "";
 	int nextpos, i;
 
 	VERIFY_SERVER(from);
@@ -89,8 +89,10 @@ void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) 
 	/* all that's left from rest->v[i .. rest->c] are user entries with tmps */
 	for (i = 0; i < list.c; i++) {
 		tmp = list.v[i];
-		if ((tmp = strchr(tmp, ':')))
+		if ((tmp = strchr(tmp, ':'))) {
 			*tmp++ = '\0';
+			burstmode = tmp;
+		}
 
 		u = get_user_by_numeric(list.v[i]);
 		if (!u) {
@@ -98,8 +100,7 @@ void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) 
 			continue;
 		}
 		chanusers_join(u, c);
-		if (tmp)
-			channel_burstmode(c, u, tmp);
+		channel_burstmode(c, u, burstmode);
 	}
 }
 
