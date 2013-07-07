@@ -239,6 +239,16 @@ static int lua_getuserchanmodes(lua_State *L) {
 	return 1;
 }
 
+static int lua_tolower(lua_State *L) {
+	static char buf[513];
+	const char *src = luaL_checkstring(L, 1);
+
+	rfc_tolower(buf, sizeof(buf), src);
+
+	lua_pushstring(L, buf);
+	return 1;
+}
+
 static int lua_ontlz(lua_State *L) {
 	const char *num = luaL_checkstring(L, 1);
 	struct user *u = get_user_by_numeric(num);
@@ -271,6 +281,7 @@ static struct luafunctable luafuncs[] = {
 	MKLFUNC(getuserchanmodes),
 	MKLFUNC(now),
 	MKLFUNC(getchaninfo),
+	{ "irctolower", lua_tolower },
 	{ "onstaff", lua_onstaff },
 	{ "ontlz", lua_ontlz },
 	{ NULL, NULL }

@@ -1,13 +1,3 @@
-function irctolower(channel)
-  if string.len(channel) == 0 or channel == "#" then
-    return channel;
-  end
-  channel = string.gsub(channel, "%[", "{")
-  channel = string.gsub(channel, "%]", "}")
-  channel = string.gsub(channel, "\\", "|")
-  return string.lower(channel)
-end
-
 nickpusher = {}
 
 function nickpusher.nick(user)
@@ -101,7 +91,7 @@ function Scheduler:check()
     end
   end
   self.tasks = newtasks
-end 
+end
 
 function Scheduler.allcheck()
   for _, sched in ipairs(Schedulers) do
