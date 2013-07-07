@@ -217,7 +217,6 @@ static int luafunc_ontlz(lua_State *L) {
 	const char *num = luaL_checkstring(L, 1);
 	struct user *u = get_user_by_numeric(num);
 
-	logfmt(LOG_LUA, "ontlz? %d", u ? user_isoper(u) : 0);
 	lua_pushinteger(L, u ? user_isoper(u) : 0);
 	return 1;
 }
