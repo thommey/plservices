@@ -170,10 +170,12 @@ int mode_apply(struct entity *from, struct entity *target, uint64_t *modes, char
 }
 
 void mode_flushmode(struct modebuf *m) {
-	if (!m->modecount)
+	if (!m || !m->modecount)
 		return;
+
 	/* targetstr and modestr aren't \0 terminated */
 	send_format("%s M %s %.*s%.*s", m->from->numeric, m->chan->name, m->modestrpos - m->modestr, m->modestr, m->targetstrpos - m->targetstr, m->targetstr);
+	/* reset mode buffer */
 	m->from = NULL;
 	m->chan = NULL;
 	m->modecount = 0;

@@ -95,7 +95,7 @@ static int luafunc_irc_localovmode(lua_State *L) {
 	struct channel *c = get_channel_by_name(chan);
 	const char *modechar, *target; /* pointers for luaL_getstring later */
 	int plsmns, i, n = lua_objlen(L, 3); /* n: list length */
-	struct modebuf *modebuf;
+	struct modebuf *modebuf = NULL;
 
 	if (!u)
 		return luaL_error(L, "User does not exist on the network: %s", numeric);
