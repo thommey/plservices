@@ -18,7 +18,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef JTABLE_H_
 #define JTABLE_H_
@@ -26,13 +26,14 @@
 #include <Judy.h>
 
 typedef Pvoid_t jtable;
+typedef void (*jtableS_cb)(char *key, void *data, void *param);
+typedef void (*jtableP_cb)(void *key, void *param);
 
 /* string indexed table */
 void *jtableS_insert(jtable *table, const char *key, void *data);
 void *jtableS_get(jtable *table, const char *key);
 int jtableS_remove(jtable *table, const char *key);
-void jtableS_iterate0(jtable *table, void (*f)(const char *key, void *data));
-void jtableS_iterate1(jtable *table, void (*f)(const char *key, void *data, void *arg), void *arg);
+void jtableS_iterate(jtable *table, jtableS_cb f, void *param);
 
 /* pointer indexed table without data (0/1 only) */
 int jtableP_set(jtable *table, void *key);
@@ -40,7 +41,6 @@ int jtableP_check(jtable *table, void *key);
 int jtableP_unset(jtable *table, void *key);
 int jtableP_free(jtable *table);
 int jtableP_count(jtable *table);
-void jtableP_iterate1(jtable *table, void (*f)(void *arg, void *key), void *arg);
-void jtableP_iterate0(jtable *table, void (*f)(void *key));
+void jtableP_iterate(jtable *table, jtableP_cb f, void *param);
 
 #endif /* JTABLE_H_ */

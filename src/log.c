@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <stdarg.h>
 #include <stdio.h>

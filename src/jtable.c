@@ -21,11 +21,14 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <Judy.h>
 
 #include "log.h"
+#include "utils.h"
+#include "parse.h"
+#include "tokens.h"
 #include "jtable.h"
 
 /* Convenience functions for judy tables. jtableS = string keyed, jtableP = word keyed 0/1 bits */
@@ -52,26 +55,14 @@ int jtableS_remove(jtable *table, const char *key) {
 	return ret;
 }
 
-void jtableS_iterate0(jtable *table, void (*f)(const char *key, void *data)) {
+void jtableS_iterate(jtable *table, jtableS_cb f, void *param) {
 	PWord_t PValue;
 	uint8_t key[512];
 
 	key[0] = '\0';
 	JSLF(PValue, *table, key);
 	while (PValue) {
-		f((const char *)key, (void *)* PValue);
-		JSLN(PValue, *table, key);
-	}
-}
-
-void jtableS_iterate1(jtable *table, void (*f)(const char *key, void *data, void *arg), void *arg) {
-	Word_t *PValue;
-	uint8_t key[512];
-
-	key[0] = '\0';
-	JSLF(PValue, *table, key);
-	while (PValue) {
-		f((const char *)key, (void *)*PValue, arg);
+		f((char *)key, (void *)*PValue, param);
 		JSLN(PValue, *table, key);
 	}
 }
@@ -115,24 +106,13 @@ int jtableP_count(jtable *table) {
 	return ret;
 }
 
-void jtableP_iterate0(jtable *table, void (*f)(void *key)) {
+void jtableP_iterate(jtable *table, jtableP_cb f, void *param) {
 	int ret;
 	Word_t key = 0;
 
 	J1F(ret, *table, key);
 	while (ret) {
-		f((void *)key);
-		J1N(ret, *table, key);
-	}
-}
-
-void jtableP_iterate1(jtable *table, void (*f)(void *key, void *arg), void *arg) {
-	int ret;
-	Word_t key = 0;
-
-	J1F(ret, *table, key);
-	while (ret) {
-		f((void *)key, arg);
+		f((void *)key, param);
 		J1N(ret, *table, key);
 	}
 }

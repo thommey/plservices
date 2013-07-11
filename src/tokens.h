@@ -18,7 +18,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef TOKENS_H_
 #define TOKENS_H_

@@ -19,11 +19,14 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
+#include <assert.h>
 
+#include "utils.h"
 #include "log.h"
 
 void sfree(void *p) {
@@ -54,4 +57,76 @@ char *strncpyz(char *dest, const char *src, size_t n) {
 	if (n > 0)
 		dest[n-1] = '\0';
 	return dest;
+}
+
+void shift(struct args *arg, int offset) {
+	arg->c += offset;
+	if (offset > 0)
+		memmove(arg->v + offset, arg->v, arg->c * sizeof(*arg->v));
+	else if (offset < 0) {
+		offset = -offset;
+		memmove(arg->v, arg->v + offset, arg->c * sizeof(*arg->v));
+	}
+}
+
+#undef pack
+struct args pack(enum argtype current, ...) {
+	struct args arg;
+	va_list ap;
+
+	arg.c = 0;
+	if (current == ARGTYPE_NONE)
+		return arg;
+
+	va_start(ap, current);
+	while (current != ARGTYPE_NONE) {
+		switch (current) {
+			case ARGTYPE_INT:
+				arg.v[arg.c].data.i = va_arg(ap, int);
+				break;
+			case ARGTYPE_UINT:
+				arg.v[arg.c].data.u = va_arg(ap, unsigned int);
+				break;
+			case ARGTYPE_LONG:
+				arg.v[arg.c].data.l = va_arg(ap, long);
+				break;
+			case ARGTYPE_TIME:
+				arg.v[arg.c].data.t = va_arg(ap, time_t);
+				break;
+			case ARGTYPE_PTR:
+				arg.v[arg.c].data.p = va_arg(ap, void *);
+				break;
+			default:
+				logfmt(LOG_WARNING, "Unknown arg type: %d", current);
+				return arg;
+		}
+		arg.v[arg.c++].type = current;
+		current = va_arg(ap, enum argtype);
+	}
+	return arg;
+};
+
+int argdata_int(struct funcarg *a) {
+	assert(a->type == ARGTYPE_INT);
+	return a->data.i;
+}
+
+unsigned int argdata_uint(struct funcarg *a) {
+	assert(a->type == ARGTYPE_UINT);
+	return a->data.u;
+}
+
+long argdata_long(struct funcarg *a) {
+	assert(a->type == ARGTYPE_LONG);
+	return a->data.l;
+}
+
+time_t argdata_time(struct funcarg *a) {
+	assert(a->type == ARGTYPE_TIME);
+	return a->data.t;
+}
+
+void *argdata_ptr(struct funcarg *a) {
+	assert(a->type == ARGTYPE_PTR);
+	return a->data.p;
 }

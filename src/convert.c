@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <stdlib.h>
 #include <limits.h>
@@ -27,111 +27,81 @@
 
 #include "main.h"
 
-#define CACHESIZE 30
-
-static unsigned int uintcache[CACHESIZE];
-static long longcache[CACHESIZE];
-static time_t timecache[CACHESIZE];
-
-static size_t uintcacheidx;
-static size_t longcacheidx;
-static size_t timecacheidx;
-
-struct user *convert_nick(char *str) {
-	if (!str || !str[0])
-		return NULL;
-
-	return get_user_by_nick(str);
+void convert_nick(struct funcarg *a, char *str) {
+	a->data.p = get_user_by_nick(str);
+	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
-struct user *convert_unum(char *str) {
-	if (strlen(str) != UNUMLEN)
-		return NULL;
-
-	return get_user_by_numeric(str);
+void convert_unum(struct funcarg *a,char *str) {
+	a->data.p = get_user_by_numeric(str);
+	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
-struct server *convert_snum(char *str) {
-	if (strlen(str) != SNUMLEN)
-		return NULL;
-
-	return get_server_by_numeric(str);
+void convert_snum(struct funcarg *a,char *str) {
+	a->data.p = get_server_by_numeric(str);
+	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
-struct entity *convert_num(char *str) {
-	if (!str || !str[0])
-		return NULL;
-
+void convert_num(struct funcarg *a, char *str) {
 	if (strlen(str) == SNUMLEN)
-		return (struct entity *)convert_snum(str);
-	if (strlen(str) == UNUMLEN)
-		return (struct entity *)convert_unum(str);
-
-	return NULL;
+		a->data.p = get_server_by_numeric(str);
+	else if (strlen(str) == UNUMLEN)
+		a->data.p = get_user_by_numeric(str);
+	else
+		a->data.p = NULL;
+	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
-struct channel *convert_chan(char *str) {
+void convert_chan(struct funcarg *a, char *str) {
 	static struct channel chan0 = { MAGIC_CHANNEL0 };
-
-	if (!strcmp(str, "0"))
-		return &chan0;
-
-	return get_channel_by_name(str);
+	a->data.p = !strcmp(str, "0") ? &chan0 : get_channel_by_name(str);
+	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
-unsigned int *convert_uint(char *str) {
+void convert_uint(struct funcarg *a, char *str) {
 	char *endptr;
 
+	a->type = ARGTYPE_NONE;
+
 	if (!str[0])
-		return NULL;
+		return;
 
-	if (uintcacheidx >= CACHESIZE)
-		error("uintcache exhausted");
-
-	uintcache[uintcacheidx] = (int)strtol(str, &endptr, 10);
+	a->data.u = (unsigned int)strtoul(str, &endptr, 10);
 
 	if (*endptr != '\0')
-		return NULL;
+		return;
 
-	return &uintcache[uintcacheidx++];
+	a->type = ARGTYPE_UINT;
 }
 
-long *convert_long(char *str) {
+void convert_long(struct funcarg *a, char *str) {
 	char *endptr;
 
+	a->type = ARGTYPE_NONE;
+
 	if (!str[0])
-		return NULL;
+		return;
 
-	if (longcacheidx >= CACHESIZE)
-		error("longcache exhausted");
-
-	longcache[longcacheidx] = strtol(str, &endptr, 10);
+	a->data.l = strtol(str, &endptr, 10);
 
 	if (*endptr != '\0')
-		return NULL;
+		return;
 
-	return &longcache[longcacheidx++];
+	a->type = ARGTYPE_LONG;
 }
 
-time_t *convert_time(char *str) {
+void convert_time(struct funcarg *a, char *str) {
 	char *endptr;
 
+	a->type = ARGTYPE_NONE;
+
 	if (!str[0])
-		return NULL;
+		return;
 
-	if (timecacheidx >= CACHESIZE)
-		error("timecache exhausted");
-
-	timecache[timecacheidx] = (time_t)strtoll(str, &endptr, 10);
+	a->data.t = strtoull(str, &endptr, 10);
 
 	if (*endptr != '\0')
-		return NULL;
+		return;
 
-	return &timecache[timecacheidx++];
-}
-
-void free_conversion(void) {
-	uintcacheidx = 0;
-	longcacheidx = 0;
-	timecacheidx = 0;
+	a->type = ARGTYPE_TIME;
 }

@@ -18,7 +18,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef LOG_H_
 #define LOG_H_

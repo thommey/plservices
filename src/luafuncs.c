@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 /* Include the Lua API header files. */
 #include <lua.h>
@@ -162,7 +162,7 @@ static int luafunc_irc_channeluserlist(lua_State *L) {
 		return 1;
 	}
 	lua_newtable(L);
-	jtableP_iterate1(&c->users, (void (*)(void *, void*))luabase_pushuser_iter, &lpud);
+	jtableP_iterate(&c->users, (jtableP_cb)luabase_pushuser_iter, &lpud);
 	return 1;
 }
 

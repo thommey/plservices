@@ -20,16 +20,15 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <string.h>
 #include <stdio.h>
 
 #include "main.h"
-#include "convert.h"
 
 static char rfc_tolower_table[256];
-static char *rfc_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[]\\";
+static char *rfc_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[])\\";
 static char *rfc_lower = "abcdefghijklmnopqrstuvwxyz{}|";
 
 void init_parse(void) {
@@ -150,7 +149,8 @@ struct args *arrange_args(int argc, char **argv, struct parserule *rule) {
 		if (argsrc < 0 || argsrc > argc || usedarg[argsrc]) {
 			if (!rule_optional(rule->r[ret.c]))
 				return NULL; /* non-optional parameter not found */
-			ret.v[ret.c + 1] = NULL;
+			ret.v[ret.c].type = ARGTYPE_PTR;
+			ret.v[ret.c].data.p = NULL;
 			continue;
 		}
 
@@ -163,15 +163,16 @@ struct args *arrange_args(int argc, char **argv, struct parserule *rule) {
 
 		/* conversion to perform? */
 		if (rule->r[ret.c].convert) {
-			ret.v[ret.c + 1] = (rule->r[ret.c].convert)(argv[argsrc]);
-			if (!ret.v[ret.c + 1]) {
+			(rule->r[ret.c].convert)(&ret.v[ret.c], argv[argsrc]);
+			if (ret.v[ret.c].type == ARGTYPE_NONE) {
 				if (!rule_optional(rule->r[ret.c]))
 					return NULL;
 				/* conversion failed */
 				continue;
 			}
 		} else {
-			ret.v[ret.c + 1] = argv[argsrc];
+			ret.v[ret.c].type = ARGTYPE_PTR;
+			ret.v[ret.c].data.p = argv[argsrc];
 		}
 		usedarg[argsrc] = 1;
 		consumed++;
@@ -180,66 +181,103 @@ struct args *arrange_args(int argc, char **argv, struct parserule *rule) {
 	if (greedyarg != -1) {
 		for (greed.c = 0; greedyargsrc+greed.c < argc && !usedarg[greedyargsrc+greed.c]; consumed++, greed.c++)
 			greed.v[greed.c] = argv[greedyargsrc+greed.c];
-		ret.v[greedyarg + 1] = (char *)&greed;
+		ret.v[greedyarg].type = ARGTYPE_PTR;
+		ret.v[greedyarg].data.p = &greed;
 	}
 	/* sanity check to detect protocol mismatches, not all arguments used? */
 	if (consumed != argc)
 		return NULL;
 
-	/* + 1 for the reserved FROM argument */
-	ret.c++;
 	return &ret;
 };
 
-/* ugly, but I want the functions to get proper arguments without having to extract them from something */
-void call_varargs(void (*f)(), int argc, void **v) {
-	#define PARAM0  ()
-	#define PARAM1  (v[0])
-	#define PARAM2  (v[0], v[1])
-	#define PARAM3  (v[0], v[1], v[2])
-	#define PARAM4  (v[0], v[1], v[2], v[3])
-	#define PARAM5  (v[0], v[1], v[2], v[3], v[4])
-	#define PARAM6  (v[0], v[1], v[2], v[3], v[4], v[5])
-	#define PARAM7  (v[0], v[1], v[2], v[3], v[4], v[5], v[6])
-	#define PARAM8  (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7])
-	#define PARAM9  (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
-	#define PARAM10 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9])
-	#define PARAM11 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10])
-	#define PARAM12 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11])
-	#define PARAM13 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12])
-	#define PARAM14 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
-	#define PARAM15 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14])
-	#define PARAM16 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15])
-	#define PARAM17 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16])
-	#define PARAM18 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17])
-	#define PARAM19 (v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], v[17], v[18])
-
-	#define CALLCASE(n) case n:          \
-				f PARAM ## n ;   \
-				break;
-
-	switch (argc) {
-		CALLCASE(0)
-		CALLCASE(1)
-		CALLCASE(2)
-		CALLCASE(3)
-		CALLCASE(4)
-		CALLCASE(5)
-		CALLCASE(6)
-		CALLCASE(7)
-		CALLCASE(8)
-		CALLCASE(9)
-		CALLCASE(10)
-		CALLCASE(11)
-		CALLCASE(12)
-		CALLCASE(13)
-		CALLCASE(14)
-		CALLCASE(15)
-		CALLCASE(16)
-		CALLCASE(17)
-		CALLCASE(18)
-		CALLCASE(19)
+/* yuck */
+void call_varargs(void (*f)(), struct args *arg) {
+	struct funcarg *v = arg->v;
+	switch (arg->c) {
+		case 0:
+			f();
+			break;
+		case 1:
+			f(argdata(v[0]));
+			break;
+		case 2:
+			f(argdata(v[0]), argdata(v[1]));
+			break;
+		case 3:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]));
+			break;
+		case 4:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]));
+			break;
+		case 5:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]));
+			break;
+		case 6:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]));
+			break;
+		case 7:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]));
+			break;
+		case 8:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]));
+			break;
+		case 9:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]));
+			break;
+		case 10:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]));
+			break;
+		case 11:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]));
+			break;
+		case 12:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]));
+			break;
+		case 13:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
+				argdata(v[12]));
+			break;
+		case 14:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
+				argdata(v[12]), argdata(v[13]));
+			break;
+		case 15:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
+				argdata(v[12]), argdata(v[13]), argdata(v[14]));
+			break;
+		case 16:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
+				argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]));
+			break;
+		case 17:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
+				argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]));
+			break;
+		case 18:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
+				argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]), argdata(v[17]));
+			break;
+		case 19:
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
+				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
+				argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]), argdata(v[17]),
+				argdata(v[18]));
+			break;
 		default:
-			error("Callhandler has too many arguments");
+			logtxt(LOG_ERROR, "Too many arguments in varargs call");
+			break;
 	}
 }

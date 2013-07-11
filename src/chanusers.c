@@ -20,7 +20,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include "main.h"
 
@@ -60,11 +60,11 @@ static void user_del_channel(struct user *u, struct channel *c) {
 /* visible functions */
 
 void chanusers_del_channel(struct channel *c) {
-	jtableP_iterate1(&c->users, (void (*)(void *, void *))user_del_channel, c);
+	jtableP_iterate(&c->users, (jtableP_cb)user_del_channel, c);
 }
 
 void chanusers_del_user(struct user *u) {
-	jtableP_iterate1(&u->channels, (void (*)(void *, void *))channel_del_user, u);
+	jtableP_iterate(&u->channels, (jtableP_cb)channel_del_user, u);
 }
 
 void chanusers_join(struct user *u, struct channel *c) {

@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <string.h>
 
@@ -60,10 +60,16 @@ struct server *add_server(char *numeric, char *maxusers, char *name, int hops, t
 }
 
 void del_server(struct server *server) {
-	jtableP_iterate0(&server->users, (void (*)(void *))del_user);
+	jtableP_iterate(&server->users, del_user_iter, NULL);
 	jtableS_remove(&serverlist, server->numeric);
 	free(server);
 }
+
+struct server *get_server(struct server *s) {
+	if (!s || !verify_server(s))
+		return NULL;
+	return s;
+};
 
 static int server_modehook(struct entity *from, struct entity *target, int pls, char modechange, char *param) {
 	struct server *s;

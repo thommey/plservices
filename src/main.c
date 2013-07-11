@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -32,31 +32,32 @@ time_t now;
 void debug_print_channels(void);
 void debug_print_users(void);
 
-int main(int argc, char **argv) {
-	time_t last;
-
-	if (argc > 2) {
-		fprintf(stderr, "Syntax: %s <configfile>\n", argv[0]);
-		return 1;
-	}
-
+static void init(void) {
+	init_hooks();
 	init_base64();
 	init_parse();
 	init_tokens();
 	init_modes();
+	hook_hook("onregistered", luabase_init);
+}
+
+int main(int argc, char **argv) {
+	time_t last;
+
+	if (argc != 6) {
+		fprintf(stderr, "Syntax: %s <configfile>\n", argv[0]);
+		return 1;
+	}
+
+	init();
 
 	now = time(NULL);
 	net_connect(argv[1], argv[2], argv[3], argv[4], argv[5]);
 
 	last = now = time(NULL);
 	while (1) {
-		if (last != now) {
-			luabase_ghook("ontick", NULL);
-			luabase_ghook("ontick2", NULL); /* TODO scheduler in C? */
-			last = now;
-		}
-/*		debug_print_channels(); */
-/*		debug_print_users(); */
+		if (last != now)
+			hook_call("ontick", pack(ARGTYPE_NONE));
 		net_read();
 		now = time(NULL);
 	}

@@ -18,7 +18,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef MAIN_H_
 #define MAIN_H_
@@ -28,7 +28,9 @@
 #include <time.h>
 #include <assert.h>
 
+#include "utils.h"
 #include "log.h"
+#include "hooks.h"
 #include "base64.h"
 #include "parse.h"
 #include "jtable.h"
@@ -41,7 +43,6 @@
 #include "net.h"
 #include "tokeninfo.h"
 #include "tokens.h"
-#include "utils.h"
 #include "luabase.h"
 
 #endif /* TYPES_H_ */

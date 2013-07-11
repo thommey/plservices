@@ -18,7 +18,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef CHANNELS_H_
 #define CHANNELS_H_
@@ -58,8 +58,8 @@ struct mask {
 	time_t ts;
 };
 
-#define verify_channel(e)  ((e)->magic == MAGIC_CHANNEL)
-#define verify_channel0(e) ((e)->magic == MAGIC_CHANNEL0)
+#define verify_channel(e)  (((struct entity *)(e))->magic == MAGIC_CHANNEL)
+#define verify_channel0(e) (((struct entity *)(e))->magic == MAGIC_CHANNEL0)
 
 struct channel *get_channel_by_name(const char *name);
 struct channel *add_channel(char *name, time_t ts);

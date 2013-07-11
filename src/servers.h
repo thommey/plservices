@@ -18,7 +18,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef SERVER_H_
 #define SERVER_H_
@@ -45,7 +45,7 @@ struct server {
 	servermode mode;
 };
 
-#define verify_server(e) ((e)->magic == MAGIC_SERVER)
+#define verify_server(e) (((struct entity *)(e))->magic == MAGIC_SERVER)
 
 struct server *get_server_by_numeric(char *numeric);
 struct server *add_server(char *numeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description);

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall
+CFLAGS=-std=c99 -g -Wall
 LDFLAGS=
 LD=gcc
 LIBS=-lJudy -llua

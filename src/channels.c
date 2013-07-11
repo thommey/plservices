@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <string.h>
 #include <assert.h>
@@ -58,6 +58,12 @@ void del_channel(struct channel *c) {
 	jtableS_remove(&channels, c->name);
 	free(c);
 }
+
+struct channel *get_channel(struct channel *c) {
+	if (!c || !verify_channel(c))
+		return NULL;
+	return c;
+};
 
 struct channel *get_channel_by_name(const char *name) {
 	return jtableS_get(&channels, name);
@@ -230,11 +236,11 @@ int channel_apply_clearmode(struct entity *from, struct entity *target, char *mo
 
 
 /* DEBUG STUFF */
-static void debug_print_chanuser(struct user *u) {
+static void debug_print_chanuser(struct user *u, void *null) {
 	logfmt(LOG_DEBUG, "    '%s!%s@%s' (%s)", u->nick, u->user, u->host, u->numeric);
 }
 
-static void debug_print_ban(const char *mask, struct mask *b) {
+static void debug_print_ban(const char *mask, struct mask *b, void *null) {
 	logfmt(LOG_DEBUG, "    '%s' == '%s' (from %s @ %ld)", mask, b->mask, b->from.nick[0] ? b->from.nick : "/unknown/", b->ts);
 }
 
@@ -258,16 +264,16 @@ static void debug_print_channel(const char *name, struct channel *c) {
 	*t++ = '\0';
 	logfmt(LOG_DEBUG, "  Mode: +%s", modebuf);
 	logtxt(LOG_DEBUG, "  Bans:");
-	jtableS_iterate0(&c->bans, (void (*)(const char *, void *))debug_print_ban);
+	jtableS_iterate(&c->bans, (jtableS_cb)debug_print_ban, NULL);
 	logtxt(LOG_DEBUG, "  Users:");
-	jtableP_iterate0(&c->users, (void (*)(void *))debug_print_chanuser);
+	jtableP_iterate(&c->users, (jtableP_cb)debug_print_chanuser, NULL);
 	logtxt(LOG_DEBUG, "  Ops:");
-	jtableP_iterate0(&c->ops, (void (*)(void *))debug_print_chanuser);
+	jtableP_iterate(&c->ops, (jtableP_cb)debug_print_chanuser, NULL);
 	logtxt(LOG_DEBUG, "  Voices:");
-	jtableP_iterate0(&c->voices, (void (*)(void *))debug_print_chanuser);
+	jtableP_iterate(&c->voices, (jtableP_cb)debug_print_chanuser, NULL);
 }
 
 void debug_print_users(void) {
 	logtxt(LOG_DEBUG, "------------- Channel -------------");
-	jtableS_iterate0(&channels, (void (*)(const char *, void *))debug_print_channel);
+	jtableS_iterate(&channels, (jtableS_cb)debug_print_channel, NULL);
 }

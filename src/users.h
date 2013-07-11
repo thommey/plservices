@@ -18,7 +18,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef USER_H_
 #define USER_H_
@@ -52,13 +52,14 @@ struct user {
 	jtable channels;
 };
 
-#define verify_user(e) ((e)->magic == MAGIC_USER)
+#define verify_user(e) (((struct entity *)(e))->magic == MAGIC_USER)
 
 struct channel;
 
 struct user *get_user_by_numeric(const char *numeric);
 struct user *get_user_by_nick(const char *nick);
 struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname);
+void del_user_iter(void *uptr, void *param);
 void del_user(struct user *user);
 void user_apply_mode(struct entity *from, struct user *target, char *modechanges, struct manyargs *arg, int skip);
 void user_nickchange(struct user *u, char *newnick);

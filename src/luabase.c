@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 /* Include the Lua API header files. */
 #include <lua.h>
@@ -93,11 +93,92 @@ int luabase_loadscript(lua_State *L, char *file) {
 	return 0;
 }
 
+static int luabase_callluafunc(lua_State *L, char *func) {
+	int err;
+
+	lua_getglobal(L, func);
+	err = lua_pcall(L, 0, 0, 0);
+	if (err) {
+		luabase_report(L, "calling lua function from C", err);
+		return 1;
+	}
+	return 0;
+}
+
+static int luabase_clienthook(struct luaclient *lc, struct args *arg) {
+	int err, i;
+
+	lua_rawgeti(lc->L, LUA_REGISTRYINDEX, lc->handler_ref);
+
+	for (i = 0; i < arg->c; i++)
+		lua_pushstring(lc->L, argdata_ptr(&arg->v[i]));
+
+	err = lua_pcall(lc->L, arg->c, 0, 0);
+	if (luabase_report(lc->L, "client hook", err))
+		return 1;
+	logfmt(LOG_LUA, "Successfully called client hook %s for numeric %s", (char *)argdata_ptr(&arg->v[1]), lc->numeric);
+	return 0;
+}
+
+static void luabase_chanhook(char *numeric, struct luaclient *lc, struct args *arg) {
+	int i;
+	struct args myarg;
+	struct user *u = get_user_by_numeric(lc->numeric);
+	struct channel *c = argdata_ptr(&arg->v[0]);
+
+	if (!u || !c || !chanusers_ison(u, c))
+		return;
+
+	myarg = pack(ARGTYPE_PTR, lc->numeric, ARGTYPE_PTR, argdata_ptr(&arg->v[1]));
+	for (i = 2; i < arg->c; myarg.c++, i++) {
+		myarg.v[myarg.c].type = ARGTYPE_PTR;
+		myarg.v[myarg.c].data.p = argdata_ptr(&arg->v[i]);
+	}
+	luabase_clienthook(lc, &myarg);
+}
+
+static void luabase_ontick(void) {
+	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, "ontick");
+	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, "ontick2");
+}
+
+static void luabase_onprivmsg(struct user *from, struct user *to, char *msg) {
+	struct args arg;
+	struct luaclient *lc = jtableS_get(&luabase_users, to->numeric);
+
+	if (!lc)
+		return;
+
+	arg = pack(ARGTYPE_PTR, to->numeric, ARGTYPE_PTR, "irc_onmsg", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, msg);
+	luabase_clienthook(lc, &arg);
+}
+
+static void luabase_onprivnotc(struct user *from, struct user *to, char *msg) {
+	struct args arg;
+	struct luaclient *lc = jtableS_get(&luabase_users, to->numeric);
+
+	if (!lc)
+		return;
+
+	arg = pack(ARGTYPE_PTR, to->numeric, ARGTYPE_PTR, "irc_onnotc", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, msg);
+	luabase_clienthook(lc, &arg);
+}
+
+static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg) {
+	struct args arg = pack(ARGTYPE_PTR, chan, ARGTYPE_PTR, "irc_onchanmsg", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, chan->name, ARGTYPE_PTR, msg);
+	jtableS_iterate(&luabase_users, (jtableS_cb)luabase_chanhook, &arg);
+}
+
 void luabase_init() {
 	lua_State *L = luabase_newstate();
 	luabase_loadscript(L, "stubs.lua");
 	luabase_loadscript(L, "labspace.lua");
-	luabase_ghook("onload", NULL);
+	hook_hook("ontick", luabase_ontick);
+	hook_hook("onchanmsg", luabase_onchanmsg);
+	hook_hook("onprivmsg", luabase_onprivmsg);
+	hook_hook("onprivnotc", luabase_onprivnotc);
+
+	luabase_callluafunc(L, "onload");
 }
 
 /* this doesn't really belong here */
@@ -116,7 +197,6 @@ void luabase_pushuser(lua_State *L, struct user *u) {
 		lua_pushnil(L);
 		return;
 	}
-
 	lua_newtable(L);
 	lua_pushstring(L, u->nick);
 	lua_setfield(L, -2, "nick");
@@ -177,92 +257,4 @@ const char *luabase_getstringfromarray(lua_State *L, int tableidx, int idx) {
 	result = luaL_checkstring(L, -1);
 	lua_pop(L, 1);
 	return result;
-}
-
-static int luabase_chook(struct luaclient *lc, struct args *arg) {
-	int err, i;
-
-	lua_rawgeti(lc->L, LUA_REGISTRYINDEX, lc->handler_ref);
-
-	for (i = 0; i < arg->c; i++)
-		lua_pushstring(lc->L, arg->v[i]);
-
-	err = lua_pcall(lc->L, arg->c, 0, 0);
-	if (luabase_report(lc->L, "client hook", err))
-		return 1;
-	logfmt(LOG_LUA, "Successfully called client hook %s for numeric %s", arg->v[1], lc->numeric);
-	return 0;
-}
-
-static int luabase_ghook1(lua_State *L, struct ghookarg *hookarg) {
-	int err;
-
-	lua_getglobal(L, hookarg->name);
-	err = lua_pcall(L, 0, 0, 0);
-	if (err) {
-		luabase_report(L, "global hook", err);
-		return 1;
-	}
-	logfmt(LOG_LUA, "Called lua hook: %s", hookarg->name);
-	return 0;
-}
-
-void luabase_ghook(char *str, struct args *arg) {
-	static struct ghookarg hookarg;
-
-	hookarg.arg = arg;
-	hookarg.name = str;
-
-	jtableP_iterate1(&luabase_states, (void (*)(void *, void *))luabase_ghook1, &hookarg);
-}
-
-int luabase_isluaclient(char *numeric) {
-	if (!strncmp(numeric, ME, 2))
-		return 0;
-	return jtableS_get(&luabase_users, numeric) ? 1 : 0;
-}
-
-#undef luabase_clienthook
-void luabase_clienthook(char *numeric, ...) {
-	static struct args arg;
-	struct luaclient *lc;
-	va_list ap;
-
-	lc = jtableS_get(&luabase_users, numeric);
-	if (!lc) {
-		logfmt(LOG_LUA, "Lua client hook for non existant numeric: %s", numeric);
-		return;
-	}
-
-	arg.c = 0;
-	arg.v[arg.c++] = numeric;
-	va_start(ap, numeric);
-	while ((arg.v[arg.c++] = va_arg(ap, char *)))
-	va_end(ap);
-	arg.c--;
-	luabase_chook(lc, &arg);
-}
-
-static void luabase_chanhook(const char *numeric, struct luaclient *lc, struct args *arg) {
-	struct user *u = get_user_by_numeric(lc->numeric);
-	struct channel *c = get_channel_by_name(arg->v[3]);
-
-	if (u && c && chanusers_ison(u, c)) {
-		arg->v[0] = (char *)numeric;
-		luabase_chook(lc, arg);
-	}
-}
-
-#undef luabase_channelhook
-void luabase_channelhook(char *channel, ...) {
-	static struct args arg;
-	va_list ap;
-
-	va_start(ap, channel);
-	/* first argument reserved for client numeric */
-	arg.c = 1;
-	while ((arg.v[arg.c++] = va_arg(ap, char *))) ; /* empty */
-	va_end(ap);
-	arg.c--;
-	jtableS_iterate1(&luabase_users, (void (*)(const char *, void *, void *))luabase_chanhook, &arg);
 }

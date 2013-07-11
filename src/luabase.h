@@ -18,7 +18,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef LUA_H_
 #define LUA_H_
@@ -29,11 +29,6 @@ struct luaclient {
 	char numeric[6];
 	lua_State *L;
 	int handler_ref;
-};
-
-struct ghookarg {
-	char *name;
-	struct args *arg;
 };
 
 struct luapushuserdata {
@@ -50,10 +45,6 @@ int luabase_getbooleanfromarray(lua_State *L, int tableidx, int idx);
 int luabase_getintfromarray(lua_State *L, int tableidx, int idx);
 const char *luabase_getstringfromarray(lua_State *L, int tableidx, int idx);
 
-void luabase_clienthook(char *numeric, ...);
-void luabase_channelhook(char *channel, ...);
-#define luabase_clienthook(...) luabase_clienthook(__VA_ARGS__, NULL)
-#define luabase_channelhook(...) luabase_channelhook(__VA_ARGS__, NULL)
 
 const struct luaL_reg *luafuncs_functable(void);
 

@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <time.h>
 #include <string.h>
@@ -158,7 +158,7 @@ void hEOB_ACK(struct server *from) {
 	if (from == me)
 		me->protocol[0] = 'P';
 	else if (from == uplink)
-		luabase_init();
+		hook_call("onregistered", pack(ARGTYPE_NONE));
 }
 
 void hERROR(struct entity *from, char *msg) {
@@ -255,8 +255,8 @@ void hNOTICE(struct entity *from, char *target, char *msg) {
 		return;
 	if (!strncmp(u->numeric, ME, 2))
 		return;
-
-	luabase_clienthook(target, "irc_onnotice", u->numeric, msg);
+	if (*target != '#')
+		hook_call("onprivnotc", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_channel_by_name(target), ARGTYPE_PTR, msg));
 }
 
 void hOPMODE(struct entity *from, struct channel *chan, struct manyargs *modechange, time_t *ts) {
@@ -298,9 +298,9 @@ void hPRIVMSG(struct entity *from, char *target, char *msg) {
 		return;
 
 	if (*target == '#')
-		luabase_channelhook(target, "irc_onchanmsg", u->numeric, target, msg);
+		hook_call("onchanmsg", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_channel_by_name(target), ARGTYPE_PTR, msg));
 	else
-		luabase_clienthook(target, "irc_onmsg", u->numeric, msg);
+		hook_call("onprivmsg", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_user_by_numeric(target), ARGTYPE_PTR, msg));
 }
 
 void hQUIT(struct user *from, char *reason) {

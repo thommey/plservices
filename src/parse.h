@@ -18,26 +18,10 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef PARSE_H_
 #define PARSE_H_
-
-/* maximum number of real arguments in a command (after parsing) */
-#define ARGSMAX 20
-
-/* structures to hold an array of char* with their count in c,
- * v[i] might be misused to hold a pointer to such a struct itself
- * in case of a greedy argument */
-struct manyargs {
-	unsigned char c;
-	char *v[256];
-};
-
-struct args {
-	unsigned char c;
-	void *v[ARGSMAX];
-};
 
 /* rule to parse an individual argument
  * 4 -> pop argument 4 to here
@@ -57,13 +41,13 @@ struct args {
 struct argrule {
 	char offset;
 	unsigned char flags;
-	void *(*convert)(char *);
+	void (*convert)(struct funcarg *dest, char *str);
 };
 
 /* array of individual rules (e.g. 1 o2 g3 o-1) */
 struct parserule {
 	unsigned char c;
-	struct argrule r[ARGSMAX];
+	struct argrule r[MAXARGS];
 };
 
 void init_parse(void);
@@ -72,6 +56,6 @@ struct manyargs *rfc_split(struct manyargs *arg, char *line);
 struct manyargs *split(struct manyargs *arg, char *line, char delim);
 char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon);
 struct args *arrange_args(int argc, char **argv, struct parserule *rule);
-void call_varargs(void (*f)(), int argc, void **v);
+void call_varargs(void (*f)(), struct args *arg);
 
 #endif /* PARSE_H_ */

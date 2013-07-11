@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <string.h>
 
@@ -28,6 +28,12 @@
 static jtable userlist_num = (jtable)NULL;
 static jtable userlist_nick = (jtable)NULL;
 static jtable opers = (jtable)NULL;
+
+struct user *get_user(struct user *u) {
+	if (!u || !verify_user(u))
+		return NULL;
+	return u;
+};
 
 struct user *get_user_by_numeric(const char *numeric) {
 	return jtableS_get(&userlist_num, numeric);
@@ -56,9 +62,14 @@ struct user *add_user(char *numeric, int hops, char *nick, const char *user, con
 	return jtableS_insert(&userlist_num, numeric, u);
 }
 
+void del_user_iter(void *uptr, void *unused) {
+	if (!uptr || !verify_user(uptr))
+		return;
+	del_user(uptr);
+}
+
 void del_user(struct user *user) {
 	char buf[NICKLEN+1];
-	chanusers_del_user(user);
 	jtableS_remove(&userlist_nick, rfc_tolower(buf, sizeof(buf), user->nick));
 	jtableS_remove(&userlist_num, user->numeric);
 	jtableS_remove(&opers, user->numeric);
@@ -128,7 +139,7 @@ static void debug_print_userchan(struct channel *c, struct user *u) {
 	logfmt(LOG_DEBUG, "    %s%s%s", channel_isop(c, u) ? "@" : " ", channel_isvoice(c, u) ? "+" : " ", c->name);
 }
 
-static void debug_print_user(const char *name, struct user *u) {
+static void debug_print_user(const char *name, struct user *u, void *param) {
 	if (!verify_user(u)) {
 		logtxt(LOG_DEBUG, "INVALID USER");
 		return;
@@ -137,10 +148,10 @@ static void debug_print_user(const char *name, struct user *u) {
 	logfmt(LOG_DEBUG, "  Host: %s!%s@%s`%s * %s", u->nick, u->user, u->host, u->account, u->realname);
 	logfmt(LOG_DEBUG, "  Awaymsg: %s", u->awaymsg);
 	logtxt(LOG_DEBUG, "  Channel memberships:");
-	jtableP_iterate1(&u->channels, (void (*)(void *, void *))debug_print_userchan, u);
+	jtableP_iterate(&u->channels, (jtableP_cb)debug_print_userchan, u);
 }
 
 void debug_print_channels(void) {
 	logtxt(LOG_DEBUG, "-------------- User ---------------");
-	jtableS_iterate0(&userlist_num, (void (*)(const char *, void *))debug_print_user);
+	jtableS_iterate(&userlist_num, (jtableS_cb)debug_print_user, NULL);
 }

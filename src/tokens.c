@@ -19,7 +19,7 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #include <string.h>
 
@@ -55,8 +55,8 @@ static struct {
 	char *name;
 	void (*handler1)(void);
 	void (*handler2)(void);
-	char rule1[ARGSMAX*4];
-	char rule2[ARGSMAX*4];
+	char rule1[MAXARGS*4];
+	char rule2[MAXARGS*4];
 } rawrules[] = {
 	MKLRULE(AC,	ACCOUNT,	"1unum 2"),
 	MKLRULE(AD,	ADMIN,		"1snum"),
@@ -156,7 +156,7 @@ static void parse_argrule(struct argrule *rule, char *rulestr) {
 	if (!type[0])
 		return;
 
-#define NEWTYPE(name) do { if (!strcmp(type, #name)) { rule->convert = (void *(*)(char *))convert_ ## name; return; } } while (0)
+#define NEWTYPE(name) do { if (!strcmp(type, #name)) { rule->convert = (void (*)(struct funcarg *, char *))convert_ ## name; return; } } while (0)
 	NEWTYPE(unum);
 	NEWTYPE(snum);
 	NEWTYPE(uint);
@@ -215,6 +215,9 @@ void handle_input(char *str) {
 	struct manyargs raw;
 	struct args *arg;
 	struct tokeninfo *info;
+	char *from;
+	void (*handler)();
+
 	int skipargs = 1 + registered;
 
 	rfc_split(&raw, str);
@@ -228,30 +231,32 @@ void handle_input(char *str) {
 		return;
 	}
 
+	from = registered ? raw.v[0] : NULL;
+
 	/* fetch token information (rule to arrange/convert arguments + handling function) */
 	info = get_tokeninfo(registered ? raw.v[1] : raw.v[0]);
-	free_conversion();
 
 	/* arrange+convert arguments */
 	arg = arrange_args(raw.c - skipargs, raw.v + skipargs, &info->rules[0]);
+	handler = info->handlers[0];
 
 	if (!arg) {
+		handler = info->handlers[1];
 		/* second variant */
-		if (info->handlers[1]) {
+		if (handler)
 			arg = arrange_args(raw.c - skipargs, raw.v + skipargs, &info->rules[1]);
-			free_conversion();
-
-			if (!arg) {
-				logtxt(LOG_WARNING, "Failed to deal last input (2 rules)");
-				return;
-			}
-			arg->v[0] = registered ? convert_num(raw.v[0]) : NULL;
-			call_varargs(info->handlers[1], arg->c, arg->v);
-			return;
-		}
-		logtxt(LOG_WARNING, "Failed to deal with last input (1 rule)");
+	}
+	if (!arg) {
+		logtxt(LOG_WARNING, "Failed to deal with last input");
 		return;
 	}
-	arg->v[0] = registered ? convert_num(raw.v[0]) : NULL;
-	call_varargs(info->handlers[0], arg->c, arg->v);
+	shift(arg, 1);
+	if (from)
+		convert_num(&arg->v[0], from);
+	else {
+		arg->v[0].type = ARGTYPE_PTR;
+		arg->v[0].data.p = NULL;
+	}
+
+	call_varargs(handler, arg);
 }

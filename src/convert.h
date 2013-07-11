@@ -18,19 +18,18 @@
  *  along with PLservices.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
-**/
+ */
 
 #ifndef CONVERT_H_
 #define CONVERT_H_
 
-struct user *convert_nick(char *str);
-struct user *convert_unum(char *str);
-struct server *convert_snum(char *str);
-struct entity *convert_num(char *str);
-struct channel *convert_chan(char *str);
-unsigned int *convert_uint(unsigned int *dest, char *str);
-long *convert_long(long *dest, char *str);
-time_t *convert_time(time_t *dest, char *str);
-void free_conversion(void);
+void convert_nick(struct funcarg *a, char *str);
+void convert_unum(struct funcarg *a, char *str);
+void convert_snum(struct funcarg *a, char *str);
+void convert_num(struct funcarg *a, char *str);
+void convert_chan(struct funcarg *a, char *str);
+void convert_uint(struct funcarg *a, char *str);
+void convert_long(struct funcarg *a, char *str);
+void convert_time(struct funcarg *a, char *str);
 
 #endif /* CONVERT_H_ */
