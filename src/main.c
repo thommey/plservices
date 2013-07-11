@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 	time_t last;
 
 	if (argc != 6) {
-		fprintf(stderr, "Syntax: %s <configfile>\n", argv[0]);
+		fprintf(stderr, "Syntax: %s <IP> <Port> <Pass> <Servername> <Server description>\n", argv[0]);
 		return 1;
 	}
 
