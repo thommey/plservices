@@ -217,64 +217,43 @@ void call_varargs(void (*f)(), struct args *arg) {
 			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]));
 			break;
 		case 7:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]));
 			break;
 		case 8:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]));
 			break;
 		case 9:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]));
 			break;
 		case 10:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]));
 			break;
 		case 11:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]));
 			break;
 		case 12:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]));
 			break;
 		case 13:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
-				argdata(v[12]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]), argdata(v[12]));
 			break;
 		case 14:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
-				argdata(v[12]), argdata(v[13]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]), argdata(v[12]), argdata(v[13]));
 			break;
 		case 15:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
-				argdata(v[12]), argdata(v[13]), argdata(v[14]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]), argdata(v[12]), argdata(v[13]), argdata(v[14]));
 			break;
 		case 16:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
-				argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]), argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]));
 			break;
 		case 17:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
-				argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]), argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]));
 			break;
 		case 18:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
-				argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]), argdata(v[17]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]), argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]), argdata(v[17]));
 			break;
 		case 19:
-			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]),
-				argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]),
-				argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]), argdata(v[17]),
-				argdata(v[18]));
+			f(argdata(v[0]), argdata(v[1]), argdata(v[2]), argdata(v[3]), argdata(v[4]), argdata(v[5]), argdata(v[6]), argdata(v[7]), argdata(v[8]), argdata(v[9]), argdata(v[10]), argdata(v[11]), argdata(v[12]), argdata(v[13]), argdata(v[14]), argdata(v[15]), argdata(v[16]), argdata(v[17]), argdata(v[18]));
 			break;
 		default:
 			logtxt(LOG_ERROR, "Too many arguments in varargs call");
