@@ -43,6 +43,8 @@ struct user {
 	char fakehost[USERLEN+1+HOSTLEN+1];
 	char opername[NICKLEN+1];
 	char account[NICKLEN+1];
+	time_t acctime;
+	long accid, accflags;
 	char realname[REALNAMELEN+1];
 	int hops;
 	unsigned int accountid;
@@ -65,8 +67,9 @@ void user_apply_mode(struct entity *from, struct user *target, char *modechanges
 void user_nickchange(struct user *u, char *newnick);
 int user_isoper(struct user *u);
 
+void user_setaccount(struct user *u, char *accname, time_t ts, long id, long flags);
+void user_unsetaccount(struct user *u);
 #define ADDBUFPROTO(name) void user_set ## name (struct user *u, char *str); void user_unset ## name (struct user *u);
-ADDBUFPROTO(account)
 ADDBUFPROTO(nick)
 ADDBUFPROTO(opername)
 ADDBUFPROTO(fakehost)

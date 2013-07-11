@@ -58,7 +58,7 @@ static struct {
 	char rule1[MAXARGS*4];
 	char rule2[MAXARGS*4];
 } rawrules[] = {
-	MKLRULE(AC,	ACCOUNT,	"1unum 2"),
+	MKLRULE(AC,	ACCOUNT,	"1unum 2 o3time o4long o5long"),
 	MKLRULE(AD,	ADMIN,		"1snum"),
 	MKLRULE(LL,	ASLL,		"1 2snum"),
 	MKLRULE(A,	AWAY,		"o-1"),
@@ -235,6 +235,11 @@ void handle_input(char *str) {
 
 	/* fetch token information (rule to arrange/convert arguments + handling function) */
 	info = get_tokeninfo(registered ? raw.v[1] : raw.v[0]);
+
+	if (!info) {
+		logfmt(LOG_WARNING, "Unknown token: %s", registered ? raw.v[1] : raw.v[0]);
+		return;
+	}
 
 	/* arrange+convert arguments */
 	arg = arrange_args(raw.c - skipargs, raw.v + skipargs, &info->rules[0]);

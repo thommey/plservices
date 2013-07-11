@@ -87,14 +87,41 @@ void user_nickchange(struct user *u, char *newnick) {
 #define ADDUNSETBUF(name) void user_unset ## name (struct user *u) { *u->name = '\0'; }
 #define ADDBUF(name) ADDSETBUF(name) ADDUNSETBUF(name)
 
-ADDSETBUF(account)
 ADDBUF(opername)
 ADDBUF(fakehost)
 ADDBUF(awaymsg)
 
+void user_setaccount(struct user *u, char *accname, time_t ts, long id, long flags) {
+	strbufcpy(u->account, accname);
+	u->acctime = ts;
+	u->accid = id;
+	u->accflags = flags;
+}
+
+static void user_setaccountcolon(struct user *u, char *param) {
+	struct manyargs arg;
+	char *accname;
+	time_t ts;
+	long id, flags;
+
+	split(&arg, param, ':');
+	if (arg.c == 0) {
+		logtxt(LOG_WARNING, "Invalid +r parameter");
+		return;
+	}
+	accname = arg.v[0];
+	ts = arg.c > 1 ? (time_t)strtol(arg.v[1], NULL, 10) : 0;
+	id = arg.c > 2 ? strtol(arg.v[2], NULL, 10) : 0;
+	flags = arg.c > 3 ? strtol(arg.v[3], NULL, 10) : 0;
+	user_setaccount(u, accname, ts, id, flags);
+}
+
 void user_unsetaccount(struct user *u) {
 	u->account[0] = '0';
 	u->account[1] = '\0';
+	u->acctime = 0;
+	u->accflags = 0;
+	u->accid = 0;
 }
 
 int user_modehook(struct entity *from, struct entity *target, int pls, char modechange, char *param) {
@@ -117,7 +144,7 @@ int user_modehook(struct entity *from, struct entity *target, int pls, char mode
 		pls ? user_setfakehost(u, param) : user_unsetfakehost(u);
 		break;
 	case 'r':
-		pls ? user_setaccount(u, param) : user_unsetaccount(u);
+		pls ? user_setaccountcolon(u, param) : user_unsetaccount(u);
 		break;
 	}
 	return MODEHOOK_OK;

@@ -35,9 +35,9 @@ extern struct server *me, *uplink;
 
 static int end_of_burst = 0;
 
-void hACCOUNT(struct entity *from, struct user *user, char *accname) {
+void hACCOUNT(struct entity *from, struct user *user, char *accname, time_t *ts, long *accid, long *flags) {
 	VERIFY_USER(user);
-	user_setaccount(user, accname);
+	user_setaccount(user, accname, ts ? *ts : 0, accid ? *accid : 0, flags ? *flags : 0);
 }
 
 void hADMIN(struct entity *from, struct server *server) {
