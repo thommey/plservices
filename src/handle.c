@@ -32,6 +32,7 @@
 #define VERIFY_CHANNEL(e) do { if (!e || !verify_channel(e)) { logtxt(LOG_WARNING, "Channel verification failed."); return; } } while (0);
 
 extern struct server *me, *uplink;
+static clock_t start;
 
 static int end_of_burst = 0;
 
@@ -144,12 +145,15 @@ void hDESYNCH(struct entity *from, char *msg) {
 }
 
 void hEND_OF_BURST(struct server *from) {
+	clock_t end;
 	VERIFY_SERVER(from);
 	if (from == me)
 		return;
 	assert(!strcmp(from->protocol, "J10"));
 	from->protocol[0] = 'P';
 	end_of_burst = 1;
+	end = clock();
+	logfmt(LOG_WARNING, "End of burst. Took: %.0f ms.", 1000.0*(end-start)/CLOCKS_PER_SEC);
 	send_words(0, ME, "EB");
 	send_words(0, ME, "EA");
 }
@@ -279,6 +283,7 @@ void hPART(struct user *user, char *channels, char *reason) {
 }
 
 void hPASS(struct entity *from, char *pass) {
+	start = clock();
 }
 
 void hPING(struct server *from, struct manyargs *arg) {

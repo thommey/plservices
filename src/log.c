@@ -28,7 +28,7 @@
 #include "main.h"
 #undef IN_LOG_C_
 
-static int debuglvl = LOG_DEBUG|LOG_ERROR|LOG_FATAL|LOG_WARNING|LOG_LUA;
+static int debuglvl = LOG_ERROR|LOG_FATAL|LOG_WARNING|LOG_LUA;
 
 #undef logfmt
 #undef logtxt
