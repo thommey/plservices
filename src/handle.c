@@ -66,7 +66,10 @@ void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) 
 		logtxt(LOG_ERROR, "BURST after END_OF_BURST!");
 		return;
 	}
-	c = add_channel(chan, *ts);
+	c = get_channel_by_name(chan);
+
+	if (!c)
+    c = add_channel(chan, *ts);
 
 	nextpos = 0;
 	tmp = rest->v[0];
