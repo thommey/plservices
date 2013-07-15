@@ -130,3 +130,29 @@ void *argdata_ptr(struct funcarg *a) {
 	assert(a->type == ARGTYPE_PTR);
 	return a->data.p;
 }
+
+
+/* generates count random numbers from 0 to max-1 */
+/* Knuth's algorithm */
+long *randomset(int count, long max) {
+	static long *randnums = NULL;
+	static int randnumssize = 0;
+	int in, im, rn, rm;
+
+	/* allocate array of numbers that has enough room */
+	if (randnums == NULL) {
+		srand(time(NULL));
+		randnums = malloc(sizeof(*randnums) * count * 2);
+		randnumssize = count * 2;
+	} else if (randnumssize < count) {
+		randnums = realloc(randnums, sizeof(*randnums) * count * 2);
+		randnumssize = count * 2;
+	}
+	for (im = 0, in = 0; in < max && im < count; in++) {
+		rn = max - in;
+		rm = count - im;
+		if (rand() % rn < rm)
+			randnums[im++] = in;
+	}
+	return randnums;
+}

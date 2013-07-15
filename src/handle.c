@@ -53,7 +53,7 @@ void hAWAY(struct user *from, char *reason) {
 	user_setawaymsg(from, reason);
 }
 
-void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) {
+void hBURST(struct server *from, char *chan, time_t *ts, struct manyargs *rest) {
 	struct manyargs list;
 	struct channel *c;
 	struct user *u;
@@ -62,19 +62,22 @@ void hBURST(struct entity *from, char *chan, time_t *ts, struct manyargs *rest) 
 
 	VERIFY_SERVER(from);
 
-	if (end_of_burst) {
+	if (from->protocol[0] == 'P') {
 		logtxt(LOG_ERROR, "BURST after END_OF_BURST!");
 		return;
 	}
 	c = get_channel_by_name(chan);
 
 	if (!c)
-    c = add_channel(chan, *ts);
+		c = add_channel(chan, *ts);
+
+	if (!rest->c)
+		return;
 
 	nextpos = 0;
 	tmp = rest->v[0];
-	if (tmp[0] == '+')
-		nextpos = 1 + channel_apply_mode(from, c, rest->v[0], rest, 1);
+	if (tmp && tmp[0] == '+')
+		nextpos = 1 + channel_apply_mode((struct entity *)from, c, rest->v[0], rest, 1);
 
 	/* rest->v[i] is now the next parameter after the modes */
 	/* check the last parameter for leading % */
@@ -152,9 +155,11 @@ void hEND_OF_BURST(struct server *from) {
 		return;
 	assert(!strcmp(from->protocol, "J10"));
 	from->protocol[0] = 'P';
-	end_of_burst = 1;
-	send_words(0, ME, "EB");
-	send_words(0, ME, "EA");
+	if (from == uplink) {
+		end_of_burst = 1;
+		send_words(0, ME, "EB");
+		send_words(0, ME, "EA");
+	}
 }
 
 void hEOB_ACK(struct server *from) {

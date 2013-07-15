@@ -61,7 +61,7 @@ void sfree(void *p);
 void *smalloc(size_t s);
 void *zmalloc(size_t s);
 char *strncpyz(char *dest, const char *src, size_t n);
-
+long *randomset(int count, long max);
 
 int argdata_int(struct funcarg *a);
 unsigned int argdata_uint(struct funcarg *a);

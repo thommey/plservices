@@ -75,7 +75,7 @@ void send_raw(char *str) {
 	ssize_t tosend, sent;
 	tosend = strlen(str);
 
-	logfmt(LOG_DEBUG, "-> %s", str);
+	logfmt(LOG_RAW, "-> %s", str);
 	while (tosend) {
 		sent = send(conn, str, tosend, 0);
 		if (sent < 0)
@@ -111,7 +111,7 @@ void send_format(const char *fmt, ...) {
 
 static void net_connected(const char *pass, const char *name, const char *descr) {
 	send_format("PASS :%s\r\n", pass);
-	send_format("SERVER %s 1 %ld %ld J10 AC]]] +sn :%s\r\n", name, now, now, descr);
+	send_format("SERVER %s 1 %ld %ld J10 AC]]] +hsn :%s\r\n", name, now, now, descr);
 }
 
 void net_read(void) {
@@ -147,7 +147,7 @@ void net_read(void) {
 	while (*line && (lineend = strpbrk(line, "\r\n"))) {
 		while (*lineend == '\r' || *lineend == '\n')
 			*lineend++ = '\0';
-		logfmt(LOG_DEBUG, "<- %s\n", line);
+		logfmt(LOG_RAW, "<- %s\n", line);
 		handle_input(line);
 		logfmt(LOG_DEBUGIO, "line = buf[%td], lineend = buf[%td]\n", line-buf, lineend-buf);
 		logfmt(LOG_DEBUGIO, "line = '%s', lineend = '%s'\n", line, lineend);
