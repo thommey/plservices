@@ -50,9 +50,14 @@ static char *nextnum(void) {
 }
 
 void burster_burst_clients(int max) {
+	char ip[7];
 	int i;
-	for (i = 0; i < max; i++)
-		send_format("%s N fake%ld 2 %ld f%ld f%ld.fake.com +id DAqAAB %s :fake user number %ld", FAKESNUM, i, now, i, i, nextnum(), i);
+	long *rands;
+	rands = randomset(max, 600000);
+	for (i = 0; i < max; i++) {
+		base64_encode_padded(16843009+rands[i], ip, 7);
+		send_format("%s N fake%ld 2 %ld f%ld f%ld.fake.com +id %s %s :fake user number %ld", FAKESNUM, i, now, i, i, ip, nextnum(), i);
+	}
 }
 
 /* values takes from freenode */
