@@ -111,7 +111,7 @@ void send_format(const char *fmt, ...) {
 
 static void net_connected(const char *pass, const char *name, const char *descr) {
 	send_format("PASS :%s\r\n", pass);
-	send_format("SERVER %s 1 %ld %ld J10 AC]]] +hsn :%s\r\n", name, now, now, descr);
+	send_format("SERVER %s 1 %ld %ld J10 GE]]] +hsn :%s\r\n", name, now, now, descr);
 }
 
 void net_read(void) {

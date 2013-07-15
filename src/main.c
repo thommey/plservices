@@ -38,7 +38,7 @@ static void init(void) {
 	init_parse();
 	init_tokens();
 	init_modes();
-/*	init_burster(); */
+	init_burster();
 	hook_hook("onregistered", luabase_init);
 }
 
@@ -57,10 +57,12 @@ int main(int argc, char **argv) {
 
 	last = now = time(NULL);
 	while (1) {
-		if (last != now)
-			hook_call("ontick", pack(ARGTYPE_NONE));
-		net_read();
 		now = time(NULL);
+		if (last != now) {
+			hook_call("ontick", pack(ARGTYPE_NONE));
+		}
+		net_read();
+		last = now;
 	}
 	return 0;
 }

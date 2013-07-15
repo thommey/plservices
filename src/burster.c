@@ -50,13 +50,18 @@ static char *nextnum(void) {
 }
 
 void burster_burst_clients(int max) {
-	char ip[7];
-	int i;
+	char ip[7], nick[32], ident[32], auth[64];
+	int i, doauth;
 	long *rands;
-	rands = randomset(max, 600000);
+	rands = randomset(max, 800000);
 	for (i = 0; i < max; i++) {
+		sprintf(nick, "fake%d", i);
+		sprintf(ident, "f%d", i);
+		sprintf(auth, "f%d:%ld:%d:0", i, now, i);
+		doauth = (rand() % 5) < 2;
 		base64_encode_padded(16843009+rands[i], ip, 7);
-		send_format("%s N fake%ld 2 %ld f%ld f%ld.fake.com +id %s %s :fake user number %ld", FAKESNUM, i, now, i, i, ip, nextnum(), i);
+		send_format("%s N %s 2 %ld %s %s.fake.com +id%s%s %s %s :fake user number %d",
+					FAKESNUM, nick, now, ident, ident, doauth ? (rand()%2?"rx ":"r ") : "", doauth ? auth : "", ip, nextnum(), i);
 	}
 }
 
@@ -135,7 +140,7 @@ void burster_go(void) {
 	mylink = now;
 	send_format("%s S burster.metairc.net 2 0 %ld J10 %s]]] +sn :Mass fake server", ME, mylink, FAKESNUM);
 	burster_burst_clients(100000);
-	burster_burst_channels(60000, chancount_quakenet);
+	burster_burst_channels(50000, chancount_quakenet);
 	send_format("%s EB", FAKESNUM);
 	send_format("%s EA", FAKESNUM);
 }

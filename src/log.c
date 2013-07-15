@@ -26,7 +26,7 @@
 
 #include "main.h"
 
-static int debuglvl = LOG_DEBUG|LOG_ERROR|LOG_FATAL|LOG_WARNING|LOG_LUA|LOG_RAW;;
+static int debuglvl = LOG_DEBUG|LOG_ERROR|LOG_FATAL|LOG_WARNING|LOG_LUA;
 
 #undef logfmt
 #undef logtxt
