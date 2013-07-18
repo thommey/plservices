@@ -115,7 +115,7 @@ static void net_connected(const char *pass, const char *name, const char *descr)
 }
 
 void net_read(void) {
-	static char buf[513] = { 0 };
+	static char buf[65536] = { 0 };
 	ssize_t oldlen, r;
 	char *line, *lineend;
 	struct timeval tv = { 1, 0 };

@@ -38,7 +38,7 @@ static void init(void) {
 	init_parse();
 	init_tokens();
 	init_modes();
-	init_burster();
+//	init_burster();
 	hook_hook("onregistered", luabase_init);
 }
 

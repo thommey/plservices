@@ -79,7 +79,7 @@ void hBURST(struct server *from, char *chan, time_t *ts, struct manyargs *rest) 
 	if (tmp && tmp[0] == '+')
 		nextpos = 1 + channel_apply_mode((struct entity *)from, c, rest->v[0], rest, 1);
 
-	/* rest->v[i] is now the next parameter after the modes */
+	/* rest->v[nextpos] is now the next parameter after the modes */
 	/* check the last parameter for leading % */
 	tmp = NULL;
 	if (rest->c - 1 > nextpos)
@@ -90,6 +90,10 @@ void hBURST(struct server *from, char *chan, time_t *ts, struct manyargs *rest) 
 			channel_plsban(c, NULL, list.v[i]);
 		rest->c--;
 	}
+	/* no channel users */
+	if (!tmp)
+		return;
+
 	assert(nextpos+1 == rest->c);
 	split(&list, rest->v[nextpos], ',');
 	/* all that's left from rest->v[i .. rest->c] are user entries with tmps */
@@ -160,6 +164,7 @@ void hEND_OF_BURST(struct server *from) {
 		send_words(0, ME, "EB");
 		send_words(0, ME, "EA");
 	}
+	exit(0);
 }
 
 void hEOB_ACK(struct server *from) {

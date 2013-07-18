@@ -24,8 +24,6 @@
 #include "main.h"
 
 #define FAKESNUM "FB"
-#define NUMCLIENTS 50000
-#define NUMCHANS 40000
 
 extern struct server *me;
 extern time_t now;
@@ -49,19 +47,88 @@ static char *nextnum(void) {
 	return num;
 }
 
+static char *getnick(int i) {
+	static char nick[NICKLEN+1];
+	snprintf(nick, sizeof(nick), "fake%d", i);
+	return nick;
+}
+
+static char *getident(int i) {
+	static char ident[USERLEN+1];
+	snprintf(ident, sizeof(ident), "f%d", i);
+	return ident;
+}
+
+static char *gethost(int i) {
+	static char host[HOSTLEN+1];
+	snprintf(host, sizeof(host), "fake%d.fake.com", i);
+	return host;
+}
+
+static char *getchanmode(int i) {
+	static char modestr[64];
+	char *t = modestr;
+	if (rand()%20==0)
+		return "";
+	*t++ = '+';
+	if (rand()%4)
+		*t++ = 'n';
+	if (rand()%4)
+		*t++ = 't';
+	if (rand()%4)
+		*t++ = 'C';
+	if (rand()%4)
+		*t++ = 'N';
+	if (rand()%2)
+		*t++ = 'c';
+	if (rand()%6 == 0)
+		*t++ = 'd';
+	else if (rand()%5 == 0)
+		*t++ = 'D';
+	if (rand()%10 == 0)
+		*t++ = 'r';
+	if (rand()%10 == 0)
+		*t++ = 'M';
+	*t++ = ' ';
+	*t++ = '\0';
+	return modestr;
+}
+
+static char *getumode(int i) {
+	static char modestr[64];
+	char *t = modestr;
+	int doauth = (rand() % 5) < 2;
+	*t++ = '+';
+	*t++ = 'i';
+	if (doauth)
+		*t++ = 'r';
+	if (rand()%3 == 0)
+		*t++ = 'x';
+	if (rand()%10 == 0)
+		*t++ = 'w';
+	if (rand()%50 == 0)
+		*t++ = 'd';
+	if (rand()%10 == 0)
+		*t++ = 'R';
+	if (doauth)
+		snprintf(t, sizeof(modestr)-(t-modestr), " %s:%ld:%d:0", getnick(i), mylink, i);
+	else
+		*t++ = '\0';
+	return modestr;
+}
+
 void burster_burst_clients(int max) {
 	char ip[7], nick[32], ident[32], auth[64];
-	int i, doauth;
+	int i;
 	long *rands;
 	rands = randomset(max, 800000);
 	for (i = 0; i < max; i++) {
 		sprintf(nick, "fake%d", i);
 		sprintf(ident, "f%d", i);
 		sprintf(auth, "f%d:%ld:%d:0", i, now, i);
-		doauth = (rand() % 5) < 2;
 		base64_encode_padded(16843009+rands[i], ip, 7);
-		send_format("%s N %s 2 %ld %s %s.fake.com +id%s%s %s %s :fake user number %d",
-					FAKESNUM, nick, now, ident, ident, doauth ? (rand()%2?"rx ":"r ") : "", doauth ? auth : "", ip, nextnum(), i);
+		send_format("%s N %s 2 %ld %s %s %s %s %s :fake user number %d",
+					FAKESNUM, getnick(i), now, getident(i), gethost(i), getumode(i), ip, nextnum(), i);
 	}
 }
 
@@ -70,13 +137,13 @@ static double data_freenode[21] = { 0, 0, 0, 2880, 1850, 1260, 1000, 870, 610, 5
 /* values taken from quakenet */
 static double data_quakenet[21] = { 0, 10000, 5660, 3660, 2000, 1200, 870, 640, 500, 330, 300, 250, 200, 140, 120, 120, 100, 90, 80, 80, 60 };
 
-static void burst_chanusers(int size, char *name) {
+static void burst_chanusers(int size, int id) {
 	int j;
 	long *rands;
 	char buf[513], *t, *c;
 
 	rands = randomset(size, maxnum);
-	t = buf + sprintf(buf, "%s B %s %ld ", FAKESNUM, name, mylink);
+	t = buf + sprintf(buf, "%s B #fake_%d_%d %ld %s", FAKESNUM, size, id, mylink, getchanmode(id));
 	for (c = t, j = 0; j < size; j++) {
 		if (c != t)
 			*c++ = ',';
@@ -93,13 +160,11 @@ static void burst_chanusers(int size, char *name) {
 }
 
 static int burst_channels(int size, int count) {
-	char name[200];
 	int i;
 
-	for (i = 0; i < count; i++) {
-		sprintf(name, "#fake_%d_%d", size, i);
-		burst_chanusers(size, name);
-	}
+	for (i = 0; i < count; i++)
+		burst_chanusers(size, i);
+
 	return count;
 }
 
@@ -140,7 +205,7 @@ void burster_go(void) {
 	mylink = now;
 	send_format("%s S burster.metairc.net 2 0 %ld J10 %s]]] +sn :Mass fake server", ME, mylink, FAKESNUM);
 	burster_burst_clients(100000);
-	burster_burst_channels(50000, chancount_quakenet);
+	burster_burst_channels(40000, chancount_quakenet);
 	send_format("%s EB", FAKESNUM);
 	send_format("%s EA", FAKESNUM);
 }

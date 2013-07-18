@@ -27,11 +27,21 @@
 #include "jtable.h"
 
 static jtable tokeninfos = (jtable)NULL;
+static struct tokeninfo *shorttokeninfos[256];
 
 struct tokeninfo *get_tokeninfo(char *token) {
-	return jtableS_get(&tokeninfos, token);
+	assert(token && token[0]);
+	if (!token[1])
+		return shorttokeninfos[(unsigned char)token[0]];
+	else
+		return jtableS_get(&tokeninfos, token);
 };
 
 struct tokeninfo *add_tokeninfo(char *token, struct tokeninfo *info) {
-	return jtableS_insert(&tokeninfos, token, info);
+	assert(token && token[0]);
+	if (!token[1])
+		shorttokeninfos[(unsigned char)token[0]] = info;
+	else
+		jtableS_insert(&tokeninfos, token, info);
+	return info;
 };
