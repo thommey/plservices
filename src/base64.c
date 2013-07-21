@@ -88,4 +88,3 @@ int base64_incr(char *buf, size_t bufsize) {
 	}
 	return 1;
 }
-

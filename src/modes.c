@@ -59,7 +59,7 @@ static struct {
 	{ NULL, 0 }
 }, usermodetable[] = {
 	{ "ohr", MODE_LIMIT },
-	{ "wOidkXnIgxRP", MODE_FLAG },
+	{ "wOidkXnIgxRPqQ", MODE_FLAG },
 	{ NULL, 0 }
 }, servermodetable[] = {
 	{ "hsn6", MODE_FLAG },

@@ -214,4 +214,3 @@ void init_burster(void) {
 	hook_hook("onregistered", burster_go);
 	return;
 }
-

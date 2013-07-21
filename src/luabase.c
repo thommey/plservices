@@ -160,7 +160,7 @@ static void luabase_onprivnotc(struct user *from, struct user *to, char *msg) {
 	if (!lc)
 		return;
 
-	arg = pack(ARGTYPE_PTR, to->numeric, ARGTYPE_PTR, "irc_onnotc", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, msg);
+	arg = pack(ARGTYPE_PTR, to->numeric, ARGTYPE_PTR, "irc_onnotice", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, msg);
 	luabase_clienthook(lc, &arg);
 }
 
@@ -181,13 +181,12 @@ void luabase_init() {
 	luabase_callluafunc(L, "onload");
 }
 
-/* this doesn't really belong here */
 char *nextnum(void) {
 	static char numeric[6] = "";
 	if (!numeric[0])
 		sprintf(numeric, "%s%s", ME, base64_encode_padded(0, numeric + 2, 4));
 	else if (base64_incr(numeric + 2, 4))
-			error("No numerics left");
+		error("No numerics left");
 	return numeric;
 }
 

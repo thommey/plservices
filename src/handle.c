@@ -164,7 +164,6 @@ void hEND_OF_BURST(struct server *from) {
 		send_words(0, ME, "EB");
 		send_words(0, ME, "EA");
 	}
-	exit(0);
 }
 
 void hEOB_ACK(struct server *from) {
@@ -269,7 +268,7 @@ void hNOTICE(struct entity *from, char *target, char *msg) {
 	if (!strncmp(u->numeric, ME, 2))
 		return;
 	if (*target != '#')
-		hook_call("onprivnotc", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_channel_by_name(target), ARGTYPE_PTR, msg));
+		hook_call("onprivnotc", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_user_by_numeric(target), ARGTYPE_PTR, msg));
 }
 
 void hOPMODE(struct entity *from, struct channel *chan, struct manyargs *modechange, time_t *ts) {
