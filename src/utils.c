@@ -90,6 +90,9 @@ struct args pack(enum argtype current, ...) {
 			case ARGTYPE_LONG:
 				arg.v[arg.c].data.l = va_arg(ap, long);
 				break;
+			case ARGTYPE_ULONG:
+				arg.v[arg.c].data.ul = va_arg(ap, unsigned long);
+				break;
 			case ARGTYPE_TIME:
 				arg.v[arg.c].data.t = va_arg(ap, time_t);
 				break;

@@ -104,7 +104,7 @@ void hBURST(struct server *from, char *chan, time_t *ts, struct manyargs *rest) 
 			burstmode = tmp;
 		}
 
-		u = get_user_by_numeric(list.v[i]);
+		u = get_user_by_numeric(str2unum(list.v[i]));
 		if (!u) {
 			logtxt(LOG_WARNING, "Burst join for non-existant user.");
 			continue;
@@ -256,7 +256,7 @@ void hNICK1(struct user *from, char *newnick, time_t *ts) {
 void hNICK2(struct entity *from, char *nick, int *hops, time_t *ts, char *ident, char *host, struct manyargs *mode, char *ip, char *unum, char *realname) {
 	struct user *u;
 
-	u = add_user(unum, *hops, nick, ident, host, realname);
+	u = add_user(str2unum(unum), *hops, nick, ident, host, realname);
 	user_apply_mode((struct entity *)u, u, mode->v[0], mode, 1);
 }
 
@@ -265,10 +265,10 @@ void hNOTICE(struct entity *from, char *target, char *msg) {
 
 	if (!verify_user(u))
 		return;
-	if (!strncmp(u->numeric, ME, 2))
+	if (u->server == me)
 		return;
 	if (*target != '#')
-		hook_call("onprivnotc", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_user_by_numeric(target), ARGTYPE_PTR, msg));
+		hook_call("onprivnotc", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_user_by_numeric(str2unum(target)), ARGTYPE_PTR, msg));
 }
 
 void hOPMODE(struct entity *from, struct channel *chan, struct manyargs *modechange, time_t *ts) {
@@ -306,13 +306,13 @@ void hPRIVMSG(struct entity *from, char *target, char *msg) {
 
 	if (!verify_user(u))
 		return;
-	if (!strncmp(u->numeric, ME, 2))
+	if (u->server == me)
 		return;
 
 	if (*target == '#')
 		hook_call("onchanmsg", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_channel_by_name(target), ARGTYPE_PTR, msg));
 	else
-		hook_call("onprivmsg", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_user_by_numeric(target), ARGTYPE_PTR, msg));
+		hook_call("onprivmsg", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_user_by_numeric(str2unum(target)), ARGTYPE_PTR, msg));
 }
 
 void hQUIT(struct user *from, char *reason) {
@@ -334,15 +334,9 @@ void hRPONG2(struct entity *from, struct user *target, char *servername, long *m
 
 void hSERVER(struct entity *from, char *name, int *hops, time_t *boot, time_t *link, char *protocol, char *numericstr, char *flags, char *descr) {
 	struct server *s;
-
-	char snum[3];
 	char *maxuserstr = numericstr+2;
 
-	snum[0] = numericstr[0];
-	snum[1] = numericstr[1];
-	snum[2] = '\0';
-
-	s = add_server(snum, maxuserstr, name, *hops, *boot, *link, protocol, descr);
+	s = add_server(str2snum(numericstr), maxuserstr, name, *hops, *boot, *link, protocol, descr);
 
 	server_apply_mode(from, (struct entity *)s, flags, NULL, 0);
 }

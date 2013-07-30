@@ -46,7 +46,7 @@ static int luafunc_irc_localregisteruser(lua_State *L) {
 	luaL_checktype(L, -1, LUA_TFUNCTION);
 
 	lc = luabase_newuser(L, nick, user, host, umode, NULL, realname, luaL_ref(L, LUA_REGISTRYINDEX));
-	lua_pushstring(L, lc->numeric);
+	lua_pushstring(L, unum2str(lc->numeric));
 	return 1;
 }
 
@@ -61,7 +61,7 @@ static int luafunc_irc_localregisteruserid(lua_State *L) {
 	luaL_checktype(L, -1, LUA_TFUNCTION);
 
 	lc = luabase_newuser(L, nick, user, host, umode, account, realname, luaL_ref(L, LUA_REGISTRYINDEX));
-	lua_pushstring(L, lc->numeric);
+	lua_pushstring(L, unum2str(lc->numeric));
 	return 1;
 }
 
@@ -77,7 +77,7 @@ static int luafunc_irc_localchanmsg(lua_State *L) {
 static int luafunc_irc_getnickbynumeric(lua_State *L) {
 	const char *numeric = luaL_checkstring(L, 1);
 
-	luabase_pushuser(L, get_user_by_numeric(numeric));
+	luabase_pushuser(L, get_user_by_numericstr(numeric));
 	return 1;
 }
 
@@ -91,7 +91,7 @@ static int luafunc_irc_getnickbynick(lua_State *L) {
 static int luafunc_irc_localovmode(lua_State *L) {
 	const char *numeric = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
-	struct user *u = get_user_by_numeric(numeric);
+	struct user *u = get_user_by_numericstr(numeric);
 	struct channel *c = get_channel_by_name(chan);
 	const char *modechar, *target; /* pointers for luaL_getstring later */
 	int plsmns, i, n = lua_objlen(L, 3); /* n: list length */
@@ -139,7 +139,7 @@ static int luafunc_irc_localsimplechanmode(lua_State *L) {
 	const char *unum = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
 	const char *mode = luaL_checkstring(L, 3);
-	struct user *u = get_user_by_numeric(unum);
+	struct user *u = get_user_by_numericstr(unum);
 	struct channel *c = get_channel_by_name(chan);
 
 	if (!u || !c || strlen(mode) != 2 || (mode[0] != '+' && mode[0] != '-'))
@@ -184,7 +184,7 @@ static int luafunc_irc_getchaninfo(lua_State *L) {
 static int luafunc_irc_getuserchanmodes(lua_State *L) {
 	char *unum = (char*)luaL_checkstring(L, 1);
 	char *chan = (char*)luaL_checkstring(L, 2);
-	struct user *u = get_user_by_numeric(unum);
+	struct user *u = get_user_by_numericstr(unum);
 	struct channel *c = get_channel_by_name(chan);
 
 	if (!u || !c || !chanusers_ison(u, c)) {
@@ -216,7 +216,7 @@ static int luafunc_irctolower(lua_State *L) {
 
 static int luafunc_ontlz(lua_State *L) {
 	const char *num = luaL_checkstring(L, 1);
-	struct user *u = get_user_by_numeric(num);
+	struct user *u = get_user_by_numericstr(num);
 
 	lua_pushinteger(L, u ? user_isoper(u) : 0);
 	return 1;

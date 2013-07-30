@@ -31,7 +31,7 @@ extern time_t now;
 struct channel chan0 = { MAGIC_CHANNEL0 };
 
 /* jtableS of channels, key = channel name, value = struct channel ptr */
-static jtable channels;
+static jtableS channels;
 
 /* channel list management */
 struct channel *add_channel(char *name, time_t ts) {
@@ -40,10 +40,6 @@ struct channel *add_channel(char *name, time_t ts) {
 	c = zmalloc(sizeof(*c));
 	c->magic = MAGIC_CHANNEL;
 	strbufcpy(c->name, name);
-	c->ops = (jtable)NULL;
-	c->voices = (jtable)NULL;
-	c->users = (jtable)NULL;
-	c->bans = (jtable)NULL;
 	c->ts = ts;
 
 	return jtableS_insert(&channels, name, c);
@@ -172,7 +168,7 @@ static int channel_modehook(struct entity *from, struct entity *target, int pls,
 		pls ? channel_plsban(c, from, param) : channel_mnsban(c, from, param);
 	case 'o': /* fall-through */
 	case 'v':
-		u = get_user_by_numeric(param);
+		u = get_user_by_numericstr(param);
 		if (!u || !verify_user(u)) {
 			logtxt(LOG_WARNING, "Op/voice for non-existant/invalid user!");
 			return MODEHOOK_OK;
@@ -215,7 +211,7 @@ int channel_apply_clearmode(struct entity *from, struct entity *target, char *mo
 			jtableP_free(&channel->voices);
 			break;
 		case 'b':
-			jtableP_free(&channel->bans);
+			jtableS_free(&channel->bans);
 			break;
 		case 'l':
 			channel->limit = 0;

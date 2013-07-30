@@ -25,7 +25,9 @@
 
 #include "main.h"
 
-static jtable userlist_num, userlist_nick, opers;
+static jtableL userlist_num; /* numeric -> struct user* */
+static jtableS userlist_nick; /* nick -> struct user* */
+static jtableP opers; /* struct user * -> bool */
 
 struct user *get_user(struct user *u) {
 	if (!u || !verify_user(u))
@@ -33,8 +35,12 @@ struct user *get_user(struct user *u) {
 	return u;
 }
 
-struct user *get_user_by_numeric(const char *numeric) {
-	return jtableS_get(&userlist_num, numeric);
+struct user *get_user_by_numeric(unsigned long numeric) {
+	return jtableL_get(&userlist_num, numeric);
+}
+
+struct user *get_user_by_numericstr(const char *numeric) {
+	return get_user_by_numeric(str2unum(numeric));
 }
 
 struct user *get_user_by_nick(const char *nick) {
@@ -42,22 +48,21 @@ struct user *get_user_by_nick(const char *nick) {
 	return jtableS_get(&userlist_nick, rfc_tolower(buf, sizeof(buf), nick));
 }
 
-struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname) {
+struct user *add_user(unsigned long numeric, int hops, char *nick, const char *user, const char *host, const char *realname) {
 	char buf[NICKLEN+1];
 	struct user *u;
 
 	u = zmalloc(sizeof(*u));
 	u->magic = MAGIC_USER;
-	strbufcpy(u->numeric, numeric);
+	u->numeric = numeric;
 	u->hops = hops;
 	strbufcpy(u->nick, nick);
 	strbufcpy(u->user, user);
 	strbufcpy(u->host, host);
 	strbufcpy(u->realname, realname);
-	u->channels = (jtable)NULL;
 
 	jtableS_insert(&userlist_nick, rfc_tolower(buf, sizeof(buf), nick), u);
-	return jtableS_insert(&userlist_num, numeric, u);
+	return jtableL_insert(&userlist_num, numeric, u);
 }
 
 void del_user_iter(void *uptr, void *unused) {
@@ -69,8 +74,8 @@ void del_user_iter(void *uptr, void *unused) {
 void del_user(struct user *user) {
 	char buf[NICKLEN+1];
 	jtableS_remove(&userlist_nick, rfc_tolower(buf, sizeof(buf), user->nick));
-	jtableS_remove(&userlist_num, user->numeric);
-	jtableS_remove(&opers, user->numeric);
+	jtableL_remove(&userlist_num, user->numeric);
+	jtableP_unset(&opers, user);
 	free(user);
 }
 
@@ -158,25 +163,4 @@ void user_apply_mode(struct entity *from, struct user *target, char *modechanges
 
 int user_isoper(struct user *u) {
 	return jtableP_check(&opers, u);
-}
-
-static void debug_print_userchan(struct channel *c, struct user *u) {
-	logfmt(LOG_DEBUG, "    %s%s%s", channel_isop(c, u) ? "@" : " ", channel_isvoice(c, u) ? "+" : " ", c->name);
-}
-
-static void debug_print_user(const char *name, struct user *u, void *param) {
-	if (!verify_user(u)) {
-		logtxt(LOG_DEBUG, "INVALID USER");
-		return;
-	}
-	logfmt(LOG_DEBUG, "User info for '%s' == '%s'", name, u->numeric);
-	logfmt(LOG_DEBUG, "  Host: %s!%s@%s`%s * %s", u->nick, u->user, u->host, u->account, u->realname);
-	logfmt(LOG_DEBUG, "  Awaymsg: %s", u->awaymsg);
-	logtxt(LOG_DEBUG, "  Channel memberships:");
-	jtableP_iterate(&u->channels, (jtableP_cb)debug_print_userchan, u);
-}
-
-void debug_print_channels(void) {
-	logtxt(LOG_DEBUG, "-------------- User ---------------");
-	jtableS_iterate(&userlist_num, (jtableS_cb)debug_print_user, NULL);
 }

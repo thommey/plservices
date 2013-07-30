@@ -28,7 +28,8 @@
 
 #include "main.h"
 
-static jtable luabase_states, luabase_users;
+static jtableP luabase_states;
+static jtableL luabase_users;
 
 extern time_t now;
 extern struct server *me;
@@ -143,29 +144,29 @@ static void luabase_ontick(void) {
 
 static void luabase_onprivmsg(struct user *from, struct user *to, char *msg) {
 	struct args arg;
-	struct luaclient *lc = jtableS_get(&luabase_users, to->numeric);
+	struct luaclient *lc = jtableL_get(&luabase_users, to->numeric);
 
 	if (!lc)
 		return;
 
-	arg = pack(ARGTYPE_PTR, to->numeric, ARGTYPE_PTR, "irc_onmsg", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, msg);
+	arg = pack(ARGTYPE_ULONG, to->numeric, ARGTYPE_PTR, "irc_onmsg", ARGTYPE_ULONG, from->numeric, ARGTYPE_PTR, msg);
 	luabase_clienthook(lc, &arg);
 }
 
 static void luabase_onprivnotc(struct user *from, struct user *to, char *msg) {
 	struct args arg;
-	struct luaclient *lc = jtableS_get(&luabase_users, to->numeric);
+	struct luaclient *lc = jtableL_get(&luabase_users, to->numeric);
 
 	if (!lc)
 		return;
 
-	arg = pack(ARGTYPE_PTR, to->numeric, ARGTYPE_PTR, "irc_onnotice", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, msg);
+	arg = pack(ARGTYPE_ULONG, to->numeric, ARGTYPE_PTR, "irc_onnotice", ARGTYPE_ULONG, from->numeric, ARGTYPE_PTR, msg);
 	luabase_clienthook(lc, &arg);
 }
 
 static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg) {
 	struct args arg = pack(ARGTYPE_PTR, chan, ARGTYPE_PTR, "irc_onchanmsg", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, chan->name, ARGTYPE_PTR, msg);
-	jtableS_iterate(&luabase_users, (jtableS_cb)luabase_chanhook, &arg);
+	jtableL_iterate(&luabase_users, (jtableS_cb)luabase_chanhook, &arg);
 }
 
 void luabase_init() {
@@ -183,7 +184,7 @@ void luabase_init() {
 char *nextnum(void) {
 	static char numeric[6] = "";
 	if (!numeric[0])
-		sprintf(numeric, "%s%s", ME, base64_encode_padded(0, numeric + 2, 4));
+		sprintf(numeric, "%s%s", snum2str(me->numeric), base64_encode_padded(0, numeric + 2, 4));
 	else if (base64_incr(numeric + 2, 4))
 		error("No numerics left");
 	return numeric;
@@ -198,7 +199,7 @@ void luabase_pushuser(lua_State *L, struct user *u) {
 	lua_newtable(L);
 	lua_pushstring(L, u->nick);
 	lua_setfield(L, -2, "nick");
-	lua_pushstring(L, u->numeric);
+	lua_pushstring(L, unum2str(u->numeric));
 	lua_setfield(L, -2, "numeric");
 	lua_pushnumber(L, u->accountid);
 	lua_setfield(L, -2, "accountid");
@@ -217,9 +218,9 @@ struct luaclient *luabase_newuser(lua_State *L, const char *nick, const char *us
 	numeric = nextnum();
 	lc = zmalloc(sizeof(*lc));
 	lc->L = L;
-	strbufcpy(lc->numeric, numeric);
+	lc->numeric = str2unum(numeric);
 	lc->handler_ref = handlerref;
-	jtableS_insert(&luabase_users, numeric, lc);
+	jtableL_insert(&luabase_users, lc->numeric, lc);
 
 	send_format("%s N %s %d %ld %s %s %s%s%s %s %s :%s", ME, nick, 1, now, user, host, umode, account ? " " : "", account ? account : "", "DAqAoB", numeric, realname);
 	return lc;

@@ -23,7 +23,8 @@
 #ifndef USER_H_
 #define USER_H_
 
-#define UNUMLEN 5
+#include <time.h>
+
 #define NICKLEN 15
 #define USERLEN 10
 #define HOSTLEN 63
@@ -36,7 +37,7 @@
 
 struct user {
 	unsigned int magic;
-	char numeric[UNUMLEN+1];
+	unsigned long numeric;
 	char nick[NICKLEN+1];
 	char user[USERLEN+1];
 	char host[HOSTLEN+1];
@@ -51,16 +52,18 @@ struct user {
 	char awaymsg[AWAYMSGLEN+1];
 	usermode mode;
 	int channelcount;
-	jtable channels;
+	jtableP channels;
+	struct server *server;
 };
 
 #define verify_user(e) (((struct entity *)(e))->magic == MAGIC_USER)
 
 struct channel;
 
-struct user *get_user_by_numeric(const char *numeric);
+struct user *get_user_by_numeric(unsigned long numeric);
+struct user *get_user_by_numericstr(const char *numeric);
 struct user *get_user_by_nick(const char *nick);
-struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname);
+struct user *add_user(unsigned long numeric, int hops, char *nick, const char *user, const char *host, const char *realname);
 void del_user_iter(void *uptr, void *param);
 void del_user(struct user *user);
 void user_apply_mode(struct entity *from, struct user *target, char *modechanges, struct manyargs *arg, int skip);

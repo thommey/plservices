@@ -39,8 +39,8 @@ struct channel {
 	time_t ts;
 	int usercount;
 	chanmode mode;
-	jtable ops, voices, users;  /* o = opped users, v = voiced users, users = all users */
-	jtable bans;
+	jtableP ops, voices, users;  /* o = opped users, v = voiced users, users = all users */
+	jtableS bans;
 };
 
 /* mask origin (ban setter) */

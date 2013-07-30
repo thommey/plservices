@@ -23,11 +23,10 @@
 
 #include "main.h"
 
-static jtable hooks;
+static jtableS hooks;
 
 static void hook_register(char *name) {
-	jtable *t = malloc(sizeof(*t));
-	*t = (jtable)NULL;
+	jtableP *t = zmalloc(sizeof(*t));
 	jtableS_insert(&hooks, name, t);
 }
 
@@ -44,8 +43,8 @@ void init_hooks(void) {
 	hook_register("onprivnotc");
 }
 
-static jtable *get_funcs(const char *name) {
-	jtable *funcs = jtableS_get(&hooks, name);
+static jtableP *get_funcs(const char *name) {
+	jtableP *funcs = jtableS_get(&hooks, name);
 	if (!funcs) {
 		logfmt(LOG_WARNING, "Invalid hook '%s'", name);
 		return NULL;
@@ -54,14 +53,14 @@ static jtable *get_funcs(const char *name) {
 }
 
 void hook_hook(const char *name, void (*f)()) {
-	jtable *funcs = get_funcs(name);
+	jtableP *funcs = get_funcs(name);
 	if (!funcs)
 		return;
 	jtableP_set(funcs, f);
 }
 
 void hook_unhook(const char *name, void (*f)()) {
-	jtable *funcs = get_funcs(name);
+	jtableP *funcs = get_funcs(name);
 	if (!funcs)
 		return;
 	jtableP_unset(funcs, f);
@@ -73,7 +72,7 @@ static void hook_call1(void (*func)(), struct args *arg) {
 }
 
 void hook_call(const char *name, struct args arg) {
-	jtable *funcs = get_funcs(name);
+	jtableP *funcs = get_funcs(name);
 
 	if (!funcs)
 		return;

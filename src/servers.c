@@ -25,20 +25,24 @@
 
 #include "main.h"
 
-static jtable serverlist;
+static jtableL serverlist;
 
 struct server *me, *uplink;
 
-struct server *get_server_by_numeric(char *numeric) {
-	return jtableS_get(&serverlist, numeric);
+struct server *get_server_by_numeric(unsigned long numeric) {
+	return jtableL_get(&serverlist, numeric);
 }
 
-struct server *add_server(char *numeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description) {
+struct server *get_server_by_numericstr(const char *numeric) {
+	return get_server_by_numeric(str2snum(numeric));
+}
+
+struct server *add_server(unsigned long numeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description) {
 	struct server *s;
 
 	s = zmalloc(sizeof(*s));
 	s->magic = MAGIC_SERVER;
-	strbufcpy(s->numeric, numeric);
+	s->numeric = numeric;
 	strbufcpy(s->maxusers, maxusers);
 	strbufcpy(s->name, name);
 	s->hops = hops;
@@ -46,7 +50,6 @@ struct server *add_server(char *numeric, char *maxusers, char *name, int hops, t
 	s->link = link;
 	strbufcpy(s->protocol, protocol);
 	strbufcpy(s->description, description);
-	s->users = (jtable)NULL;
 
 	/* first one is myself, second one is my uplink */
 	if (!me)
@@ -56,12 +59,12 @@ struct server *add_server(char *numeric, char *maxusers, char *name, int hops, t
 		set_registered(1);
 	}
 
-	return jtableS_insert(&serverlist, numeric, s);
+	return jtableL_insert(&serverlist, numeric, s);
 }
 
 void del_server(struct server *server) {
 	jtableP_iterate(&server->users, del_user_iter, NULL);
-	jtableS_remove(&serverlist, server->numeric);
+	jtableL_remove(&serverlist, server->numeric);
 	free(server);
 }
 

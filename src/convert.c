@@ -32,21 +32,21 @@ void convert_nick(struct funcarg *a, char *str) {
 	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
-void convert_unum(struct funcarg *a,char *str) {
-	a->data.p = get_user_by_numeric(str);
+void convert_unum(struct funcarg *a, char *str) {
+	a->data.p = get_user_by_numericstr(str);
 	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
 void convert_snum(struct funcarg *a,char *str) {
-	a->data.p = get_server_by_numeric(str);
+	a->data.p = get_server_by_numericstr(str);
 	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
 void convert_num(struct funcarg *a, char *str) {
 	if (strlen(str) == SNUMLEN)
-		a->data.p = get_server_by_numeric(str);
+		a->data.p = get_server_by_numericstr(str);
 	else if (strlen(str) == UNUMLEN)
-		a->data.p = get_user_by_numeric(str);
+		a->data.p = get_user_by_numericstr(str);
 	else
 		a->data.p = NULL;
 	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;

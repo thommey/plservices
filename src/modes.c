@@ -219,7 +219,7 @@ struct modebuf *mode_pushmode(struct user *from, struct channel *c, int plsmns, 
 
 	/* check target validity, ignore redundant modes */
 	if (ismode_prefix(chanmodelist, mode)) {
-		u = get_user_by_numeric(target);
+		u = get_user_by_numericstr(target);
 		if (!u || !chanusers_ison(u, c)) {
 			logfmt(LOG_WARNING, "Mode change target user not found or not on channel: '%s' on '%s'", target, c->name);
 			return &m;

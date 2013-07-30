@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "log.h"
+#include "base64.h"
 
 static char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789[]";
 static char base64table[256];
@@ -39,7 +40,7 @@ void init_base64(void) {
 		decode_base64_digit(encode_base64_digit(i)) = i;
 }
 
-long base64_decode_long(char *str, size_t len) {
+long base64_decode_long(const char *str, size_t len) {
 	int i = 0;
 	long result = 0;
 
@@ -87,4 +88,30 @@ int base64_incr(char *buf, size_t bufsize) {
 		}
 	}
 	return 1;
+}
+
+unsigned long str2unum(const char *str) {
+	return base64_decode_long(str, 5);
+}
+
+unsigned long str2snum(const char *str) {
+	return base64_decode_long(str, 2);
+}
+
+const char *unum2str(unsigned long unum) {
+	static char buf[UNUMLEN+1];
+	base64_encode_padded(unum, buf, sizeof(buf));
+	return buf;
+}
+
+const char *snum2str(unsigned long snum) {
+	static char buf[SNUMLEN+1];
+	base64_encode_padded(snum, buf, sizeof(buf));
+	return buf;
+}
+
+const char *cnum2str(unsigned long snum, unsigned long cnum) {
+	static char buf[UNUMLEN+1];
+	base64_encode_padded(snum*64*64*64+cnum, buf, sizeof(buf));
+	return buf;
 }

@@ -26,7 +26,7 @@
 #include <lua.h>
 
 struct luaclient {
-	char numeric[6];
+	unsigned long numeric;
 	lua_State *L;
 	int handler_ref;
 };

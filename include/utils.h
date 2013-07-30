@@ -38,11 +38,12 @@ struct manyargs {
 	char *v[256];
 };
 
-enum argtype { ARGTYPE_NONE, ARGTYPE_INT, ARGTYPE_UINT, ARGTYPE_LONG, ARGTYPE_TIME, ARGTYPE_STRING, ARGTYPE_PTR };
+enum argtype { ARGTYPE_NONE, ARGTYPE_INT, ARGTYPE_UINT, ARGTYPE_LONG, ARGTYPE_ULONG, ARGTYPE_TIME, ARGTYPE_STRING, ARGTYPE_PTR };
 union argdata {
 	int i;
 	unsigned int u;
 	long l;
+	unsigned long ul;
 	time_t t;
 	void *p;
 };
@@ -66,6 +67,7 @@ long *randomset(int count, long max);
 int argdata_int(struct funcarg *a);
 unsigned int argdata_uint(struct funcarg *a);
 long argdata_long(struct funcarg *a);
+unsigned long argdata_ulong(struct funcarg *a);
 time_t argdata_time(struct funcarg *a);
 void *argdata_ptr(struct funcarg *a);
 void shift(struct args *arg, int amount);
@@ -75,6 +77,7 @@ struct args pack(enum argtype current, ...);
 #define argdata(arg) ((arg).type == ARGTYPE_INT  ? &(arg).data.i : \
 					  (arg).type == ARGTYPE_UINT ? &(arg).data.u : \
 					  (arg).type == ARGTYPE_LONG ? &(arg).data.l : \
+					  (arg).type == ARGTYPE_ULONG ? &(arg).data.ul : \
 					  (arg).type == ARGTYPE_TIME ? &(arg).data.t : \
 					  (arg).type == ARGTYPE_PTR  ? (arg).data.p : NULL)
 
