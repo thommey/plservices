@@ -25,7 +25,7 @@
 
 #include "main.h"
 
-static jtable userlist_num, userlist_num, opers;
+static jtable userlist_num, userlist_nick, opers;
 
 struct user *get_user(struct user *u) {
 	if (!u || !verify_user(u))
