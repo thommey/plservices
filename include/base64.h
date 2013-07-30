@@ -2,7 +2,7 @@
 #define BASE64_H_
 
 #define UNUMLEN 5
-#define SNUMLEN 5
+#define SNUMLEN 2
 
 void init_base64(void);
 long base64_decode_long(const char *str, size_t len);

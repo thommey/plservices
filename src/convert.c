@@ -37,7 +37,7 @@ void convert_unum(struct funcarg *a, char *str) {
 	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
 
-void convert_snum(struct funcarg *a,char *str) {
+void convert_snum(struct funcarg *a, char *str) {
 	a->data.p = get_server_by_numericstr(str);
 	a->type = a->data.p ? ARGTYPE_PTR : ARGTYPE_NONE;
 }
