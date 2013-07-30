@@ -23,7 +23,7 @@
 
 #include "main.h"
 
-static jtable hooks = (jtable)NULL;
+static jtable hooks;
 
 static void hook_register(char *name) {
 	jtable *t = malloc(sizeof(*t));

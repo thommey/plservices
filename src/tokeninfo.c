@@ -26,7 +26,7 @@
 
 #include "jtable.h"
 
-static jtable tokeninfos = (jtable)NULL;
+static jtable tokeninfos;
 static struct tokeninfo *shorttokeninfos[256];
 
 struct tokeninfo *get_tokeninfo(char *token) {

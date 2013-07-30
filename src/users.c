@@ -25,15 +25,13 @@
 
 #include "main.h"
 
-static jtable userlist_num = (jtable)NULL;
-static jtable userlist_nick = (jtable)NULL;
-static jtable opers = (jtable)NULL;
+static jtable userlist_num, userlist_num, opers;
 
 struct user *get_user(struct user *u) {
 	if (!u || !verify_user(u))
 		return NULL;
 	return u;
-};
+}
 
 struct user *get_user_by_numeric(const char *numeric) {
 	return jtableS_get(&userlist_num, numeric);

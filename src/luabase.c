@@ -28,8 +28,7 @@
 
 #include "main.h"
 
-static jtable luabase_states = (jtable)NULL;
-static jtable luabase_users = (jtable)NULL;
+static jtable luabase_states, luabase_users;
 
 extern time_t now;
 extern struct server *me;

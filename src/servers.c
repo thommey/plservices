@@ -25,7 +25,7 @@
 
 #include "main.h"
 
-static jtable serverlist = (jtable)NULL;
+static jtable serverlist;
 
 struct server *me, *uplink;
 
