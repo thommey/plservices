@@ -161,8 +161,8 @@ void hEND_OF_BURST(struct server *from) {
 	from->protocol[0] = 'P';
 	if (from == uplink) {
 		end_of_burst = 1;
-		send_words(0, ME, "EB");
-		send_words(0, ME, "EA");
+		send_words(0, snum2str(ME), "EB");
+		send_words(0, snum2str(ME), "EA");
 	}
 }
 

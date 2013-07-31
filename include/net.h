@@ -25,12 +25,12 @@
 
 void net_connect(const char *servername, const char *port, const char *pass, const char *sname, const char *sdescr);
 void send_format(const char *format, ...);
-void send_words(int forcecolon, ...);
+void send_words(const char *first, ...);
 void send_raw(char *str);
 void net_read(void);
 
 #define send_raw(s) send_raw(s "\r\n")
 #define send_format(f, ...) send_format(f "\r\n", __VA_ARGS__)
-#define send_words(f, ...) send_words(f, __VA_ARGS__, NULL)
+#define send_words(...) send_words(__VA_ARGS__, NULL)
 
 #endif /* NET_H_ */

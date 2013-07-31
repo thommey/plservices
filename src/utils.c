@@ -25,22 +25,20 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include "utils.h"
 #include "log.h"
 
 void sfree(void *p) {
-	if (!p) {
-		logtxt(LOG_WARNING, "Attempted to free null pointer");
-		return;
-	}
 	free(p);
 }
 
 void *smalloc(size_t s) {
 	void *p = malloc(s);
 	if (!p) {
-		logtxt(LOG_WARNING, "Out of memory");
+		logfmt(LOG_FATAL, "Out of memory. Could not allocate %zd bytes.", s);
+		exit(1);
 	}
 	return p;
 }
@@ -133,7 +131,6 @@ void *argdata_ptr(struct funcarg *a) {
 	assert(a->type == ARGTYPE_PTR);
 	return a->data.p;
 }
-
 
 /* generates count random numbers from 0 to max-1 */
 /* Knuth's algorithm */

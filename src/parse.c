@@ -82,7 +82,7 @@ struct manyargs *rfc_split(struct manyargs *arg, char *line) {
 	return arg;
 }
 
-char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon) {
+char *rfc_join(char *buf, size_t bufsize, int argc, char **argv) {
 	char *pos;
 	int i;
 	size_t len;
@@ -90,7 +90,7 @@ char *rfc_join(char *buf, size_t bufsize, int argc, char **argv, int forcecolon)
 	for (pos = buf, i = 0; i < argc; i++) {
 		if (i)
 			*pos++ = ' ';
-		if (i == argc - 1 && (forcecolon || strpbrk(argv[i], " ")))
+		if (i == argc - 1 && (argv[i][0] == ':' || strpbrk(argv[i], " ")))
 			*pos++ = ':';
 		len = strlen(argv[i]);
 		strncpy(pos, argv[i], bufsize-(buf-pos)-3);

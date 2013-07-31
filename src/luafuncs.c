@@ -70,7 +70,7 @@ static int luafunc_irc_localchanmsg(lua_State *L) {
 	const char *chan = luaL_checkstring(L, 2);
 	const char *msg = luaL_checkstring(L, 3);
 
-	send_words(1, numeric, "P", chan, msg);
+	send_words(numeric, "P", chan, msg);
 	return 0;
 }
 
@@ -171,7 +171,7 @@ static int luafunc_irc_localnotice(lua_State *L) {
 	const char *target = luaL_checkstring(L, 2);
 	const char *msg = luaL_checkstring(L, 3);
 
-	send_words(1, unum, "O", target, msg);
+	send_words(unum, "O", target, msg);
 	return 0;
 }
 

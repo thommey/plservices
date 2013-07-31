@@ -85,18 +85,19 @@ void send_raw(char *str) {
 	handle_input(strbufcpy(buf, str));
 }
 
-void send_words(int forcecolon, ...) {
+void send_words(const char *first, ...) {
 	char buf[513];
 	struct manyargs arg;
 	char *word;
 	va_list ap;
 
-	va_start(ap, forcecolon);
+	va_start(ap, first);
 	arg.c = 0;
+	arg.v[arg.c++] = (char *)first;
 	while ((word = va_arg(ap, char *)))
 		arg.v[arg.c++] = word;
 	va_end(ap);
-	send_raw(rfc_join(buf, sizeof(buf), arg.c, arg.v, forcecolon));
+	send_raw(rfc_join(buf, sizeof(buf), arg.c, arg.v));
 }
 
 void send_format(const char *fmt, ...) {
