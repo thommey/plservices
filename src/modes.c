@@ -174,7 +174,7 @@ void mode_flushmode(struct modebuf *m) {
 		return;
 
 	/* targetstr and modestr aren't \0 terminated */
-	send_format("%s M %s %.*s%.*s", m->from->numeric, m->chan->name, m->modestrpos - m->modestr, m->modestr, m->targetstrpos - m->targetstr, m->targetstr);
+	send_format("%s M %s %.*s%.*s", m->from->numericstr, m->chan->name, m->modestrpos - m->modestr, m->modestr, m->targetstrpos - m->targetstr, m->targetstr);
 	/* reset mode buffer */
 	m->from = NULL;
 	m->chan = NULL;

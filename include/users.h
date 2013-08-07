@@ -38,6 +38,7 @@
 struct user {
 	unsigned int magic;
 	unsigned long numeric;
+	char numericstr[UNUMLEN+1];
 	char nick[NICKLEN+1];
 	char user[USERLEN+1];
 	char host[HOSTLEN+1];
@@ -57,13 +58,14 @@ struct user {
 };
 
 #define verify_user(e) (((struct entity *)(e))->magic == MAGIC_USER)
+#define user_send(u, ...) send_words(unum2str(u->numeric), __VA_ARGS__)
 
 struct channel;
 
 struct user *get_user_by_numeric(unsigned long numeric);
 struct user *get_user_by_numericstr(const char *numeric);
 struct user *get_user_by_nick(const char *nick);
-struct user *add_user(unsigned long numeric, int hops, char *nick, const char *user, const char *host, const char *realname);
+struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname);
 void del_user_iter(void *uptr, void *param);
 void del_user(struct user *user);
 void user_apply_mode(struct entity *from, struct user *target, char *modechanges, struct manyargs *arg, int skip);

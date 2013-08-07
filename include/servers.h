@@ -28,11 +28,12 @@
 #define SNAMELEN 63
 #define DESCRLEN 150
 
-#define ME (me->numeric)
+#define ME (me->numericstr)
 
 struct server {
 	unsigned int magic;
 	unsigned long numeric;
+	char numericstr[SNUMLEN+1];
 	char name[SNAMELEN+1];
 	char maxusers[4];
 	int hops;
@@ -45,10 +46,10 @@ struct server {
 };
 
 #define verify_server(e) (((struct entity *)(e))->magic == MAGIC_SERVER)
-
+#define server_send(s, ...) send_words(snum2str(s->numeric), __VA_ARGS__)
 struct server *get_server_by_numeric(unsigned long numeric);
 struct server *get_server_by_numericstr(const char *numeric);
-struct server *add_server(unsigned long numeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description);
+struct server *add_server(char *umeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description);
 void del_server(struct server *user);
 void server_apply_mode(struct entity *from, struct entity *target, char *modechanges, struct manyargs *arg, int skip);
 

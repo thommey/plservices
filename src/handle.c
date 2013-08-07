@@ -74,14 +74,16 @@ void hBURST(struct server *from, char *chan, time_t *ts, struct manyargs *rest) 
 	if (!rest->c)
 		return;
 
+	/* handle modes if present */
 	nextpos = 0;
-	tmp = rest->v[0];
+
+	tmp = rest->v[nextpos];
 	if (tmp && tmp[0] == '+')
 		nextpos = 1 + channel_apply_mode((struct entity *)from, c, rest->v[0], rest, 1);
 
 	/* rest->v[nextpos] is now the next parameter after the modes */
 	/* check the last parameter for leading % */
-	tmp = NULL;
+	tmp = rest->v[nextpos];
 	if (rest->c - 1 > nextpos)
 		tmp = rest->v[rest->c - 1];
 	if (tmp && tmp[0] == '%') {
@@ -104,7 +106,7 @@ void hBURST(struct server *from, char *chan, time_t *ts, struct manyargs *rest) 
 			burstmode = tmp;
 		}
 
-		u = get_user_by_numeric(str2unum(list.v[i]));
+		u = get_user_by_numericstr(list.v[i]);
 		if (!u) {
 			logtxt(LOG_WARNING, "Burst join for non-existant user.");
 			continue;
@@ -161,8 +163,8 @@ void hEND_OF_BURST(struct server *from) {
 	from->protocol[0] = 'P';
 	if (from == uplink) {
 		end_of_burst = 1;
-		send_words(0, snum2str(ME), "EB");
-		send_words(0, snum2str(ME), "EA");
+		server_send(me, "EB");
+		server_send(me, "EA");
 	}
 }
 
@@ -256,7 +258,7 @@ void hNICK1(struct user *from, char *newnick, time_t *ts) {
 void hNICK2(struct entity *from, char *nick, int *hops, time_t *ts, char *ident, char *host, struct manyargs *mode, char *ip, char *unum, char *realname) {
 	struct user *u;
 
-	u = add_user(str2unum(unum), *hops, nick, ident, host, realname);
+	u = add_user(unum, *hops, nick, ident, host, realname);
 	user_apply_mode((struct entity *)u, u, mode->v[0], mode, 1);
 }
 
@@ -332,11 +334,11 @@ void hRPONG1(struct entity *from, char *startserver, struct user *oper, time_t *
 void hRPONG2(struct entity *from, struct user *target, char *servername, long *ms, char *text) {
 }
 
-void hSERVER(struct entity *from, char *name, int *hops, time_t *boot, time_t *link, char *protocol, char *numericstr, char *flags, char *descr) {
+void hSERVER(struct entity *from, char *name, int *hops, time_t *boot, time_t *link, char *protocol, char *numeric, char *flags, char *descr) {
 	struct server *s;
-	char *maxuserstr = numericstr+2;
+	char *maxuserstr = numeric+2;
 
-	s = add_server(str2snum(numericstr), maxuserstr, name, *hops, *boot, *link, protocol, descr);
+	s = add_server(numeric, maxuserstr, name, *hops, *boot, *link, protocol, descr);
 
 	server_apply_mode(from, (struct entity *)s, flags, NULL, 0);
 }

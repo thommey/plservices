@@ -116,20 +116,20 @@ static int luabase_clienthook(struct luaclient *lc, struct args *arg) {
 	err = lua_pcall(lc->L, arg->c, 0, 0);
 	if (luabase_report(lc->L, "client hook", err))
 		return 1;
-	logfmt(LOG_LUA, "Successfully called client hook %s for numeric %s", (char *)argdata_ptr(&arg->v[1]), lc->numeric);
+	logfmt(LOG_LUA, "Successfully called client hook %s for numeric %s", (char *)argdata_ptr(&arg->v[1]), (char *)argdata_ptr(&arg->v[0]));
 	return 0;
 }
 
-static void luabase_chanhook(char *numeric, struct luaclient *lc, struct args *arg) {
+static void luabase_chanhook(unsigned long numeric, struct luaclient *lc, struct args *arg) {
 	int i;
 	struct args myarg;
-	struct user *u = get_user_by_numeric(lc->numeric);
+	struct user *u = get_user_by_numeric(numeric);
 	struct channel *c = argdata_ptr(&arg->v[0]);
 
 	if (!u || !c || !chanusers_ison(u, c))
 		return;
 
-	myarg = pack(ARGTYPE_PTR, lc->numeric, ARGTYPE_PTR, argdata_ptr(&arg->v[1]));
+	myarg = pack(ARGTYPE_PTR, u->numericstr, ARGTYPE_PTR, argdata_ptr(&arg->v[1]));
 	for (i = 2; i < arg->c; myarg.c++, i++) {
 		myarg.v[myarg.c].type = ARGTYPE_PTR;
 		myarg.v[myarg.c].data.p = argdata_ptr(&arg->v[i]);
@@ -149,7 +149,7 @@ static void luabase_onprivmsg(struct user *from, struct user *to, char *msg) {
 	if (!lc)
 		return;
 
-	arg = pack(ARGTYPE_ULONG, to->numeric, ARGTYPE_PTR, "irc_onmsg", ARGTYPE_ULONG, from->numeric, ARGTYPE_PTR, msg);
+	arg = pack(ARGTYPE_PTR, to->numericstr, ARGTYPE_PTR, "irc_onmsg", ARGTYPE_PTR, from->numericstr, ARGTYPE_PTR, msg);
 	luabase_clienthook(lc, &arg);
 }
 
@@ -160,13 +160,13 @@ static void luabase_onprivnotc(struct user *from, struct user *to, char *msg) {
 	if (!lc)
 		return;
 
-	arg = pack(ARGTYPE_ULONG, to->numeric, ARGTYPE_PTR, "irc_onnotice", ARGTYPE_ULONG, from->numeric, ARGTYPE_PTR, msg);
+	arg = pack(ARGTYPE_PTR, to->numericstr, ARGTYPE_PTR, "irc_onnotice", ARGTYPE_PTR, from->numericstr, ARGTYPE_PTR, msg);
 	luabase_clienthook(lc, &arg);
 }
 
 static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg) {
-	struct args arg = pack(ARGTYPE_PTR, chan, ARGTYPE_PTR, "irc_onchanmsg", ARGTYPE_PTR, from->numeric, ARGTYPE_PTR, chan->name, ARGTYPE_PTR, msg);
-	jtableL_iterate(&luabase_users, (jtableS_cb)luabase_chanhook, &arg);
+	struct args arg = pack(ARGTYPE_PTR, chan, ARGTYPE_PTR, "irc_onchanmsg", ARGTYPE_PTR, from->numericstr, ARGTYPE_PTR, chan->name, ARGTYPE_PTR, msg);
+	jtableL_iterate(&luabase_users, (jtableL_cb)luabase_chanhook, &arg);
 }
 
 void luabase_init() {
@@ -184,7 +184,7 @@ void luabase_init() {
 char *nextnum(void) {
 	static char numeric[6] = "";
 	if (!numeric[0])
-		sprintf(numeric, "%s%s", snum2str(me->numeric), base64_encode_padded(0, numeric + 2, 4));
+		sprintf(numeric, "%s%s", ME, base64_encode_padded(0, numeric + 2, 4));
 	else if (base64_incr(numeric + 2, 4))
 		error("No numerics left");
 	return numeric;
@@ -199,7 +199,7 @@ void luabase_pushuser(lua_State *L, struct user *u) {
 	lua_newtable(L);
 	lua_pushstring(L, u->nick);
 	lua_setfield(L, -2, "nick");
-	lua_pushstring(L, unum2str(u->numeric));
+	lua_pushstring(L, u->numericstr);
 	lua_setfield(L, -2, "numeric");
 	lua_pushnumber(L, u->accountid);
 	lua_setfield(L, -2, "accountid");
@@ -211,19 +211,18 @@ void luabase_pushuser_iter(struct user *u, struct luapushuserdata *lpud) {
 	lua_settable(lpud->L, -3);
 }
 
-struct luaclient *luabase_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref) {
+unsigned long luabase_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref) {
 	struct luaclient *lc;
 	char *numeric;
 
 	numeric = nextnum();
 	lc = zmalloc(sizeof(*lc));
 	lc->L = L;
-	lc->numeric = str2unum(numeric);
 	lc->handler_ref = handlerref;
-	jtableL_insert(&luabase_users, lc->numeric, lc);
+	jtableL_insert(&luabase_users, str2unum(numeric), lc);
 
 	send_format("%s N %s %d %ld %s %s %s%s%s %s %s :%s", ME, nick, 1, now, user, host, umode, account ? " " : "", account ? account : "", "DAqAoB", numeric, realname);
-	return lc;
+	return str2unum(numeric);
 }
 
 int luabase_getbooleanfromarray(lua_State *L, int tableidx, int idx) {

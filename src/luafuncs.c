@@ -37,7 +37,7 @@ static int luafunc_os_time(lua_State *L) {
 }
 
 static int luafunc_irc_localregisteruser(lua_State *L) {
-	struct luaclient *lc;
+	unsigned long unum;
 	const char *nick = luaL_checkstring(L, 1);
 	const char *user = luaL_checkstring(L, 2);
 	const char *host = luaL_checkstring(L, 3);
@@ -45,13 +45,13 @@ static int luafunc_irc_localregisteruser(lua_State *L) {
 	const char *umode = luaL_checkstring(L, 6);
 	luaL_checktype(L, -1, LUA_TFUNCTION);
 
-	lc = luabase_newuser(L, nick, user, host, umode, NULL, realname, luaL_ref(L, LUA_REGISTRYINDEX));
-	lua_pushstring(L, unum2str(lc->numeric));
+	unum = luabase_newuser(L, nick, user, host, umode, NULL, realname, luaL_ref(L, LUA_REGISTRYINDEX));
+	lua_pushstring(L, unum2str(unum));
 	return 1;
 }
 
 static int luafunc_irc_localregisteruserid(lua_State *L) {
-	struct luaclient *lc;
+	unsigned long unum;
 	const char *nick = luaL_checkstring(L, 1);
 	const char *user = luaL_checkstring(L, 2);
 	const char *host = luaL_checkstring(L, 3);
@@ -60,8 +60,8 @@ static int luafunc_irc_localregisteruserid(lua_State *L) {
 	const char *umode = luaL_checkstring(L, 7);
 	luaL_checktype(L, -1, LUA_TFUNCTION);
 
-	lc = luabase_newuser(L, nick, user, host, umode, account, realname, luaL_ref(L, LUA_REGISTRYINDEX));
-	lua_pushstring(L, unum2str(lc->numeric));
+	unum = luabase_newuser(L, nick, user, host, umode, account, realname, luaL_ref(L, LUA_REGISTRYINDEX));
+	lua_pushstring(L, unum2str(unum));
 	return 1;
 }
 
@@ -70,7 +70,7 @@ static int luafunc_irc_localchanmsg(lua_State *L) {
 	const char *chan = luaL_checkstring(L, 2);
 	const char *msg = luaL_checkstring(L, 3);
 
-	send_words(numeric, "P", chan, msg);
+	user_send(get_user_by_numericstr(numeric), "P", chan, msg);
 	return 0;
 }
 
@@ -167,11 +167,11 @@ static int luafunc_irc_channeluserlist(lua_State *L) {
 }
 
 static int luafunc_irc_localnotice(lua_State *L) {
-	const char *unum = luaL_checkstring(L, 1);
+	const char *numeric = luaL_checkstring(L, 1);
 	const char *target = luaL_checkstring(L, 2);
 	const char *msg = luaL_checkstring(L, 3);
 
-	send_words(unum, "O", target, msg);
+	user_send(get_user_by_numericstr(numeric), "O", target, msg);
 	return 0;
 }
 

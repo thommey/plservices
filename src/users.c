@@ -48,13 +48,14 @@ struct user *get_user_by_nick(const char *nick) {
 	return jtableS_get(&userlist_nick, rfc_tolower(buf, sizeof(buf), nick));
 }
 
-struct user *add_user(unsigned long numeric, int hops, char *nick, const char *user, const char *host, const char *realname) {
+struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname) {
 	char buf[NICKLEN+1];
 	struct user *u;
 
 	u = zmalloc(sizeof(*u));
 	u->magic = MAGIC_USER;
-	u->numeric = numeric;
+	strbufcpy(u->numericstr, numeric);
+	u->numeric = str2unum(numeric);
 	u->hops = hops;
 	strbufcpy(u->nick, nick);
 	strbufcpy(u->user, user);
@@ -62,7 +63,7 @@ struct user *add_user(unsigned long numeric, int hops, char *nick, const char *u
 	strbufcpy(u->realname, realname);
 
 	jtableS_insert(&userlist_nick, rfc_tolower(buf, sizeof(buf), nick), u);
-	return jtableL_insert(&userlist_num, numeric, u);
+	return jtableL_insert(&userlist_num, u->numeric, u);
 }
 
 void del_user_iter(void *uptr, void *unused) {

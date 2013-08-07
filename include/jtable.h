@@ -30,6 +30,7 @@ typedef struct { void *t; } jtableL;
 typedef struct { void *t; } jtableS;
 
 typedef void (*jtableS_cb)(char *key, void *data, void *param);
+typedef void (*jtableL_cb)(unsigned long key, void *data, void *param);
 typedef void (*jtableP_cb)(void *key, void *param);
 
 /* string indexed table */
@@ -44,7 +45,7 @@ void *jtableL_insert(jtableL *table, unsigned long key, void *data);
 void *jtableL_get(jtableL *table, unsigned long key);
 int jtableL_remove(jtableL *table, unsigned long key);
 int jtableL_free(jtableL *table);
-void jtableL_iterate(jtableL *table, jtableS_cb f, void *param);
+void jtableL_iterate(jtableL *table, jtableL_cb f, void *param);
 
 /* pointer indexed table without data (0/1 only) */
 int jtableP_set(jtableP *table, void *key);

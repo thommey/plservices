@@ -37,12 +37,13 @@ struct server *get_server_by_numericstr(const char *numeric) {
 	return get_server_by_numeric(str2snum(numeric));
 }
 
-struct server *add_server(unsigned long numeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description) {
+struct server *add_server(char *numeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description) {
 	struct server *s;
 
 	s = zmalloc(sizeof(*s));
 	s->magic = MAGIC_SERVER;
-	s->numeric = numeric;
+	strbufcpy(s->numericstr, numeric);
+	s->numeric = str2snum(numeric);
 	strbufcpy(s->maxusers, maxusers);
 	strbufcpy(s->name, name);
 	s->hops = hops;
@@ -59,7 +60,7 @@ struct server *add_server(unsigned long numeric, char *maxusers, char *name, int
 		set_registered(1);
 	}
 
-	return jtableL_insert(&serverlist, numeric, s);
+	return jtableL_insert(&serverlist, s->numeric, s);
 }
 
 void del_server(struct server *server) {
@@ -72,7 +73,7 @@ struct server *get_server(struct server *s) {
 	if (!s || !verify_server(s))
 		return NULL;
 	return s;
-};
+}
 
 static int server_modehook(struct entity *from, struct entity *target, int pls, char modechange, char *param) {
 	struct server *s;

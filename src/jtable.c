@@ -108,15 +108,14 @@ int jtableL_free(jtableL *table) {
 	return ret;
 }
 
-void jtableL_iterate(jtableL *table, jtableS_cb f, void *param) {
+void jtableL_iterate(jtableL *table, jtableL_cb f, void *param) {
 	PWord_t PValue;
-	uint8_t key[512];
+	Word_t key = 0UL;
 
-	key[0] = '\0';
-	JSLF(PValue, table->t, key);
+	JLF(PValue, table->t, key);
 	while (PValue) {
-		f((char *)key, (void *)*PValue, param);
-		JSLN(PValue, table->t, key);
+		f(key, (void *)*PValue, param);
+		JLN(PValue, table->t, key);
 	}
 }
 

@@ -203,7 +203,7 @@ void burster_burst_channels(int max, int (*count_by_size)(int size, int total)) 
 
 void burster_go(void) {
 	mylink = now;
-	send_format("%s S burster.metairc.net 2 0 %ld J10 %s]]] +sn :Mass fake server", snum2str(ME), mylink, FAKESNUM);
+	send_format("%s S burster.metairc.net 2 0 %ld J10 %s]]] +sn :Mass fake server", ME, mylink, FAKESNUM);
 	burster_burst_clients(100000);
 	burster_burst_channels(40000, chancount_quakenet);
 	send_format("%s EB", FAKESNUM);
