@@ -145,7 +145,7 @@ static int luafunc_irc_localsimplechanmode(lua_State *L) {
 	if (!u || !c || strlen(mode) != 2 || (mode[0] != '+' && mode[0] != '-'))
 		luaL_error(L, "Invalid modechange: %s %s %s", chan, mode, unum);
 
-	mode_pushmode(u, c, mode[0] == '+', mode[1], NULL, 0);
+	mode_flushmode(mode_pushmode(u, c, mode[0] == '+', mode[1], NULL, 0));
 	return 0;
 }
 
