@@ -270,7 +270,7 @@ void hNOTICE(struct entity *from, char *target, char *msg) {
 	if (u->server == me)
 		return;
 	if (*target != '#')
-		hook_call("onprivnotc", pack_args(arg_ptr(u), arg_ptr(get_user_by_numeric(str2unum(target))), arg_str(msg)));
+		hook_call("onprivnotc", pack_args(arg_user(u), arg_user(get_user_by_numeric(str2unum(target))), arg_str(msg)));
 }
 
 void hOPMODE(struct entity *from, struct channel *chan, struct manyargs *modechange, time_t *ts) {
@@ -312,9 +312,9 @@ void hPRIVMSG(struct entity *from, char *target, char *msg) {
 		return;
 
 	if (*target == '#')
-		hook_call("onchanmsg", pack_args(arg_ptr(u), arg_ptr(get_channel_by_name(target)), arg_str(msg)));
+		hook_call("onchanmsg", pack_args(arg_user(u), arg_chan(get_channel_by_name(target)), arg_str(msg)));
 	else
-		hook_call("onprivmsg", pack_args(arg_ptr(u), arg_ptr(get_user_by_numeric(str2unum(target))), arg_str(msg)));
+		hook_call("onprivmsg", pack_args(arg_user(u), arg_user(get_user_by_numeric(str2unum(target))), arg_str(msg)));
 }
 
 void hQUIT(struct user *from, char *reason) {

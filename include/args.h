@@ -34,7 +34,7 @@ struct manyargs {
 	char *v[256];
 };
 
-enum argtype { ARGTYPE_NONE, ARGTYPE_INT, ARGTYPE_UINT, ARGTYPE_LONG, ARGTYPE_ULONG, ARGTYPE_TIME, ARGTYPE_STR, ARGTYPE_PTR };
+enum argtype { ARGTYPE_NONE, ARGTYPE_INT, ARGTYPE_UINT, ARGTYPE_LONG, ARGTYPE_ULONG, ARGTYPE_TIME, ARGTYPE_USER, ARGTYPE_CHAN, ARGTYPE_SERVER, ARGTYPE_STR, ARGTYPE_PTR };
 
 union argdata {
 	int i;
@@ -42,7 +42,6 @@ union argdata {
 	long l;
 	unsigned long ul;
 	time_t t;
-	char *s;
 	void *p;
 };
 
@@ -61,6 +60,9 @@ unsigned int argdata_uint(struct funcarg *a);
 long argdata_long(struct funcarg *a);
 unsigned long argdata_ulong(struct funcarg *a);
 time_t argdata_time(struct funcarg *a);
+struct user *argdata_user(struct funcarg *a);
+struct channel *argdata_chan(struct funcarg *a);
+struct server *argdata_server(struct funcarg *a);
 char *argdata_str(struct funcarg *a);
 void *argdata_ptr(struct funcarg *a);
 void shift(struct args *arg, int amount);
@@ -73,6 +75,9 @@ struct funcarg arg_uint(unsigned int u);
 struct funcarg arg_long(long l);
 struct funcarg arg_ulong(unsigned long ul);
 struct funcarg arg_time(time_t t);
+struct funcarg arg_user(struct user *u);
+struct funcarg arg_chan(struct channel *c);
+struct funcarg arg_server(struct server *s);
 struct funcarg arg_str(char *s);
 struct funcarg arg_ptr(void *p);
 
@@ -83,7 +88,6 @@ struct funcarg arg_ptr(void *p);
 					  (arg).type == ARGTYPE_LONG ? &(arg).data.l : \
 					  (arg).type == ARGTYPE_ULONG ? &(arg).data.ul : \
 					  (arg).type == ARGTYPE_TIME ? &(arg).data.t : \
-					  (arg).type == ARGTYPE_STR ? (arg).data.s : \
-					  (arg).type == ARGTYPE_PTR  ? (arg).data.p : NULL)
+					  (arg).type == ARGTYPE_NONE ? NULL : (arg).data.p)
 
 #endif // ARGS_H_

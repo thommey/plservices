@@ -58,11 +58,22 @@ struct funcarg arg_ulong(unsigned long ul) {
 
 struct funcarg arg_time(time_t t) {
 	return (struct funcarg) {.type = ARGTYPE_TIME, .data.t = t};
+}
 
+struct funcarg arg_user(struct user *u) {
+	return (struct funcarg) {.type = ARGTYPE_USER, .data.p = u};
+}
+
+struct funcarg arg_chan(struct channel *c) {
+	return (struct funcarg) {.type = ARGTYPE_CHAN, .data.p = c};
+}
+
+struct funcarg arg_server(struct server *s) {
+	return (struct funcarg) {.type = ARGTYPE_SERVER, .data.p = s};
 }
 
 struct funcarg arg_str(char *s) {
-	return (struct funcarg) {.type = ARGTYPE_STR, .data.s = s};
+	return (struct funcarg) {.type = ARGTYPE_STR, .data.p = s};
 }
 
 struct funcarg arg_ptr(void *p) {
@@ -95,7 +106,7 @@ struct args pack_words(const char *first, ...) {
 	arg.c = 0;
 	while (current) {
 		arg.v[arg.c].type = ARGTYPE_STR;
-		arg.v[arg.c].data.s = (char *)current;
+		arg.v[arg.c].data.p = (char *)current;
 		current = va_arg(ap, const char *);
 		arg.c++;
 	}
@@ -127,9 +138,24 @@ time_t argdata_time(struct funcarg *a) {
 	return a->data.t;
 }
 
+struct user *argdata_user(struct funcarg *a) {
+	assert(a->type == ARGTYPE_USER);
+	return a->data.p;
+}
+
+struct channel *argdata_chan(struct funcarg *a) {
+	assert(a->type == ARGTYPE_CHAN);
+	return a->data.p;
+}
+
+struct server *argdata_server(struct funcarg *a) {
+	assert(a->type == ARGTYPE_SERVER);
+	return a->data.p;
+}
+
 char *argdata_str(struct funcarg *a) {
 	assert(a->type == ARGTYPE_STR);
-	return a->data.s;
+	return a->data.p;
 }
 
 void *argdata_ptr(struct funcarg *a) {

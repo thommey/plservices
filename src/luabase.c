@@ -124,7 +124,7 @@ static void luabase_chanhook(unsigned long numeric, struct luaclient *lc, struct
 	int i;
 	struct args myarg;
 	struct user *u = get_user_by_numeric(numeric);
-	struct channel *c = argdata_ptr(&arg->v[0]);
+	struct channel *c = argdata_chan(&arg->v[0]);
 
 	if (!u || !c || !chanusers_ison(u, c))
 		return;
@@ -164,7 +164,7 @@ static void luabase_onprivnotc(struct user *from, struct user *to, char *msg) {
 }
 
 static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg) {
-	struct args arg = pack_args(arg_ptr(chan), arg_str("irc_onchanmsg"), arg_str(from->numericstr), arg_str(chan->name), arg_str(msg));
+	struct args arg = pack_args(arg_chan(chan), arg_str("irc_onchanmsg"), arg_str(from->numericstr), arg_str(chan->name), arg_str(msg));
 	jtableL_iterate(&luabase_users, (jtableL_cb)luabase_chanhook, &arg);
 }
 
