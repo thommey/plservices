@@ -111,12 +111,12 @@ static int luabase_clienthook(struct luaclient *lc, struct args *arg) {
 	lua_rawgeti(lc->L, LUA_REGISTRYINDEX, lc->handler_ref);
 
 	for (i = 0; i < arg->c; i++)
-		lua_pushstring(lc->L, argdata_ptr(&arg->v[i]));
+		lua_pushstring(lc->L, argdata_str(&arg->v[i]));
 
 	err = lua_pcall(lc->L, arg->c, 0, 0);
 	if (luabase_report(lc->L, "client hook", err))
 		return 1;
-	logfmt(LOG_LUA, "Successfully called client hook %s for numeric %s", (char *)argdata_ptr(&arg->v[1]), (char *)argdata_ptr(&arg->v[0]));
+	logfmt(LOG_LUA, "Successfully called client hook %s for numeric %s", argdata_str(&arg->v[1]), argdata_str(&arg->v[0]));
 	return 0;
 }
 
@@ -129,10 +129,9 @@ static void luabase_chanhook(unsigned long numeric, struct luaclient *lc, struct
 	if (!u || !c || !chanusers_ison(u, c))
 		return;
 
-	myarg = pack(ARGTYPE_PTR, u->numericstr, ARGTYPE_PTR, argdata_ptr(&arg->v[1]));
+	myarg = pack_words(u->numericstr, argdata_str(&arg->v[1]));
 	for (i = 2; i < arg->c; myarg.c++, i++) {
-		myarg.v[myarg.c].type = ARGTYPE_PTR;
-		myarg.v[myarg.c].data.p = argdata_ptr(&arg->v[i]);
+		myarg.v[myarg.c] = arg->v[i];
 	}
 	luabase_clienthook(lc, &myarg);
 }
@@ -149,7 +148,7 @@ static void luabase_onprivmsg(struct user *from, struct user *to, char *msg) {
 	if (!lc)
 		return;
 
-	arg = pack(ARGTYPE_PTR, to->numericstr, ARGTYPE_PTR, "irc_onmsg", ARGTYPE_PTR, from->numericstr, ARGTYPE_PTR, msg);
+	arg = pack_words(to->numericstr, "irc_onmsg", from->numericstr, msg);
 	luabase_clienthook(lc, &arg);
 }
 
@@ -160,12 +159,12 @@ static void luabase_onprivnotc(struct user *from, struct user *to, char *msg) {
 	if (!lc)
 		return;
 
-	arg = pack(ARGTYPE_PTR, to->numericstr, ARGTYPE_PTR, "irc_onnotice", ARGTYPE_PTR, from->numericstr, ARGTYPE_PTR, msg);
+	arg = pack_words(to->numericstr, "irc_onnotice", from->numericstr, msg);
 	luabase_clienthook(lc, &arg);
 }
 
 static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg) {
-	struct args arg = pack(ARGTYPE_PTR, chan, ARGTYPE_PTR, "irc_onchanmsg", ARGTYPE_PTR, from->numericstr, ARGTYPE_PTR, chan->name, ARGTYPE_PTR, msg);
+	struct args arg = pack_args(arg_ptr(chan), arg_str("irc_onchanmsg"), arg_str(from->numericstr), arg_str(chan->name), arg_str(msg));
 	jtableL_iterate(&luabase_users, (jtableL_cb)luabase_chanhook, &arg);
 }
 

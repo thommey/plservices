@@ -27,58 +27,10 @@
 
 #define strbufcpy(d, s) strncpyz((d), (s), sizeof(d))
 
-/* maximum number of real arguments in a command (after parsing) */
-#define MAXARGS 20
-
-/* structures to hold an array of char* with their count in c,
- * v[i] might be misused to hold a pointer to such a struct itself
- * in case of a greedy argument */
-struct manyargs {
-	unsigned char c;
-	char *v[256];
-};
-
-enum argtype { ARGTYPE_NONE, ARGTYPE_INT, ARGTYPE_UINT, ARGTYPE_LONG, ARGTYPE_ULONG, ARGTYPE_TIME, ARGTYPE_STRING, ARGTYPE_PTR };
-union argdata {
-	int i;
-	unsigned int u;
-	long l;
-	unsigned long ul;
-	time_t t;
-	void *p;
-};
-
-struct funcarg {
-	enum argtype type;
-	union argdata data;
-};
-
-struct args {
-	unsigned char c;
-	struct funcarg v[MAXARGS];
-};
-
 void sfree(void *p);
 void *smalloc(size_t s);
 void *zmalloc(size_t s);
 char *strncpyz(char *dest, const char *src, size_t n);
 long *randomset(int count, long max);
-
-int argdata_int(struct funcarg *a);
-unsigned int argdata_uint(struct funcarg *a);
-long argdata_long(struct funcarg *a);
-unsigned long argdata_ulong(struct funcarg *a);
-time_t argdata_time(struct funcarg *a);
-void *argdata_ptr(struct funcarg *a);
-void shift(struct args *arg, int amount);
-struct args pack(enum argtype current, ...);
-
-#define pack(...) pack(__VA_ARGS__, ARGTYPE_NONE)
-#define argdata(arg) ((arg).type == ARGTYPE_INT  ? &(arg).data.i : \
-					  (arg).type == ARGTYPE_UINT ? &(arg).data.u : \
-					  (arg).type == ARGTYPE_LONG ? &(arg).data.l : \
-					  (arg).type == ARGTYPE_ULONG ? &(arg).data.ul : \
-					  (arg).type == ARGTYPE_TIME ? &(arg).data.t : \
-					  (arg).type == ARGTYPE_PTR  ? (arg).data.p : NULL)
 
 #endif /* UTILS_H_ */

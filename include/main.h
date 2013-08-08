@@ -29,6 +29,7 @@
 #include <assert.h>
 
 #include "utils.h"
+#include "args.h"
 #include "log.h"
 #include "hooks.h"
 #include "base64.h"

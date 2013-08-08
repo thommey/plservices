@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 	while (1) {
 		now = time(NULL);
 		if (last != now) {
-			hook_call("ontick", pack(ARGTYPE_NONE));
+			hook_call("ontick", pack_empty());
 		}
 		net_read();
 		last = now;

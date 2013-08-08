@@ -172,7 +172,7 @@ void hEOB_ACK(struct server *from) {
 	if (from == me)
 		me->protocol[0] = 'P';
 	else if (from == uplink)
-		hook_call("onregistered", pack(ARGTYPE_NONE));
+		hook_call("onregistered", pack_empty());
 }
 
 void hERROR(struct entity *from, char *msg) {
@@ -270,7 +270,7 @@ void hNOTICE(struct entity *from, char *target, char *msg) {
 	if (u->server == me)
 		return;
 	if (*target != '#')
-		hook_call("onprivnotc", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_user_by_numeric(str2unum(target)), ARGTYPE_PTR, msg));
+		hook_call("onprivnotc", pack_args(arg_ptr(u), arg_ptr(get_user_by_numeric(str2unum(target))), arg_str(msg)));
 }
 
 void hOPMODE(struct entity *from, struct channel *chan, struct manyargs *modechange, time_t *ts) {
@@ -312,9 +312,9 @@ void hPRIVMSG(struct entity *from, char *target, char *msg) {
 		return;
 
 	if (*target == '#')
-		hook_call("onchanmsg", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_channel_by_name(target), ARGTYPE_PTR, msg));
+		hook_call("onchanmsg", pack_args(arg_ptr(u), arg_ptr(get_channel_by_name(target)), arg_str(msg)));
 	else
-		hook_call("onprivmsg", pack(ARGTYPE_PTR, u, ARGTYPE_PTR, get_user_by_numeric(str2unum(target)), ARGTYPE_PTR, msg));
+		hook_call("onprivmsg", pack_args(arg_ptr(u), arg_ptr(get_user_by_numeric(str2unum(target))), arg_str(msg)));
 }
 
 void hQUIT(struct user *from, char *reason) {

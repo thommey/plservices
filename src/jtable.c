@@ -28,6 +28,7 @@
 
 #include "log.h"
 #include "utils.h"
+#include "args.h"
 #include "parse.h"
 #include "tokens.h"
 #include "jtable.h"

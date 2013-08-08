@@ -25,6 +25,7 @@
 
 #include <Judy.h>
 
+/* artificial compile-time type safety */
 typedef struct { void *t; } jtableP;
 typedef struct { void *t; } jtableL;
 typedef struct { void *t; } jtableS;
