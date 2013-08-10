@@ -110,7 +110,8 @@ const char *module_get_description(const char *name) {
 }
 
 void module_loadAll() { 
-	module_load("src/modules/dummy.so", "dummy", "PLServices Dummy Module.");
+	module_load("modules/dummy.so", "dummy", "PLServices Dummy Module.");
+	module_load("modules/lua.so", "lua", "PLServices Lua Module.");
 }
 
 
