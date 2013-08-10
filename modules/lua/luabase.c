@@ -106,6 +106,22 @@ static int luabase_callluafunc(lua_State *L, char *func) {
 	return 0;
 }
 
+static int luabase_callluafuncargs(lua_State *L, struct args *arg) {
+	int err, i;
+
+	lua_getglobal(L, argdata_str(&arg->v[0]));
+
+	for (i = 1; i < arg->c; i++)
+		lua_pushstring(L, argdata_str(&arg->v[i]));
+
+	err = lua_pcall(L, arg->c - 1, 0, 0);
+	if (err) {
+		luabase_report(L, "calling lua function from C", err);
+		return 1;
+	}
+	return 0;
+}
+
 static int luabase_clienthook(struct luaclient *lc, struct args *arg) {
 	int err, i;
 
@@ -169,12 +185,24 @@ static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg
 	jtableL_iterate(&luabase_users, (jtableL_cb)luabase_chanhook, &arg);
 }
 
+static void luabase_onquit(struct user *from, char *msg) {
+	struct args arg = pack_args(arg_str("irc_onquit"), arg_str(from->numericstr));
+	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafuncargs, &arg);
+}
+
+static void luabase_onpart(struct user *from, struct channel *chan, char *msg) {
+	struct args arg = pack_args(arg_str("irc_onpart"), arg_str(chan->name), arg_str(from->numericstr), arg_str(msg));
+	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafuncargs, &arg);
+}
+
 int load(void) {
 	lua_State *L = luabase_newstate();
 	luabase_loadscript(L, "stubs.lua");
 	luabase_loadscript(L, "labspace.lua");
 	hook_hook("ontick", luabase_ontick);
 	hook_hook("onchanmsg", luabase_onchanmsg);
+	hook_hook("onquit", luabase_onquit);
+	hook_hook("onpart", luabase_onpart);
 	hook_hook("onprivmsg", luabase_onprivmsg);
 	hook_hook("onprivnotc", luabase_onprivnotc);
 

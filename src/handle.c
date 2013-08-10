@@ -288,7 +288,7 @@ void hPART(struct user *user, char *channels, char *reason) {
 	for (i = 0; i < chlist.c; i++) {
 		c = get_channel_by_name(chlist.v[i]);
 		VERIFY_CHANNEL(c);
-		hook_call("onpart", pack_args(arg_user(u), arg_chan(c), arg_str(reason ? reason : ""));
+		hook_call("onpart", pack_args(arg_user(user), arg_chan(c), arg_str(reason ? reason : "")));
 		chanusers_leave(user, c);
 	}
 }
@@ -320,7 +320,7 @@ void hPRIVMSG(struct entity *from, char *target, char *msg) {
 
 void hQUIT(struct user *from, char *reason) {
 	VERIFY_USER(from);
-	hook_call("onquit", pack_args(arg_user(from), arg_str(reason ? reason : ""));
+	hook_call("onquit", pack_args(arg_user(from), arg_str(reason ? reason : "")));
 	del_user(from);
 }
 
