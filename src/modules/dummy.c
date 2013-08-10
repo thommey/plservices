@@ -8,11 +8,7 @@
 #define BOTNUMERIC "GEAZA"
 #define BOTDEBUGCHAN "#labspace"
 
-#include <stdio.h>
 #include "main.h"
-
-extern time_t now;
-extern struct server *me;
 
 void onprivmsg(struct user *from, struct user *to, char *msg);
 

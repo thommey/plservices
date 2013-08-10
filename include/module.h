@@ -31,5 +31,5 @@ void module_part_channel(const char *numeric, const char *channel);
 void module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *numeric, const char *realname);
 void module_destroy_client(const char *numeric, const char *message);
 void module_privmsg(const char *numeric, const char *target, const char *message, ...);
-void module_describe(const char *numeric, const char *target, const char *message, ...)
+void module_describe(const char *numeric, const char *target, const char *message, ...);
 #endif
