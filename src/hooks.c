@@ -41,6 +41,10 @@ void init_hooks(void) {
 	hook_register("onprivmsg");
 	/* onnotice hook, called on a NOTICE to my user, arguments: struct user *from, struct user *to, char *msg */
 	hook_register("onprivnotc");
+	/* onpart hook, called on a PART, arguments: struct user *from, struct channel *chan, char *reason ("" if no reason is given) */
+	hook_register("onpart");
+	/* onquit hook, called on a QUIT, arguments: struct user *from, char *reason ("" if no reason is given) */
+	hook_register("onquit");
 }
 
 static jtableP *get_funcs(const char *name) {
