@@ -170,7 +170,7 @@ int mode_apply(struct entity *from, struct entity *target, uint64_t *modes, char
 }
 
 void mode_flushmode(struct modebuf *m) {
-	if (!m || !m->modecount)
+	if (!m || m->modestrpos == m->modestr)
 		return;
 
 	/* targetstr and modestr aren't \0 terminated */
