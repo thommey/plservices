@@ -169,7 +169,7 @@ static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg
 	jtableL_iterate(&luabase_users, (jtableL_cb)luabase_chanhook, &arg);
 }
 
-void luabase_init() {
+void load() {
 	lua_State *L = luabase_newstate();
 	luabase_loadscript(L, "stubs.lua");
 	luabase_loadscript(L, "labspace.lua");

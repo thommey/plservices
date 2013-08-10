@@ -35,7 +35,7 @@ struct luapushuserdata {
 	int *i;
 };
 
-void luabase_init(void);
+void load(void);
 void luabase_ghook(char *str, struct args *arg);
 unsigned long luabase_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref);
 void luabase_pushuser(lua_State *L, struct user *u);
