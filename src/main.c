@@ -40,6 +40,7 @@ static void init(void) {
 	init_modes();
 //	init_burster();
 	hook_hook("onregistered", luabase_init);
+	hook_hook("onregistered", module_loadAll);
 }
 
 int main(int argc, char **argv) {

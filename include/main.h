@@ -28,6 +28,7 @@
 #include <time.h>
 #include <assert.h>
 
+#include "module.h"
 #include "utils.h"
 #include "args.h"
 #include "log.h"

@@ -67,17 +67,17 @@ void hook_unhook(const char *name, void (*f)()) {
 }
 
 static void hook_call1(void (*func)(), struct args *arg) {
-	logtxt(LOG_DEBUG, "  Calling hookfunc");
+	//logtxt(LOG_DEBUG, "  Calling hookfunc");
 	call_varargs(func, arg);
 }
 
 void hook_call(const char *name, struct args arg) {
 	jtableP *funcs = get_funcs(name);
-
 	if (!funcs)
 		return;
-
-	logfmt(LOG_DEBUG, "Calling hook %s", name);
+	if (!strncmp(name, "hook_ontick", 12)) { 
+		logfmt(LOG_DEBUG, "Calling hook %s", name);
+	}
 
 	jtableP_iterate(funcs, (jtableP_cb)hook_call1, &arg);
 }

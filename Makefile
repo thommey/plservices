@@ -1,6 +1,6 @@
 CC= gcc
-CFLAGS= -std=c99 -O0 -g -Wall -I./include
-LDFLAGS=
+CFLAGS= -std=c99 -O0 -g -Wall -I./include -fPIC
+LDFLAGS= -rdynamic
 LD= gcc
 
 LIBS = -lJudy
@@ -23,3 +23,8 @@ $(EXEC): $(OBJS)
 
 clean:
 	rm -f $(EXEC) $(OBJS) *.i *.s
+modules:
+	$(CC) -c $(CFLAGS) $(LUACFLAGS) $(wildcard src/modules/*.c)
+	$(CC) -g -shared -Wl,-soname,src/modules/dummy.so.1 -o src/modules/dummy.so.1.0 *.o
+	ln -sf src/modules/dummy.so.1.0 src/modules/dummy.so.1
+	ln -sf src/modules/dummy.so.1.0 src/modules/dummy.so

@@ -1,0 +1,5 @@
+*.1.*
+*.o
+*.so*
+labspace.lua
+plservices
