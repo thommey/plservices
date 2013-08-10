@@ -45,7 +45,6 @@
 #include "net.h"
 #include "tokeninfo.h"
 #include "tokens.h"
-#include "luabase.h"
 #include "burster.h"
 
 #endif /* TYPES_H_ */

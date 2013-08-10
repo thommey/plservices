@@ -27,6 +27,7 @@
 #include <lualib.h>
 
 #include "main.h"
+#include "luabase.h"
 
 extern struct server *me;
 extern time_t now;

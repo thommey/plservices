@@ -27,6 +27,7 @@
 #include <lualib.h>
 
 #include "main.h"
+#include "luabase.h"
 
 static jtableP luabase_states;
 static jtableL luabase_users;

@@ -1,7 +1,5 @@
 include ../Makefile.inc
 
-CFLAGS += -I../../include
-
 MOD = ../dummy.so
 
 # Automatic rules
@@ -17,4 +15,4 @@ $(MOD): $(OBJS)
 .PHONY: clean
 
 clean:
-	$(RM) -f $(EXEC) $(OBJS) *.i *.s
+	$(RM) -f $(OBJS) $(MOD)
