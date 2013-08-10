@@ -160,7 +160,7 @@ void module_describe(const char *numeric, const char *target, const char *messag
         va_end(ap);
         // Don't send to a non-valid target, kthx.
         if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
-	send_format("%s P %s :\001%s\001", numeric, target, buf);
+	send_format("%s P %s :\001ACTION %s\001", numeric, target, buf);
 }
 
 /*
