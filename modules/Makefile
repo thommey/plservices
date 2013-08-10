@@ -8,6 +8,6 @@ $(DIRS):
 	$(ECHO) Making module $@; $(MAKE) $(MFLAGS) -C $@
 
 clean:
-	for d in $(DIRS); do (cd $$d; $(MAKE) clean); done
+	for d in $(DIRS); do $(MAKE) -C $$d clean; done
 
 .PHONY: $(DIRS) clean
