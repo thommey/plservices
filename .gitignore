@@ -1,6 +1,7 @@
-*.1.*
 *.o
-*.so*
+*.i
+*.s
+*.so
 labspace.lua
 plservices
 Makefile2
