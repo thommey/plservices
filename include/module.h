@@ -25,4 +25,8 @@ void * module_find_by_name(const char *name);
 void module_loadAll(void);
 int module_unregister(void *module);
 
+/* Helpers */
+void module_join_channel(const char *numeric, const char *channel, int auto_op);
+void module_part_channel(const char *numeric, const char *channel);
+void module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *numeric, const char *realname);
 #endif

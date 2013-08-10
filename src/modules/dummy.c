@@ -3,9 +3,9 @@
 #define BOTNICK "D"
 #define BOTIDENT "dummy"
 #define BOTHOSTNAME "plservices.metairc.net"
-#define BOTMODES "+okr D D:0:0:0"
+#define BOTMODES "+okr"
 #define BOTREALNAME "Dummy Module"
-#define BOTNUMERIC "AZA"
+#define BOTNUMERIC "GEAZA"
 #define BOTDEBUGCHAN "#labspace"
 
 #include <stdio.h>
@@ -17,21 +17,20 @@ extern struct server *me;
 void onprivmsg(struct user *from, struct user *to, char *msg);
 
 int load() {
-	send_format("%s N %s 1 %ld %s %s %s %s GE%s :%s", "GE", BOTNICK, time(NULL), BOTIDENT, BOTHOSTNAME, BOTMODES, "DAqAoB", BOTNUMERIC, BOTREALNAME);
-	send_format("%s%s J %s %ld", "GE", BOTNUMERIC, BOTDEBUGCHAN, time(NULL));
-	send_format("GE M %s +o GE%s", BOTDEBUGCHAN, BOTNUMERIC);
-	send_format("GE%s P %s :\001ACTION wiggles\001", BOTNUMERIC, BOTDEBUGCHAN);
+	module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTNUMERIC, BOTREALNAME);
+	module_join_channel(BOTNUMERIC, BOTDEBUGCHAN, 1);
+	module_describe(BOTNUMERIC, BOTDEBUGCHAN, "wiggles");
 	hook_hook("onprivmsg", onprivmsg);
 	logfmt(LOG_DEBUG, "(%s): Loaded.", MODNAME);
 	return 0;
 }
 
 int unload() { 
-	send_format("GE%s Q :Module unloaded.", BOTNUMERIC);
+	module_destroy_client(BOTNUMERIC, "Module unloaded.");
 	logfmt(LOG_DEBUG, "(%s): Unloaded.", MODNAME);
 	return 0;
 }
 
 void onprivmsg(struct user *from, struct user *to, char *msg) { 
-	send_format("GE%s P %s :I've just received a message from: %s - message: %s", BOTNUMERIC, BOTDEBUGCHAN, from->nick, msg);
+	module_privmsg(BOTNUMERIC, BOTDEBUGCHAN, "I've just received a message from: %s - message: %s", from->nick, msg);
 }
