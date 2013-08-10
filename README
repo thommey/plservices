@@ -1,103 +1,16 @@
-Installation
-============
+PLservices are P10 Lua-scriptable services, intended for the use on
+snircd.
 
-This is an implementation of the Mafia game (http://en.wikipedia.org/wiki/Mafia_(party_game)) for newserv's Lua script module.
+Requirements:
+  * Judy - "C library that provides a state-of-the-art core technology that implements a sparse dynamic array."
+      @ http://judy.sourceforge.net/ (LGPL 2.1)
+  * Lua - "a powerful, fast, lightweight, embeddable scripting language."
+      @ http://www.lua.org (MIT license)
 
-In order to use it you will need to load the script in your newserv.conf:
+Compiling:
+  make
 
-[lua]
-script=labspace
+Runtime arguments: ./plservices <ip> <port> <pass> <servername> <server description>.
 
-You will also need to create a directory named "db" in your Lua script directory. The script will create a file named "labspace.db" there which contains the names of registered channels and game statistics.
-
-Commands
-========
-
-The script can be used in any of the channels your bot is in (even simultaneously). It supports the following channel commands:
-
-!add - joins the lobby
-!remove - leaves the lobby
-!wait - resets the lobby timeout (may only be used twice per game)
-!start - immediately starts the game
-!status - shows who's left in the game
-
-Leaving channels will also automatically remove you from any running games.
-
-Once there are at least 6 players in the lobby the game will automatically start (with a short delay to allow more players to join).
-
-Admin Commands
-==============
-
-In the channel:
-
-!enable - enables the game (requires channel op or staff privileges)
-!disable - disables the game (requires channel op or staff privileges)
-
-Via private messages:
-
-/msg labspace smite <nick> - kills the specified player (when in-game) or removes them from the lobby
-/msg labspace addchan <#channel> - adds the bot to a channel
-/msg labspace delchan <#channel> - removes the bot from a channel
-/msg labspace killgame <#channel> - stops the current game
-
-Kicking the bot from a channel also permanently removes it. Added channels are saved in the file db/labspace.db.
-
-Roles
-=====
-
-At the start of the game the bot randomly assigns a role to each player.
-
-Mad Scientist
--------------
-
-The mad scientists goal is to eliminate all other players. When the game starts they are informed about each other.
-
-Each round one of the scientists gets to kill another player. The active scientist is chosen at random and needs to pick a target using /notice labspace kill <nick>.
-
-There is a 15% chance that attacks fail.
-
-Investigator
-------------
-
-One of the investigators can investigate another player per round in order to reveal their true role.
-
-There is a 15% chance that the investigation result and the investigator's name are publicly announced in the channel. At the start of the game investigators are revealed to each other. Investigation results are shared with all investigators.
-
-Citizen
--------
-
-No inherent abilities.
-
-Traits
-======
-
-Force Field Generator
----------------------
-
-Given to a random citizen. Allows the owner to protect another player from being attacked by the scientists. The force field is destroyed when the player holding the generator is killed.
-
-Teleporter
-----------
-
-Given to one player when the game starts. There's a 0.75 + 0.25 * 1/n chance that a scientist gets this item (where n is the number of players). Gives the owner a 50% chance to evade being lynched. After each lynching attempt there's a 50% chance that the item is destroyed.
-
-Alien Infestation
------------------
-
-Given to a random citizen when there are at least 10 players. When a scientist attack would otherwise succeed the alien kills both the infected player as well as the scientist.
-
-Idle Timeout
-============
-
-Players who haven't been active in the past 2 minutes are automatically removed from the game. Each player is notified at least twice before this happens.
-
-Statistics
-==========
-
-The script keeps track of statistics on a per-account basis.
-
-Statistics can be viewed with:
-
-/msg labspace stats - your own statistics
-/msg labspace stats <nick> - someone else's statistics
-/msg labspace stats --all - aggregated statistics for all players
+At the moment it instantly attempts to load ./labspace.lua after ./stubs.lua into the same lua interpreter.
+stubs.lua is included, labspace.lua is over at http://hg.quakenet.org/lua-labspace/ - put it into the working directory.
