@@ -3,7 +3,7 @@ CFLAGS= -std=c99 -O0 -g -Wall -I./include -fPIC
 LDFLAGS= -rdynamic
 LD= gcc
 
-LIBS = -lJudy
+LIBS = -ldl -lJudy
 LUAPKG := $(shell for luaver in lua lua5.2 lua5.1 lua5.0; do pkg-config --exists $$luaver && echo $$luaver && break; done )
 LUACFLAGS := $(shell pkg-config --cflags $(LUAPKG))
 LUALIBS := $(shell pkg-config --libs $(LUAPKG))
@@ -23,6 +23,7 @@ $(EXEC): $(OBJS)
 
 clean:
 	rm -f $(EXEC) $(OBJS) *.i *.s
+
 modules:
 	$(CC) -c $(CFLAGS) $(LUACFLAGS) $(wildcard src/modules/*.c)
 	$(CC) -g -shared -Wl,-soname,src/modules/dummy.so.1 -o src/modules/dummy.so.1.0 *.o
