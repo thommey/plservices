@@ -94,19 +94,7 @@ int luabase_loadscript(lua_State *L, char *file) {
 	return 0;
 }
 
-static int luabase_callluafunc(lua_State *L, char *func) {
-	int err;
-
-	lua_getglobal(L, func);
-	err = lua_pcall(L, 0, 0, 0);
-	if (err) {
-		luabase_report(L, "calling lua function from C", err);
-		return 1;
-	}
-	return 0;
-}
-
-static int luabase_callluafuncargs(lua_State *L, struct args *arg) {
+static int luabase_callluafunc(lua_State *L, struct args *arg) {
 	int err, i;
 
 	lua_getglobal(L, argdata_str(&arg->v[0]));
@@ -154,8 +142,12 @@ static void luabase_chanhook(unsigned long numeric, struct luaclient *lc, struct
 }
 
 static void luabase_ontick(void) {
-	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, "ontick");
-	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, "ontick2");
+	struct args arg;
+	arg.c = 1;
+	arg.v[0] = arg_str("ontick");
+	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, &arg);
+	arg.v[0] = arg_str("ontick2");
+	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, &arg);
 }
 
 static void luabase_onprivmsg(struct user *from, struct user *to, char *msg) {
@@ -187,15 +179,16 @@ static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg
 
 static void luabase_onquit(struct user *from, char *msg) {
 	struct args arg = pack_args(arg_str("irc_onquit"), arg_str(from->numericstr));
-	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafuncargs, &arg);
+	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, &arg);
 }
 
 static void luabase_onpart(struct user *from, struct channel *chan, char *msg) {
 	struct args arg = pack_args(arg_str("irc_onpart"), arg_str(chan->name), arg_str(from->numericstr), arg_str(msg));
-	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafuncargs, &arg);
+	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, &arg);
 }
 
 int load(void) {
+	struct args arg;
 	lua_State *L = luabase_newstate();
 	luabase_loadscript(L, "stubs.lua");
 	luabase_loadscript(L, "labspace.lua");
@@ -206,7 +199,9 @@ int load(void) {
 	hook_hook("onprivmsg", luabase_onprivmsg);
 	hook_hook("onprivnotc", luabase_onprivnotc);
 
-	return luabase_callluafunc(L, "onload");
+	arg.c = 1;
+	arg.v[0] = arg_str("onload");
+	return luabase_callluafunc(L, &arg);
 }
 
 int unload(void) {
