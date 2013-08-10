@@ -169,7 +169,7 @@ static void luabase_onchanmsg(struct user *from, struct channel *chan, char *msg
 	jtableL_iterate(&luabase_users, (jtableL_cb)luabase_chanhook, &arg);
 }
 
-void load() {
+int load(void) {
 	lua_State *L = luabase_newstate();
 	luabase_loadscript(L, "stubs.lua");
 	luabase_loadscript(L, "labspace.lua");
@@ -178,9 +178,13 @@ void load() {
 	hook_hook("onprivmsg", luabase_onprivmsg);
 	hook_hook("onprivnotc", luabase_onprivnotc);
 
-	luabase_callluafunc(L, "onload");
+	return luabase_callluafunc(L, "onload");
 }
 
+int unload(void) {
+	/* TODO */
+	return 0;
+}
 char *nextnum(void) {
 	static char numeric[6] = "";
 	if (!numeric[0])
