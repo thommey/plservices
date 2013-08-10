@@ -1,6 +1,6 @@
 include ../Makefile.inc
 
-DIRS := $(shell find . -type d -mindepth 1 -maxdepth 1 -print)
+DIRS := $(shell find . -mindepth 1 -maxdepth 1 -type d -print)
 
 all: $(DIRS)
 	
