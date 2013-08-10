@@ -38,7 +38,7 @@ int module_register(void *module, const char *name, const char *description) {
 	modules[index].module = module;
 	modules[index].name = name;
 	modules[index].description = description;
-	logfmt(LOG_DEBUG, "Module added - index: %d - name: %s - description: %s\n", index, name, description);
+	logfmt(LOG_DEBUG, "Module added - index: %d - name: %s - description: %s", index, name, description);
         return 0;
 }
 
@@ -60,7 +60,7 @@ int module_unload(const char *name) {
         module_func unload;
         unload = dlsym(mod, "unload");
         if (dlerror()) {
-                logfmt(LOG_ERROR, "Cannot call 'unload' for %s - error: %s\n", name, dlerror());
+                logfmt(LOG_ERROR, "Cannot call 'unload' for %s - error: %s", name, dlerror());
                 return 1;
         }
 	module_unregister(mod);
@@ -69,22 +69,22 @@ int module_unload(const char *name) {
 }
 
 int module_load(const char *path, const char *name, const char *description) {
-	logfmt(LOG_DEBUG, "(%s): Loading...\n", name);
+	logfmt(LOG_DEBUG, "(%s): Loading...", name);
         void *module;
         module = dlopen(path, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
         if (!module) {
-                logfmt(LOG_ERROR, "Cannot load %s - error: %s\n", name, dlerror());
+                logfmt(LOG_ERROR, "Cannot load %s - error: %s", name, dlerror());
                 return 1;
         }
         module_func init;
         init = dlsym(module, "load");
         if (dlerror()) {
- 	       logfmt(LOG_ERROR, "Cannot call 'load' for %s - error: %s\n", path, dlerror());
+ 	       logfmt(LOG_ERROR, "Cannot call 'load' for %s - error: %s", path, dlerror());
                return 1;
         }
         int res = init();
 	if (res > 0) {
-		logfmt(LOG_ERROR, "(%s): load() was called, and exited with error.\n", name);
+		logfmt(LOG_ERROR, "(%s): load() was called, and exited with error.", name);
 		return 1;
 	}
 	module_register(module, name, description);
