@@ -112,9 +112,3 @@ const char *module_get_description(const char *name) {
 void module_loadAll() { 
 	module_load("src/modules/dummy.so", "dummy", "PLServices Dummy Module.");
 }
-
-void module_reload(char *name) { 
-	module_unload(name);
-//	module_load(name);
-}
-
