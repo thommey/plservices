@@ -28,7 +28,6 @@
 #include <time.h>
 #include <assert.h>
 
-#include "module.h"
 #include "utils.h"
 #include "args.h"
 #include "log.h"
@@ -46,5 +45,6 @@
 #include "tokeninfo.h"
 #include "tokens.h"
 #include "burster.h"
+#include "module.h"
 
 #endif /* TYPES_H_ */

@@ -26,7 +26,9 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <main.h>
+#include "main.h"
+
+extern struct server *me;
 
 int module_register(void *module, const char *name, const char *description) {
 	int index = 0;
@@ -124,15 +126,15 @@ extern time_t now;
 * @function: Makes a fake client join a channel, if it exists, or create it if it doesn't.
 * @return: void
 */
-void module_join_channel(const char *numeric, const char *channel, int auto_op) {
+void module_join_channel(struct user *from, const char *channel, int auto_op) {
         struct channel *chan = get_channel_by_name(channel);
 	if (chan == NULL) {
 		// Channel doesn't exist - lets create it.
-		send_format("%s C %s %ld", numeric, channel, now);
+		send_format("%s C %s %ld", from->numericstr, channel, now);
 	} else {
-	        send_format("%s J %s %ld", numeric, chan->name, chan->ts);
+	        send_format("%s J %s %ld", from->numericstr, chan->name, chan->ts);
         	if (auto_op) {
-                	send_format("%s M %s +o %s", me->numericstr, chan->name, numeric);
+                	send_format("%s M %s +o %s", me->numericstr, chan->name, from->numericstr);
 	        }
 	}
 }
@@ -141,10 +143,10 @@ void module_join_channel(const char *numeric, const char *channel, int auto_op) 
 * @function: Makes a fakeclient part a channel.
 * @return: void
 */
-void module_part_channel(const char *numeric, const char *channel) {
+void module_part_channel(struct user *from, const char *channel) {
 	// Don't try to part a channel that doesn't exist :)
 	if (get_channel_by_name(channel) == NULL) return;
-	send_format("%s L %s", numeric, channel);
+	send_format("%s L %s", from->numericstr, channel);
 }
 
 /*
@@ -152,22 +154,22 @@ void module_part_channel(const char *numeric, const char *channel) {
 * @return: void
 */
 
-void module_describe(const char *numeric, const char *target, const char *message, ...) {
+void module_describe(struct user *from, const char *target, const char *message, ...) {
         static char buf[512];
         va_list ap;
         va_start(ap, message);
         vsprintf(buf, message, ap);
         va_end(ap);
         // Don't send to a non-valid target, kthx.
-        if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
-	send_format("%s P %s :\001ACTION %s\001", numeric, target, buf);
+    if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
+	send_format("%s P %s :\001ACTION %s\001", from->numericstr, target, buf);
 }
 
 /*
 * @function: Sends an action to a channel.
 * @return: void
 */
-void module_privmsg(const char *numeric, const char *target, const char *message, ...) {
+void module_privmsg(struct user *from, const char *target, const char *message, ...) {
 	static char buf[512];
 	va_list ap;
 	va_start(ap, message);
@@ -175,23 +177,25 @@ void module_privmsg(const char *numeric, const char *target, const char *message
 	va_end(ap);
 	// Don't send this message to a non valid target, kthx.
         if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
-        send_format("%s P %s :%s", numeric, target, buf);
+        send_format("%s P %s :%s", from->numericstr, target, buf);
 }
 
 /*
 * @function: Creates a fake client
 * @return: void
 */
-void module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *numeric, const char *realname) {
+struct user *module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *realname) {
+	unsigned long numeric = server_freenum(me);
 	if (!strlen(account) && strstr(modes, "r") != NULL) account = nick;
 	if (!strlen(opername) && strstr(modes, "o") != NULL) opername = nick;
-	send_format("%s N %s 1 %ld %s %s %s %s %s %s %s :%s", me->numericstr, nick, now, ident, hostname, modes, (!strlen(account) ? "" : account), (!strlen(opername) ? "" : opername), "B]AAAB", numeric, realname);
+	send_format("%s N %s 1 %ld %s %s %s %s %s %s %s :%s", me->numericstr, nick, now, ident, hostname, modes, (!strlen(account) ? "" : account), (!strlen(opername) ? "" : opername), "B]AAAB", unum2str(numeric), realname);
+	return get_user_by_numeric(numeric);
 }
 
 /*
 * @function: Destroys a fake client
 * @return: void
 */
-void module_destroy_client(const char *numeric, const char *message) {
-	send_format("%s Q :%s", numeric, message);
+void module_destroy_client(struct user *from, const char *message) {
+	send_format("%s Q :%s", from->numericstr, message);
 }
