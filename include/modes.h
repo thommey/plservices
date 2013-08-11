@@ -24,9 +24,10 @@
 #define MODES_H_
 
 struct modebuf {
-	struct user *from;
+	struct entity *from;
 	struct channel *chan;
 	int modecount, lastplsmns;
+	time_t timeout;
 	char *modestrpos, modestr[64];
 	char *targetstrpos, targetstr[256];
 };
@@ -42,7 +43,7 @@ void init_modes();
 int mode_check1(uint64_t *modes, char modechar);
 void mode_set1(uint64_t *modes, char modechar);
 void mode_unset1(uint64_t *modes, char modechar);
-struct modebuf *mode_pushmode(struct user *from, struct channel *c, int plsmns, char mode, const char *target, size_t targetlen);
+struct modebuf *mode_pushmode(struct entity *from, struct channel *c, int plsmns, char mode, const char *target, size_t targetlen, int maxdelay);
 void mode_flushmode(struct modebuf *m);
 
 void uplink_with_opername(void);

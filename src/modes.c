@@ -26,9 +26,12 @@
 
 #include "main.h"
 
+extern time_t now;
+
 static char chanmodelist[128];
 static char usermodelist[128];
 static char servermodelist[128];
+static jtableL modebufs; /* struct from * -> struct modebuf * */
 
 #define mode2offset(m) (mode2offset_table[(unsigned char)(m)])
 
@@ -74,6 +77,17 @@ static void registermode(char *modelist, char modechar, char flags) {
 	modelist[(unsigned char)modechar] = flags;
 }
 
+static void mode_flushmode_check(struct entity *from, struct modebuf *m, void *nothing) {
+	if (m->timeout == -1)
+		return;
+	if (now >= m->timeout)
+		mode_flushmode(m);
+}
+
+void mode_ontick(void) {
+	jtableL_iterate(&modebufs, (jtableL_cb)mode_flushmode_check, NULL);
+}
+
 void init_modes() {
 	int i, j;
 
@@ -88,6 +102,7 @@ void init_modes() {
 	for (i = 0; servermodetable[i].modes; i++)
 		for (j = 0; servermodetable[i].modes[j]; j++)
 			registermode(servermodelist, servermodetable[i].modes[j], servermodetable[i].type);
+	hook_hook("ontick", mode_ontick);
 }
 
 void uplink_with_opername(void) {
@@ -170,83 +185,98 @@ int mode_apply(struct entity *from, struct entity *target, uint64_t *modes, char
 }
 
 void mode_flushmode(struct modebuf *m) {
-	if (!m || m->modestrpos == m->modestr)
+	if (!m)
 		return;
 
 	/* targetstr and modestr aren't \0 terminated */
-	send_format("%s M %s %.*s%.*s", m->from->numericstr, m->chan->name, m->modestrpos - m->modestr, m->modestr, m->targetstrpos - m->targetstr, m->targetstr);
+	send_format("%s M %s %.*s%.*s", verify_user(m->from) ? ((struct user *)m->from)->numericstr : ((struct server *)m->from)->numericstr, m->chan->name, m->modestrpos - m->modestr, m->modestr, m->targetstrpos - m->targetstr, m->targetstr);
 	/* reset mode buffer */
-	m->from = NULL;
-	m->chan = NULL;
-	m->modecount = 0;
-	m->lastplsmns = -1;
-	m->modestrpos = m->modestr;
-	m->targetstrpos = m->targetstr;
+	jtableL_remove(&modebufs, (unsigned long)m->from);
+	free(m);
 }
 
-/* TODO: modebuffer per channel? per origin user? with timer to flush? */
-struct modebuf *mode_pushmode(struct user *from, struct channel *c, int plsmns, char mode, const char *target, size_t targetlen) {
-	static struct modebuf m = {NULL, NULL, 0, -1, NULL, "", NULL, ""};
+/* maxdelay = 0 means at next tick,
+ * maxdelay = -1 means caller arranges for flushmode to be called
+ */
+struct modebuf *mode_pushmode(struct entity *from, struct channel *c, int plsmns, char mode, const char *target, size_t targetlen, int maxdelay) {
+	struct modebuf *m;
 	struct user *u;
 
-	if (!m.modestrpos)
-		m.modestrpos = m.modestr;
-	if (!m.targetstrpos)
-		m.targetstrpos = m.targetstr;
+	assert(verify_server(from) || verify_user(from));
+
+	m = jtableL_get(&modebufs, (unsigned long)from);
 
 	/* check general validity of modechar */
 	if (!hasmode_valid(chanmodelist, mode)) {
 		logfmt(LOG_WARNING, "Invalid mode change: %c'%c'", plsmns ? '+' : '-', mode);
-		return &m;
+		return m;
 	}
 
 	/* check mode parameter requirement */
 	if (target == NULL && (plsmns ? hasmode_setparam(chanmodelist, mode) : hasmode_unsetparam(chanmodelist, mode))) {
 		logfmt(LOG_WARNING, "Invalid mode change: %c'%c', needs parameter.", plsmns ? '+' : '-', mode);
-		return &m;
+		return m;
 	}
 
 	/* ignore modes from non-ops */
-	if (!chanusers_ison(from, c) || !channel_isop(c, from))
-		return &m;
-
-	/* only aggregate from same user on same channel */
-	if (m.from != from || m.chan != c) {
-		mode_flushmode(&m);
-		m.from = from;
-		m.chan = c;
-	}
+	if (verify_user(from) && (!chanusers_ison((struct user *)from, c) || !channel_isop(c, (struct user *)from)))
+		return m;
 
 	/* check target validity, ignore redundant modes */
 	if (ismode_prefix(chanmodelist, mode)) {
 		u = get_user_by_numericstr(target);
 		if (!u || !chanusers_ison(u, c)) {
 			logfmt(LOG_WARNING, "Mode change target user not found or not on channel: '%s' on '%s'", target, c->name);
-			return &m;
+			return m;
 		}
 		if ((mode == 'o' && plsmns == channel_isop(c, u)) ||
 			(mode == 'v' && plsmns == channel_isvoice(c, u)))
-			return &m;
+			return m;
 	} else if (plsmns == mode_check1(&c->mode, mode))
-		return &m;
+		return m;
+
+	/* only aggregate from same user on same channel */
+	if (m && m->chan != c) {
+		mode_flushmode(m);
+		m = NULL;
+	}
+
+	if (!m) {
+		m = smalloc(sizeof(*m));
+		m->from = from;
+		m->chan = c;
+		m->lastplsmns = -1;
+		m->timeout = -1;
+		m->modestrpos = m->modestr;
+		m->targetstrpos = m->targetstr;
+		m->modecount = 0;
+		jtableL_insert(&modebufs, (unsigned long)from, m);
+	}
+
+	if (maxdelay == -1)
+		m->timeout = -1;
+	else if (m->timeout == -1 || now + maxdelay < m->timeout)
+		m->timeout = now + maxdelay;
 
 	/* write mode char and opt. prefix */
-	if (m.lastplsmns != plsmns) {
-		*m.modestrpos++ = plsmns ? '+' : '-';
-		m.lastplsmns = plsmns;
+	if (m->lastplsmns != plsmns) {
+		*m->modestrpos++ = plsmns ? '+' : '-';
+		m->lastplsmns = plsmns;
 	}
-	*m.modestrpos++ = mode;
+	*m->modestrpos++ = mode;
 
 	/* write target */
 	if (target) {
-		*m.targetstrpos++ = ' ';
-		strncpy(m.targetstrpos, target, targetlen);
-		m.targetstrpos += targetlen;
-		m.modecount++; /* only count modes with target, that's where the limit of 6 is at */
+		*m->targetstrpos++ = ' ';
+		strncpy(m->targetstrpos, target, targetlen);
+		m->targetstrpos += targetlen;
+		m->modecount++; /* only count modes with target, that's where the limit of 6 is at */
 	}
 
-	if (m.modecount == 6)
-		mode_flushmode(&m);
+	if (m->modecount == 6) {
+		mode_flushmode(m);
+		return NULL;
+	}
 
-	return &m;
+	return m;
 }

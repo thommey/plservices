@@ -96,7 +96,6 @@ static int luafunc_irc_localovmode(lua_State *L) {
 	struct channel *c = get_channel_by_name(chan);
 	const char *modechar, *target; /* pointers for luaL_getstring later */
 	int plsmns, i, n = lua_objlen(L, 3); /* n: list length */
-	struct modebuf *modebuf = NULL;
 
 	if (!u)
 		return luaL_error(L, "User does not exist on the network: %s", numeric);
@@ -115,9 +114,8 @@ static int luafunc_irc_localovmode(lua_State *L) {
 		plsmns = luabase_getbooleanfromarray(L, -1, i + 1);
 		modechar = luabase_getstringfromarray(L, -1, i + 2);
 		target = luabase_getstringfromarray(L, -1, i + 3);
-		modebuf = mode_pushmode(u, c, plsmns, modechar[0], target, strlen(target));
+		mode_pushmode((struct entity *)u, c, plsmns, modechar[0], target, strlen(target), 3);
 	}
-	mode_flushmode(modebuf);
 	return 0;
 }
 
@@ -146,7 +144,7 @@ static int luafunc_irc_localsimplechanmode(lua_State *L) {
 	if (!u || !c || strlen(mode) != 2 || (mode[0] != '+' && mode[0] != '-'))
 		luaL_error(L, "Invalid modechange: %s %s %s", chan, mode, unum);
 
-	mode_flushmode(mode_pushmode(u, c, mode[0] == '+', mode[1], NULL, 0));
+	mode_pushmode((struct entity *)u, c, mode[0] == '+', mode[1], NULL, 0, 0);
 	return 0;
 }
 
