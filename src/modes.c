@@ -78,7 +78,7 @@ static void registermode(char *modelist, char modechar, char flags) {
 }
 
 static void mode_flushmode_check(struct entity *from, struct modebuf *m, void *nothing) {
-	if (m->timeout == -1)
+	if (!m->timeout)
 		return;
 	if (now >= m->timeout)
 		mode_flushmode(m);
@@ -247,7 +247,7 @@ struct modebuf *mode_pushmode(struct entity *from, struct channel *c, int plsmns
 		m->from = from;
 		m->chan = c;
 		m->lastplsmns = -1;
-		m->timeout = -1;
+		m->timeout = 0;
 		m->modestrpos = m->modestr;
 		m->targetstrpos = m->targetstr;
 		m->modecount = 0;
@@ -255,8 +255,8 @@ struct modebuf *mode_pushmode(struct entity *from, struct channel *c, int plsmns
 	}
 
 	if (maxdelay == -1)
-		m->timeout = -1;
-	else if (m->timeout == -1 || now + maxdelay < m->timeout)
+		m->timeout = 0;
+	else if (!m->timeout || now + maxdelay < m->timeout)
 		m->timeout = now + maxdelay;
 
 	/* write mode char and opt. prefix */
