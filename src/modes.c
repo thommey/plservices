@@ -189,7 +189,8 @@ void mode_flushmode(struct modebuf *m) {
 		return;
 
 	/* targetstr and modestr aren't \0 terminated */
-	send_format("%s M %s %.*s%.*s", verify_user(m->from) ? ((struct user *)m->from)->numericstr : ((struct server *)m->from)->numericstr, m->chan->name, m->modestrpos - m->modestr, m->modestr, m->targetstrpos - m->targetstr, m->targetstr);
+	if (m->modestrpos != m->modestr)
+		send_format("%s M %s %.*s%.*s", verify_user(m->from) ? ((struct user *)m->from)->numericstr : ((struct server *)m->from)->numericstr, m->chan->name, m->modestrpos - m->modestr, m->modestr, m->targetstrpos - m->targetstr, m->targetstr);
 	/* reset mode buffer */
 	jtableL_remove(&modebufs, (unsigned long)m->from);
 	free(m);
