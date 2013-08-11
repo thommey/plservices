@@ -74,6 +74,7 @@ void del_user_iter(void *uptr, void *unused) {
 
 void del_user(struct user *user) {
 	char buf[NICKLEN+1];
+	hook_call("onuserdel", pack_args(arg_ptr(user)));
 	jtableS_remove(&userlist_nick, rfc_tolower(buf, sizeof(buf), user->nick));
 	jtableL_remove(&userlist_num, user->numeric);
 	jtableP_unset(&opers, user);

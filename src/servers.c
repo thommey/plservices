@@ -64,6 +64,7 @@ struct server *add_server(char *numeric, char *maxusers, char *name, int hops, t
 }
 
 void del_server(struct server *server) {
+	hook_call("onserverdel", pack_args(arg_ptr(server)));
 	jtableP_iterate(&server->users, del_user_iter, NULL);
 	jtableL_remove(&serverlist, server->numeric);
 	free(server);

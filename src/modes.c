@@ -77,6 +77,12 @@ static void registermode(char *modelist, char modechar, char flags) {
 	modelist[(unsigned char)modechar] = flags;
 }
 
+static void mode_flushmode_deletion(struct entity *from) {
+	struct modebuf *m = jtableL_get(&modebufs, (unsigned long)from);
+	if (m)
+		mode_flushmode(m);
+}
+
 static void mode_flushmode_check(struct entity *from, struct modebuf *m, void *nothing) {
 	if (!m->timeout)
 		return;
@@ -103,6 +109,8 @@ void init_modes() {
 		for (j = 0; servermodetable[i].modes[j]; j++)
 			registermode(servermodelist, servermodetable[i].modes[j], servermodetable[i].type);
 	hook_hook("ontick", mode_ontick);
+	hook_hook("onuserdel", mode_flushmode_deletion);
+	hook_hook("onserverdel", mode_flushmode_deletion);
 }
 
 void uplink_with_opername(void) {
@@ -199,6 +207,7 @@ void mode_flushmode(struct modebuf *m) {
 /* maxdelay = 0 means at next tick,
  * maxdelay = -1 means caller arranges for flushmode to be called
  */
+/* TODO: store channel ts to detect channel dropping and recreation? */
 struct modebuf *mode_pushmode(struct entity *from, struct channel *c, int plsmns, char mode, const char *target, size_t targetlen, int maxdelay) {
 	struct modebuf *m;
 	struct user *u;

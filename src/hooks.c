@@ -45,6 +45,12 @@ void init_hooks(void) {
 	hook_register("onpart");
 	/* onquit hook, called on a QUIT, arguments: struct user *from, char *reason ("" if no reason is given) */
 	hook_register("onquit");
+	/* onuserdel hook, called on deleting a user, args: struct user *user */
+	hook_register("onuserdel");
+	/* onserverdel hook, called on deleting a server, args: struct server *server */
+	hook_register("onserverdel");
+	/* onchanneldel hook, called on deleting a channel, args: struct channel *chan */
+	hook_register("onchanneldel");
 }
 
 static jtableP *get_funcs(const char *name) {
@@ -79,7 +85,7 @@ void hook_call(const char *name, struct args arg) {
 	jtableP *funcs = get_funcs(name);
 	if (!funcs)
 		return;
-	if (!strncmp(name, "hook_ontick", 12)) { 
+	if (!strncmp(name, "hook_ontick", 12)) {
 		logfmt(LOG_DEBUG, "Calling hook %s", name);
 	}
 

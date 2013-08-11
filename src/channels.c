@@ -46,6 +46,7 @@ struct channel *add_channel(char *name, time_t ts) {
 }
 
 void del_channel(struct channel *c) {
+	hook_call("onchanneldel", pack_args(arg_ptr(c)));
 	chanusers_del_channel(c);
 	jtableP_free(&c->users);
 	jtableP_free(&c->ops);
