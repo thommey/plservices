@@ -37,23 +37,23 @@ extern struct server *me;
 
 /* base libraries to inject into every interpreter */
 static const luaL_reg luabase_libs[] = {
-  { "base",       luaopen_base },
-  { "string",     luaopen_string },
-  { "table",      luaopen_table },
-  { "math",       luaopen_math },
-  { NULL,         NULL }
+	{ "base",       luaopen_base },
+	{ "string",     luaopen_string },
+	{ "table",      luaopen_table },
+	{ "math",       luaopen_math },
+	{ NULL,         NULL }
 };
 
 int luabase_report(lua_State *L, char *where, int status) {
-  const char *msg;
-  if (status) {
-    msg = lua_tostring(L, -1);
-    if (msg == NULL)
-      msg = "(error with no message)";
-    logfmt(LOG_ERROR, "LUA error @ %s: lua status=%d, %s", where, status, msg);
-    lua_pop(L, 1);
-  }
-  return status;
+	const char *msg;
+	if (status) {
+		msg = lua_tostring(L, -1);
+		if (msg == NULL)
+			msg = "(error with no message)";
+		logfmt(LOG_ERROR, "LUA error @ %s: lua status=%d, %s", where, status, msg);
+		lua_pop(L, 1);
+	}
+	return status;
 }
 
 /* create a new lua interpteter */

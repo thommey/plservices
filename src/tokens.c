@@ -64,76 +64,76 @@ static struct {
 	MKLRULE(A,	AWAY,		"o-1"),
 	MKLRULE(B,	BURST,		"1 2time g3"),
 	MKLRULE(CM,	CLEARMODE,	"1chan 2"),
-/*	MKSRULE(	CLOSE,		""), */
-/* 	MKLRULE(CN,	CNOTICE,	""), */
- 	MKLRULE(CO,	CONNECT,	"1 2uint 3snum"),
-/*	MKLRULE(CP,	CPRIVMSG,	""), */
+	/*	MKSRULE(	CLOSE,		""), */
+	/* 	MKLRULE(CN,	CNOTICE,	""), */
+	MKLRULE(CO,	CONNECT,	"1 2uint 3snum"),
+	/*	MKLRULE(CP,	CPRIVMSG,	""), */
 	MKLRULE(C,	CREATE,		"1 2time"),
 	MKLRULE(DE,	DESTRUCT,	"1cnum 2time"),
 	MKLRULE(DS,	DESYNCH,	"-1"),
-/*	MKSRULE(	DIE,		""), */
-/*	MKSRULE(	DNS,		""), */
+	/*	MKSRULE(	DIE,		""), */
+	/*	MKSRULE(	DNS,		""), */
 	MKLRULE(EB,	END_OF_BURST,""),
 	MKLRULE(EA,	EOB_ACK,	""),
 	MKLRULE(Y,	ERROR,		"o-1"),
-/*	MKSRULE(	GET,		""), */
+	/*	MKSRULE(	GET,		""), */
 	MK2RULE(GL,	GLINE,		"1snum 2 3time -1", "1snum 2 3time 4time -1"),
-/*	MKSRULE(	HASH,		""), */
-/*	MKSRULE(	HELP,		""), */
+	/*	MKSRULE(	HASH,		""), */
+	/*	MKSRULE(	HELP,		""), */
 	MKLRULE(F,	INFO,		"1snum"),
 	MKLRULE(I,	INVITE,		"1 2chan"),
-/*	MKSRULE(	ISON,		""), */
+	/*	MKSRULE(	ISON,		""), */
 	MKLRULE(J,	JOIN, 		"1chan o2time"),
 	MKLRULE(JU,	JUPE, 		"1snum 2 3time 4time -1"),
 	MKLRULE(K,	KICK,		"1chan 2unum -1"),
 	MKLRULE(D,	KILL,		"1unum -1"),
 	MKLRULE(LI,	LINKS, 		"1snum 2"),
-/*	MKSRULE(	LIST, 		""), */
+	/*	MKSRULE(	LIST, 		""), */
 	MKLRULE(LU,	LUSERS, 	"1 2snum"),
-/*	MKSRULE(	MAP, 		""), */
+	/*	MKSRULE(	MAP, 		""), */
 	MK2RULE(M,	MODE,		"1nick g2", "1chan g2 o-1time"),
 	MKLRULE(MO,	MOTD,		"1snum"),
 	MKLRULE(E,	NAMES, 		"1chan 2snum"),
 	MK2RULE(N,	NICK,		"1 2time", "1 2uint 3time 4 5 g6 -3 -2 -1"),
 	MKLRULE(O,	NOTICE, 	"1 -1"),
-/*	MKSRULE(	OPER,		""), */
+	/*	MKSRULE(	OPER,		""), */
 	MKLRULE(OM,	OPMODE, 	"1chan g2 o-1time"),
 	MKLRULE(L,	PART,		"1 o-1"),
 	MKLRULE(PA,	PASS,		"-1"),
 	MKLRULE(G,	PING,		"g1"),
 	MKLRULE(Z,	PONG,		"1snum g2"),
-/*	MKSRULE(	POST,		""), */
+	/*	MKSRULE(	POST,		""), */
 	MKLRULE(P,	PRIVMSG,	"1 -1"),
-/*	MKSRULE(	PRIVS,		""), */
-/*	MKSRULE(	PROTO,		""), */
+	/*	MKSRULE(	PRIVS,		""), */
+	/*	MKSRULE(	PROTO,		""), */
 	MKLRULE(Q,	QUIT,		"-1"),
-/*	MKSRULE(	REHASH,		""), */
-/*	MKSRULE(	RESET,		""), */
-/*	MKSRULE(	RESTART,	""), */
+	/*	MKSRULE(	REHASH,		""), */
+	/*	MKSRULE(	RESET,		""), */
+	/*	MKSRULE(	RESTART,	""), */
 	MK2RULE(RI,	RPING,		"1 2snum 3", "1snum 2unum 3time 4time o5"),
 	MK2RULE(RO,	RPONG,		"1 2unum 3time 4time o5", "1unum 2 3long o4"),
 	MKLRULE(S,	SERVER,		"1 2uint 3time 4time 5 6 7 -1"),
-/*	MKSRULE(	SET,		""), */
+	/*	MKSRULE(	SET,		""), */
 	MKLRULE(SH,	SETHOST,	"1unum 2 3"),
 	MKLRULE(SE,	SETTIME,	"1time o2snum"),
 	MKLRULE(U,	SILENCE,	"1 2"),
 	MKLRULE(SQ,	SQUIT,		"1 2time o-1"),
 	MKLRULE(R,	STATS,		"1 2snum o3"),
-/*	MKLRULE(TI,	TIME,		""), */
+	/*	MKLRULE(TI,	TIME,		""), */
 	MKLRULE(T,	TOPIC,		"1chan o-3time o-2time -1"),
 	MKLRULE(TR,	TRACE,		"1 2snum"),
 	MKLRULE(UP,	UPING,		"1 2uint 3snum 4uint"),
-/*	MKSRULE(	USER,		""), */
-/*	MKSRULE(	USERHOST,	""), */
-/*	MKSRULE(	USERIP,		""), */
+	/*	MKSRULE(	USER,		""), */
+	/*	MKSRULE(	USERHOST,	""), */
+	/*	MKSRULE(	USERIP,		""), */
 	MKLRULE(V,	VERSION,	"1snum"),
 	MKLRULE(WC,	WALLCHOPS,	"1chan -1"),
 	MKLRULE(WA,	WALLOPS,	"-1"),
 	MKLRULE(WU,	WALLUSERS,	"-1"),
 	MKLRULE(WV,	WALLVOICES,	"1chan -1"),
-/*	MKLRULE(H,	WHO,		""), */
+	/*	MKLRULE(H,	WHO,		""), */
 	MKLRULE(W,	WHOIS,		"1snum 2"),
-/*	MKLRULE(X,	WHOWAS,		""), */
+	/*	MKLRULE(X,	WHOWAS,		""), */
 	{NULL, NULL, NULL, NULL, "", ""}
 };
 

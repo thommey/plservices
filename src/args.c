@@ -41,43 +41,63 @@ void shift(struct args *arg, int offset) {
 
 /* argument packing */
 struct funcarg arg_int(int i) {
-	return (struct funcarg) {.type = ARGTYPE_INT, .data.i = i};
+	return (struct funcarg) {
+		.type = ARGTYPE_INT, .data.i = i
+	};
 }
 
 struct funcarg arg_uint(unsigned int u) {
-	return (struct funcarg) {.type = ARGTYPE_UINT, .data.u = u};
+	return (struct funcarg) {
+		.type = ARGTYPE_UINT, .data.u = u
+	};
 }
 
 struct funcarg arg_long(long l) {
-	return (struct funcarg) {.type = ARGTYPE_LONG, .data.l = l};
+	return (struct funcarg) {
+		.type = ARGTYPE_LONG, .data.l = l
+	};
 }
 
 struct funcarg arg_ulong(unsigned long ul) {
-	return (struct funcarg) {.type = ARGTYPE_ULONG, .data.ul = ul};
+	return (struct funcarg) {
+		.type = ARGTYPE_ULONG, .data.ul = ul
+	};
 }
 
 struct funcarg arg_time(time_t t) {
-	return (struct funcarg) {.type = ARGTYPE_TIME, .data.t = t};
+	return (struct funcarg) {
+		.type = ARGTYPE_TIME, .data.t = t
+	};
 }
 
 struct funcarg arg_user(struct user *u) {
-	return (struct funcarg) {.type = ARGTYPE_USER, .data.p = u};
+	return (struct funcarg) {
+		.type = ARGTYPE_USER, .data.p = u
+	};
 }
 
 struct funcarg arg_chan(struct channel *c) {
-	return (struct funcarg) {.type = ARGTYPE_CHAN, .data.p = c};
+	return (struct funcarg) {
+		.type = ARGTYPE_CHAN, .data.p = c
+	};
 }
 
 struct funcarg arg_server(struct server *s) {
-	return (struct funcarg) {.type = ARGTYPE_SERVER, .data.p = s};
+	return (struct funcarg) {
+		.type = ARGTYPE_SERVER, .data.p = s
+	};
 }
 
 struct funcarg arg_str(char *s) {
-	return (struct funcarg) {.type = ARGTYPE_STR, .data.p = s};
+	return (struct funcarg) {
+		.type = ARGTYPE_STR, .data.p = s
+	};
 }
 
 struct funcarg arg_ptr(void *p) {
-	return (struct funcarg) {.type = ARGTYPE_PTR, .data.p = p};
+	return (struct funcarg) {
+		.type = ARGTYPE_PTR, .data.p = p
+	};
 }
 
 #undef pack_args
@@ -114,7 +134,9 @@ struct args pack_words(const char *first, ...) {
 }
 
 struct args pack_empty(void) {
-	return (struct args) {.c = 0};
+	return (struct args) {
+		.c = 0
+	};
 }
 
 /* argument unpacking */

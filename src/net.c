@@ -155,6 +155,6 @@ void net_read(void) {
 		line = lineend;
 	}
 	logfmt(LOG_DEBUGIO, "---- NewOld (%zd): '%s' '%2X %2X %2X'----\n", strlen(line), line,
-			(unsigned char)line[strlen(line)-3], (unsigned char)line[strlen(line)-2], (unsigned char)line[strlen(line)-1]);
+		   (unsigned char)line[strlen(line)-3], (unsigned char)line[strlen(line)-2], (unsigned char)line[strlen(line)-1]);
 	memmove(buf, line, strlen(line)+1);
 }

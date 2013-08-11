@@ -26,9 +26,15 @@
 #include <Judy.h>
 
 /* artificial compile-time type safety */
-typedef struct { void *t; } jtableP;
-typedef struct { void *t; } jtableL;
-typedef struct { void *t; } jtableS;
+typedef struct {
+	void *t;
+} jtableP;
+typedef struct {
+	void *t;
+} jtableL;
+typedef struct {
+	void *t;
+} jtableS;
 
 typedef void (*jtableS_cb)(char *key, void *data, void *param);
 typedef void (*jtableL_cb)(unsigned long key, void *data, void *param);

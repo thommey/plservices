@@ -32,16 +32,16 @@ extern struct server *me;
 
 int module_register(void *module, const char *name, const char *description) {
 	int index = 0;
-        for (; modules[index].module != NULL; index++);
-        if (index > MAX_MODULES) {
-                logfmt(LOG_WARNING, "Cannot load module '%s' - max modules limit exceeded.", name);
+	for (; modules[index].module != NULL; index++);
+	if (index > MAX_MODULES) {
+		logfmt(LOG_WARNING, "Cannot load module '%s' - max modules limit exceeded.", name);
 		return 1;
 	}
 	modules[index].module = module;
 	modules[index].name = name;
 	modules[index].description = description;
 	logfmt(LOG_DEBUG, "Module added - index: %d - name: %s - description: %s", index, name, description);
-        return 0;
+	return 0;
 }
 
 int module_unregister(void *module) {
@@ -52,45 +52,45 @@ int module_unregister(void *module) {
 			break;
 		}
 	}
-        for (int c = position; c < MAX_MODULES - 1 ; c++) modules[c] = modules[c+1];
+	for (int c = position; c < MAX_MODULES - 1 ; c++) modules[c] = modules[c+1];
 	return 1;
 }
 
 int module_unload(const char *name) {
-        void *mod = module_find_by_name(name);
-        if (mod == NULL) return 1;
-        module_func unload;
-        unload = dlsym(mod, "unload");
-        if (dlerror()) {
-                logfmt(LOG_ERROR, "Cannot call 'unload' for %s - error: %s", name, dlerror());
-                return 1;
-        }
+	void *mod = module_find_by_name(name);
+	if (mod == NULL) return 1;
+	module_func unload;
+	unload = dlsym(mod, "unload");
+	if (dlerror()) {
+		logfmt(LOG_ERROR, "Cannot call 'unload' for %s - error: %s", name, dlerror());
+		return 1;
+	}
 	module_unregister(mod);
-        int result = unload();
-        return result;
+	int result = unload();
+	return result;
 }
 
 int module_load(const char *path, const char *name, const char *description) {
 	logfmt(LOG_DEBUG, "(%s): Loading...", name);
-        void *module;
-        module = dlopen(path, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
-        if (!module) {
-                logfmt(LOG_ERROR, "Cannot load %s - error: %s", name, dlerror());
-                return 1;
-        }
-        module_func init;
-        init = dlsym(module, "load");
-        if (dlerror()) {
- 	       logfmt(LOG_ERROR, "Cannot call 'load' for %s - error: %s", path, dlerror());
-               return 1;
-        }
-        int res = init();
+	void *module;
+	module = dlopen(path, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
+	if (!module) {
+		logfmt(LOG_ERROR, "Cannot load %s - error: %s", name, dlerror());
+		return 1;
+	}
+	module_func init;
+	init = dlsym(module, "load");
+	if (dlerror()) {
+		logfmt(LOG_ERROR, "Cannot call 'load' for %s - error: %s", path, dlerror());
+		return 1;
+	}
+	int res = init();
 	if (res > 0) {
 		logfmt(LOG_ERROR, "(%s): load() was called, and exited with error.", name);
 		return 1;
 	}
 	module_register(module, name, description);
-        return 0;
+	return 0;
 }
 
 void * module_find_by_name(const char *name) {
@@ -103,12 +103,12 @@ void * module_find_by_name(const char *name) {
 }
 
 const char *module_get_description(const char *name) {
-        for (int x = 0; x < MAX_MODULES; x++) {
-                if (!strncmp(modules[x].name, name, strlen(name))) {
-                        return modules[x].description;
-                }
-        }
-        return NULL;
+	for (int x = 0; x < MAX_MODULES; x++) {
+		if (!strncmp(modules[x].name, name, strlen(name))) {
+			return modules[x].description;
+		}
+	}
+	return NULL;
 }
 
 void module_loadAll() {
@@ -127,15 +127,15 @@ extern time_t now;
 * @return: void
 */
 void module_join_channel(struct user *from, const char *channel, int auto_op) {
-        struct channel *chan = get_channel_by_name(channel);
+	struct channel *chan = get_channel_by_name(channel);
 	if (chan == NULL) {
 		// Channel doesn't exist - lets create it.
 		send_format("%s C %s %ld", from->numericstr, channel, now);
 	} else {
-	        send_format("%s J %s %ld", from->numericstr, chan->name, chan->ts);
-        	if (auto_op) {
-                	send_format("%s M %s +o %s", me->numericstr, chan->name, from->numericstr);
-	        }
+		send_format("%s J %s %ld", from->numericstr, chan->name, chan->ts);
+		if (auto_op) {
+			send_format("%s M %s +o %s", me->numericstr, chan->name, from->numericstr);
+		}
 	}
 }
 
@@ -155,13 +155,13 @@ void module_part_channel(struct user *from, const char *channel) {
 */
 
 void module_describe(struct user *from, const char *target, const char *message, ...) {
-        static char buf[512];
-        va_list ap;
-        va_start(ap, message);
-        vsprintf(buf, message, ap);
-        va_end(ap);
-        // Don't send to a non-valid target, kthx.
-    if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
+	static char buf[512];
+	va_list ap;
+	va_start(ap, message);
+	vsprintf(buf, message, ap);
+	va_end(ap);
+	// Don't send to a non-valid target, kthx.
+	if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
 	send_format("%s P %s :\001ACTION %s\001", from->numericstr, target, buf);
 }
 
@@ -176,8 +176,8 @@ void module_privmsg(struct user *from, const char *target, const char *message, 
 	vsprintf(buf, message, ap);
 	va_end(ap);
 	// Don't send this message to a non valid target, kthx.
-        if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
-        send_format("%s P %s :%s", from->numericstr, target, buf);
+	if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
+	send_format("%s P %s :%s", from->numericstr, target, buf);
 }
 
 /*

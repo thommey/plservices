@@ -152,40 +152,40 @@ int mode_apply(struct entity *from, struct entity *target, uint64_t *modes, char
 	while (*mc) {
 		param = NULL;
 		switch (*mc) {
-		case '+':
-			pls = 1;
-			break;
-		case '-':
-			pls = 0;
-			break;
-		default:
-			if (!hasmode_valid(modelist, *mc)) {
-				logfmt(LOG_WARNING, "Invalid mode char: %c in sequence %s!", *mc, modechanges);
+			case '+':
+				pls = 1;
 				break;
-			}
-			if (pls) {
-				if (!hasmode_list(modelist, *mc) && !hasmode_usermode(modelist, *mc))
-					mode_set1(modes, *mc);
-				if (hasmode_setparam(modelist, *mc)) {
-					param = skip < arg->c ? arg->v[skip++] : NULL;
-					argsused++;
-				}
-			} else {
-				if (!hasmode_list(modelist, *mc) && !hasmode_usermode(modelist, *mc))
-					mode_unset1(modes, *mc);
-				if (hasmode_unsetparam(modelist, *mc)) {
-					param = skip < arg->c ? arg->v[skip++] : NULL;
-					argsused++;
-				}
-			}
-			ret = func(from, target, pls, *mc, param);
-			if (ret == MODEHOOK_OK)
+			case '-':
+				pls = 0;
 				break;
-			if (param && (ret == MODEHOOK_NOPARAM || ret == MODEHOOK_IGNORE))
-				skip--, argsused--;
-			if (ret == MODEHOOK_IGNORE)
-				pls ? mode_unset1(modes, *mc) : mode_set1(modes, *mc);
-			break;
+			default:
+				if (!hasmode_valid(modelist, *mc)) {
+					logfmt(LOG_WARNING, "Invalid mode char: %c in sequence %s!", *mc, modechanges);
+					break;
+				}
+				if (pls) {
+					if (!hasmode_list(modelist, *mc) && !hasmode_usermode(modelist, *mc))
+						mode_set1(modes, *mc);
+					if (hasmode_setparam(modelist, *mc)) {
+						param = skip < arg->c ? arg->v[skip++] : NULL;
+						argsused++;
+					}
+				} else {
+					if (!hasmode_list(modelist, *mc) && !hasmode_usermode(modelist, *mc))
+						mode_unset1(modes, *mc);
+					if (hasmode_unsetparam(modelist, *mc)) {
+						param = skip < arg->c ? arg->v[skip++] : NULL;
+						argsused++;
+					}
+				}
+				ret = func(from, target, pls, *mc, param);
+				if (ret == MODEHOOK_OK)
+					break;
+				if (param && (ret == MODEHOOK_NOPARAM || ret == MODEHOOK_IGNORE))
+					skip--, argsused--;
+				if (ret == MODEHOOK_IGNORE)
+					pls ? mode_unset1(modes, *mc) : mode_set1(modes, *mc);
+				break;
 		}
 		mc++;
 	}
@@ -240,7 +240,7 @@ struct modebuf *mode_pushmode(struct entity *from, struct channel *c, int plsmns
 			return m;
 		}
 		if ((mode == 'o' && plsmns == channel_isop(c, u)) ||
-			(mode == 'v' && plsmns == channel_isvoice(c, u)))
+				(mode == 'v' && plsmns == channel_isvoice(c, u)))
 			return m;
 	} else if (plsmns == mode_check1(&c->mode, mode))
 		return m;

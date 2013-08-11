@@ -146,36 +146,36 @@ static int channel_modehook(struct entity *from, struct entity *target, int pls,
 	}
 
 	switch (modechange) {
-	case 'k':
-		if (!pls) {
-			if (strcmp(c->key, param))
-				logfmt(LOG_WARNING, "Unset key that wasn't set. Mine: '%s', theirs: '%s'.", c->key, param);
-			c->key[0] = '\0';
-		} else
-			strbufcpy(c->key, param);
-		break;
-	case 'l':
-		tmp = strtol(param, NULL, 10);
-		if (pls && tmp <= 0) {
-			logfmt(LOG_WARNING, "Invalid limit setting: '%s' (=> %ld)", param, tmp);
-		}
-		c->limit = tmp;
-		break;
-	case 'b':
-		if (!param || !param[0]) {
-			logtxt(LOG_WARNING, "Invalid ban mode change or non-existant ban.");
-			return MODEHOOK_OK;
-		}
-		pls ? channel_plsban(c, from, param) : channel_mnsban(c, from, param);
-	case 'o': /* fall-through */
-	case 'v':
-		u = get_user_by_numericstr(param);
-		if (!u || !verify_user(u)) {
-			logtxt(LOG_WARNING, "Op/voice for non-existant/invalid user!");
-			return MODEHOOK_OK;
-		}
-		pls ? channel_plsprefix(c, u, modechange) : channel_mnsprefix(c, u, modechange);
-		break;
+		case 'k':
+			if (!pls) {
+				if (strcmp(c->key, param))
+					logfmt(LOG_WARNING, "Unset key that wasn't set. Mine: '%s', theirs: '%s'.", c->key, param);
+				c->key[0] = '\0';
+			} else
+				strbufcpy(c->key, param);
+			break;
+		case 'l':
+			tmp = strtol(param, NULL, 10);
+			if (pls && tmp <= 0) {
+				logfmt(LOG_WARNING, "Invalid limit setting: '%s' (=> %ld)", param, tmp);
+			}
+			c->limit = tmp;
+			break;
+		case 'b':
+			if (!param || !param[0]) {
+				logtxt(LOG_WARNING, "Invalid ban mode change or non-existant ban.");
+				return MODEHOOK_OK;
+			}
+			pls ? channel_plsban(c, from, param) : channel_mnsban(c, from, param);
+		case 'o': /* fall-through */
+		case 'v':
+			u = get_user_by_numericstr(param);
+			if (!u || !verify_user(u)) {
+				logtxt(LOG_WARNING, "Op/voice for non-existant/invalid user!");
+				return MODEHOOK_OK;
+			}
+			pls ? channel_plsprefix(c, u, modechange) : channel_mnsprefix(c, u, modechange);
+			break;
 	}
 	return MODEHOOK_OK;
 }
@@ -205,25 +205,25 @@ int channel_apply_clearmode(struct entity *from, struct entity *target, char *mo
 	}
 	while (*modes) {
 		switch (*modes) {
-		case 'o':
-			jtableP_free(&channel->ops);
-			break;
-		case 'v':
-			jtableP_free(&channel->voices);
-			break;
-		case 'b':
-			jtableS_free(&channel->bans);
-			break;
-		case 'l':
-			channel->limit = 0;
-			mode_unset1(&channel->mode, *modes);
-			break;
-		case 'k':
-			channel->key[0] = 0;
-			mode_unset1(&channel->mode, *modes);
-			break;
-		default:
-			mode_unset1(&channel->mode, *modes);
+			case 'o':
+				jtableP_free(&channel->ops);
+				break;
+			case 'v':
+				jtableP_free(&channel->voices);
+				break;
+			case 'b':
+				jtableS_free(&channel->bans);
+				break;
+			case 'l':
+				channel->limit = 0;
+				mode_unset1(&channel->mode, *modes);
+				break;
+			case 'k':
+				channel->key[0] = 0;
+				mode_unset1(&channel->mode, *modes);
+				break;
+			default:
+				mode_unset1(&channel->mode, *modes);
 		}
 		modes++;
 	}
