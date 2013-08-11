@@ -21,12 +21,12 @@ int load() {
 	return 0;
 }
 
-int unload() { 
+int unload() {
 	module_destroy_client(BOTNUMERIC, "Module unloaded.");
 	logfmt(LOG_DEBUG, "(%s): Unloaded.", MODNAME);
 	return 0;
 }
 
-void onprivmsg(struct user *from, struct user *to, char *msg) { 
+void onprivmsg(struct user *from, struct user *to, char *msg) {
 	module_privmsg(BOTNUMERIC, BOTDEBUGCHAN, "I've just received a message from: %s - message: %s", from->nick, msg);
 }

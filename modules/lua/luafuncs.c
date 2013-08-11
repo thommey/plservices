@@ -38,7 +38,7 @@ static int luafunc_os_time(lua_State *L) {
 }
 
 static int luafunc_irc_localregisteruser(lua_State *L) {
-	unsigned long unum;
+	struct user *u;
 	const char *nick = luaL_checkstring(L, 1);
 	const char *user = luaL_checkstring(L, 2);
 	const char *host = luaL_checkstring(L, 3);
@@ -46,13 +46,14 @@ static int luafunc_irc_localregisteruser(lua_State *L) {
 	const char *umode = luaL_checkstring(L, 6);
 	luaL_checktype(L, -1, LUA_TFUNCTION);
 
-	unum = luabase_newuser(L, nick, user, host, umode, NULL, realname, luaL_ref(L, LUA_REGISTRYINDEX));
-	lua_pushstring(L, unum2str(unum));
+	u = luabase_newuser(L, nick, user, host, umode, NULL, realname, luaL_ref(L, LUA_REGISTRYINDEX));
+	assert(u);
+	lua_pushstring(L, u->numericstr);
 	return 1;
 }
 
 static int luafunc_irc_localregisteruserid(lua_State *L) {
-	unsigned long unum;
+	struct user *u;
 	const char *nick = luaL_checkstring(L, 1);
 	const char *user = luaL_checkstring(L, 2);
 	const char *host = luaL_checkstring(L, 3);
@@ -61,8 +62,9 @@ static int luafunc_irc_localregisteruserid(lua_State *L) {
 	const char *umode = luaL_checkstring(L, 7);
 	luaL_checktype(L, -1, LUA_TFUNCTION);
 
-	unum = luabase_newuser(L, nick, user, host, umode, account, realname, luaL_ref(L, LUA_REGISTRYINDEX));
-	lua_pushstring(L, unum2str(unum));
+	u = luabase_newuser(L, nick, user, host, umode, account, realname, luaL_ref(L, LUA_REGISTRYINDEX));
+	assert(u);
+	lua_pushstring(L, u->numericstr);
 	return 1;
 }
 

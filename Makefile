@@ -13,7 +13,7 @@ EXEC = plservices
 
 all: $(EXEC) modules
 
-$(EXEC): $(OBJS)
+$(EXEC): $(OBJS) $(HDRS)
 	$(LD) $(LDFLAGS) $(OBJS) $(LIBS) $(LUALIBS) -o $(EXEC)
 
 .PHONY: clean modules
@@ -25,3 +25,6 @@ clean:
 modules:
 	$(ECHO) Making modules...
 	cd $(MODPATH); $(MAKE) $(MFLAGS)
+
+%.o: %.c $(HDRS)
+	$(CC) -c $(CFLAGS) $< -o $@

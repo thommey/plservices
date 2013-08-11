@@ -33,9 +33,10 @@
 struct server {
 	unsigned int magic;
 	unsigned long numeric;
+	unsigned long lastnumeric;
 	char numericstr[SNUMLEN+1];
 	char name[SNAMELEN+1];
-	char maxusers[4];
+	unsigned long maxusers;
 	int hops;
 	time_t boot;
 	time_t link;
@@ -50,7 +51,10 @@ struct server {
 struct server *get_server_by_numeric(unsigned long numeric);
 struct server *get_server_by_numericstr(const char *numeric);
 struct server *add_server(char *umeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description);
+void server_add_user(struct server *s, struct user *u);
+void server_del_user(struct server *s, struct user *u);
 void del_server(struct server *user);
 void server_apply_mode(struct entity *from, struct entity *target, char *modechanges, struct manyargs *arg, int skip);
+unsigned long server_freenum(struct server *s);
 
 #endif /* SERVER_H_ */

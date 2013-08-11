@@ -40,11 +40,12 @@ void init_base64(void) {
 		decode_base64_digit(encode_base64_digit(i)) = i;
 }
 
+/* len = 0 for reading until \0 */
 long base64_decode_long(const char *str, size_t len) {
 	int i = 0;
 	long result = 0;
 
-	for (i = 0; len != -1 ? i < len : str[i]; i++) {
+	for (i = 0; len ? i < len : str[i]; i++) {
 		result *= 64;
 		result += decode_base64_digit(str[i]);
 	}

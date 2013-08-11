@@ -44,11 +44,12 @@ struct server *add_server(char *numeric, char *maxusers, char *name, int hops, t
 	s->magic = MAGIC_SERVER;
 	strbufcpy(s->numericstr, numeric);
 	s->numeric = str2snum(numeric);
-	strbufcpy(s->maxusers, maxusers);
+	s->maxusers = base64_decode_long(maxusers, 3);
 	strbufcpy(s->name, name);
 	s->hops = hops;
 	s->boot = boot;
 	s->link = link;
+	s->lastnumeric = s->numeric * 64 * 64 * 64 + s->maxusers;
 	strbufcpy(s->protocol, protocol);
 	strbufcpy(s->description, description);
 
@@ -61,6 +62,15 @@ struct server *add_server(char *numeric, char *maxusers, char *name, int hops, t
 	}
 
 	return jtableL_insert(&serverlist, s->numeric, s);
+}
+
+void server_add_user(struct server *s, struct user *u) {
+	jtableP_set(&s->users, u);
+	s->lastnumeric = u->numeric;
+}
+
+void server_del_user(struct server *s, struct user *u) {
+	jtableP_unset(&s->users, u);
 }
 
 void del_server(struct server *server) {
@@ -102,4 +112,17 @@ void server_apply_mode(struct entity *from, struct entity *target, char *modecha
 		return;
 	}
 	mode_apply(from, target, &((struct server *)target)->mode, modechanges, arg, skip, server_modehook);
+}
+
+/* returns a free numeric on server s */
+unsigned long server_freenum(struct server *s) {
+	unsigned long numeric = s->lastnumeric;
+
+	do {
+		if (numeric == s->numeric * 64 * 64 * 64 + s->maxusers)
+			numeric = s->numeric * 64 * 64 * 64;
+		else
+			numeric++;
+	} while (get_user_by_numeric(numeric));
+	return numeric;
 }

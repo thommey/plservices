@@ -38,7 +38,7 @@ struct luapushuserdata {
 int load(void);
 int unload(void);
 void luabase_ghook(char *str, struct args *arg);
-unsigned long luabase_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref);
+struct user *luabase_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref);
 void luabase_pushuser(lua_State *L, struct user *u);
 void luabase_pushuser_iter(struct user *u, struct luapushuserdata *lpud);
 int luabase_getbooleanfromarray(lua_State *L, int tableidx, int idx);

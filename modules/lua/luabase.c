@@ -208,14 +208,6 @@ int unload(void) {
 	/* TODO */
 	return 0;
 }
-char *nextnum(void) {
-	static char numeric[6] = "";
-	if (!numeric[0])
-		sprintf(numeric, "%s%s", ME, base64_encode_padded(0, numeric + 2, 4));
-	else if (base64_incr(numeric + 2, 4))
-		error("No numerics left");
-	return numeric;
-}
 
 /* push userinfo (.nick, .numeric, .accountid) */
 void luabase_pushuser(lua_State *L, struct user *u) {
@@ -238,18 +230,21 @@ void luabase_pushuser_iter(struct user *u, struct luapushuserdata *lpud) {
 	lua_settable(lpud->L, -3);
 }
 
-unsigned long luabase_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref) {
+struct user *luabase_newuser(lua_State *L, const char *nick, const char *user, const char *host, const char *umode, const char *account, const char *realname, int handlerref) {
 	struct luaclient *lc;
-	char *numeric;
+	struct user *u;
+	unsigned long numeric;
 
-	numeric = nextnum();
+	numeric = server_freenum(me);
 	lc = zmalloc(sizeof(*lc));
 	lc->L = L;
 	lc->handler_ref = handlerref;
-	jtableL_insert(&luabase_users, str2unum(numeric), lc);
+	jtableL_insert(&luabase_users, numeric, lc);
 
-	send_format("%s N %s %d %ld %s %s %s%s%s %s %s :%s", ME, nick, 1, now, user, host, umode, account ? " " : "", account ? account : "", "DAqAoB", numeric, realname);
-	return str2unum(numeric);
+	send_format("%s N %s %d %ld %s %s %s%s%s %s %s :%s", ME, nick, 1, now, user, host, umode, account ? " " : "", account ? account : "", "DAqAoB", unum2str(numeric), realname);
+	u = get_user_by_numeric(numeric);
+	assert(u);
+	return u;
 }
 
 int luabase_getbooleanfromarray(lua_State *L, int tableidx, int idx) {

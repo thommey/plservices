@@ -42,10 +42,10 @@ int module_register(void *module, const char *name, const char *description) {
         return 0;
 }
 
-int module_unregister(void *module) { 
+int module_unregister(void *module) {
 	int position = -1;
-	for (int x = 0; x < MAX_MODULES; x++) { 
-		if (modules[x].module == module) { 
+	for (int x = 0; x < MAX_MODULES; x++) {
+		if (modules[x].module == module) {
 			position = x;
 			break;
 		}
@@ -91,16 +91,16 @@ int module_load(const char *path, const char *name, const char *description) {
         return 0;
 }
 
-void * module_find_by_name(const char *name) { 
+void * module_find_by_name(const char *name) {
 	for (int x = 0; x < MAX_MODULES; x++) {
-		if (!strncmp(modules[x].name, name, strlen(name))) { 
+		if (!strncmp(modules[x].name, name, strlen(name))) {
 			return modules[x].module;
 		}
 	}
 	return NULL;
 }
 
-const char *module_get_description(const char *name) { 
+const char *module_get_description(const char *name) {
         for (int x = 0; x < MAX_MODULES; x++) {
                 if (!strncmp(modules[x].name, name, strlen(name))) {
                         return modules[x].description;
@@ -109,7 +109,7 @@ const char *module_get_description(const char *name) {
         return NULL;
 }
 
-void module_loadAll() { 
+void module_loadAll() {
 	module_load("modules/dummy.so", "dummy", "PLServices Dummy Module.");
 	module_load("modules/lua.so", "lua", "PLServices Lua Module.");
 }
@@ -126,10 +126,10 @@ extern time_t now;
 */
 void module_join_channel(const char *numeric, const char *channel, int auto_op) {
         struct channel *chan = get_channel_by_name(channel);
-	if (chan == NULL) { 
+	if (chan == NULL) {
 		// Channel doesn't exist - lets create it.
 		send_format("%s C %s %ld", numeric, channel, now);
-	} else { 
+	} else {
 	        send_format("%s J %s %ld", numeric, chan->name, chan->ts);
         	if (auto_op) {
                 	send_format("%s M %s +o %s", me->numericstr, chan->name, numeric);
@@ -141,7 +141,7 @@ void module_join_channel(const char *numeric, const char *channel, int auto_op) 
 * @function: Makes a fakeclient part a channel.
 * @return: void
 */
-void module_part_channel(const char *numeric, const char *channel) { 
+void module_part_channel(const char *numeric, const char *channel) {
 	// Don't try to part a channel that doesn't exist :)
 	if (get_channel_by_name(channel) == NULL) return;
 	send_format("%s L %s", numeric, channel);
@@ -152,7 +152,7 @@ void module_part_channel(const char *numeric, const char *channel) {
 * @return: void
 */
 
-void module_describe(const char *numeric, const char *target, const char *message, ...) { 
+void module_describe(const char *numeric, const char *target, const char *message, ...) {
         static char buf[512];
         va_list ap;
         va_start(ap, message);
@@ -182,7 +182,7 @@ void module_privmsg(const char *numeric, const char *target, const char *message
 * @function: Creates a fake client
 * @return: void
 */
-void module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *numeric, const char *realname) { 
+void module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *numeric, const char *realname) {
 	if (!strlen(account) && strstr(modes, "r") != NULL) account = nick;
 	if (!strlen(opername) && strstr(modes, "o") != NULL) opername = nick;
 	send_format("%s N %s 1 %ld %s %s %s %s %s %s %s :%s", me->numericstr, nick, now, ident, hostname, modes, (!strlen(account) ? "" : account), (!strlen(opername) ? "" : opername), "B]AAAB", numeric, realname);
@@ -192,6 +192,6 @@ void module_create_client(char *nick, const char *ident, const char *hostname, c
 * @function: Destroys a fake client
 * @return: void
 */
-void module_destroy_client(const char *numeric, const char *message) { 
+void module_destroy_client(const char *numeric, const char *message) {
 	send_format("%s Q :%s", numeric, message);
 }

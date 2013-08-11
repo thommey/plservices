@@ -8,6 +8,3 @@ ECHO    = echo
 MODPATH = modules
 
 LIBS      = -ldl -lJudy
-
-%.o: %.c $(HDRS)
-	$(CC) -c $(CFLAGS) $< -o $@
