@@ -181,15 +181,23 @@ void module_privmsg(struct user *from, const char *target, const char *message, 
 }
 
 /*
-* @function: Creates a fake client
+* @function: Creates a fake client on a specific server
+* @return: void
+*/
+struct user *module_create_client_on(struct server *server, char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *realname) {
+	unsigned long numeric = server_freenum(server);
+	if (!strlen(account) && strstr(modes, "r") != NULL) account = nick;
+	if (!strlen(opername) && strstr(modes, "o") != NULL) opername = nick;
+	send_format("%s N %s 1 %ld %s %s %s %s %s %s %s :%s", server->numericstr, nick, now, ident, hostname, modes, (!strlen(account) ? "" : account), (!strlen(opername) ? "" : opername), "B]AAAB", unum2str(numeric), realname);
+	return get_user_by_numeric(numeric);
+}
+
+/*
+* @function: Creates a fake client on the main server
 * @return: void
 */
 struct user *module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *realname) {
-	unsigned long numeric = server_freenum(me);
-	if (!strlen(account) && strstr(modes, "r") != NULL) account = nick;
-	if (!strlen(opername) && strstr(modes, "o") != NULL) opername = nick;
-	send_format("%s N %s 1 %ld %s %s %s %s %s %s %s :%s", me->numericstr, nick, now, ident, hostname, modes, (!strlen(account) ? "" : account), (!strlen(opername) ? "" : opername), "B]AAAB", unum2str(numeric), realname);
-	return get_user_by_numeric(numeric);
+	return module_create_client_on(me, nick, ident, hostname, modes, account, opername, realname);
 }
 
 /*

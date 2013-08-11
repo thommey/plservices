@@ -29,6 +29,7 @@ int module_unregister(void *module);
 void module_join_channel(struct user *from, const char *channel, int auto_op);
 void module_part_channel(struct user *from, const char *channel);
 struct user *module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *realname);
+struct user *module_create_client_on(struct server *server, char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *realname);
 void module_destroy_client(struct user *from, const char *message);
 void module_privmsg(struct user *from, const char *target, const char *message, ...);
 void module_describe(struct user *from, const char *target, const char *message, ...);
