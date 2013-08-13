@@ -161,7 +161,7 @@ void module_describe(struct user *from, const char *target, const char *message,
 	vsprintf(buf, message, ap);
 	va_end(ap);
 	// Don't send to a non-valid target, kthx.
-	if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
+	if (get_channel_by_name(target) == NULL && get_user_by_numericstr(target) == NULL) return;
 	send_format("%s P %s :\001ACTION %s\001", from->numericstr, target, buf);
 }
 
@@ -176,7 +176,7 @@ void module_privmsg(struct user *from, const char *target, const char *message, 
 	vsprintf(buf, message, ap);
 	va_end(ap);
 	// Don't send this message to a non valid target, kthx.
-	if (get_channel_by_name(target) == NULL && get_user_by_nick(target) == NULL) return;
+	if (get_channel_by_name(target) == NULL && get_user_by_numericstr(target) == NULL) return;
 	send_format("%s P %s :%s", from->numericstr, target, buf);
 }
 
@@ -192,7 +192,7 @@ void module_notice(struct user *from, const char *target, const char *message, .
         va_end(ap);
         // Don't send this message to a non valid target, kthx.
 	// who sends a notice to a channel?
-        if (get_user_by_nick(target) == NULL) return;
+        if (get_user_by_numericstr(target) == NULL) return;
         send_format("%s O %s :%s", from->numericstr, target, buf);
 }
 

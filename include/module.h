@@ -34,4 +34,8 @@ void module_destroy_client(struct user *from, const char *message);
 void module_privmsg(struct user *from, const char *target, const char *message, ...);
 void module_describe(struct user *from, const char *target, const char *message, ...);
 void module_notice(struct user *from, const char *target, const char *message, ...);
+
+/* Basic Module Command Type Definition */
+typedef int (*cmdfunc)(struct user *, struct user *, struct manyargs *);
+
 #endif

@@ -5,7 +5,7 @@
 #define BOTHOSTNAME "plservices.metairc.net"
 #define BOTMODES "+okr"
 #define BOTREALNAME "Dummy Module"
-#define BOTDEBUGCHAN "#labspace"
+#define BOTDEBUGCHAN "#labspace3"
 
 #include "main.h"
 
@@ -15,7 +15,7 @@ static void onprivmsg(struct user *from, struct user *to, char *msg);
 
 int load() {
 	bot = module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTREALNAME);
-	module_join_channel(bot, BOTDEBUGCHAN, 1);
+	module_join_channel(bot, BOTDEBUGCHAN, 0);
 	module_describe(bot, BOTDEBUGCHAN, "wiggles");
 	hook_hook("onprivmsg", onprivmsg);
 	logfmt(LOG_DEBUG, "(%s): Loaded.", MODNAME);
@@ -29,5 +29,7 @@ int unload() {
 }
 
 static void onprivmsg(struct user *from, struct user *to, char *msg) {
-	module_privmsg(bot, BOTDEBUGCHAN, "I've just received a message from: %s - message: %s", from->nick, msg);
+	if (!strcmp(to->numericstr, bot->numericstr)) { 
+		module_privmsg(bot, BOTDEBUGCHAN, "I've just received a message from: %s - message: %s", from->nick, msg);
+	}
 }

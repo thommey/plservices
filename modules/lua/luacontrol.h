@@ -29,12 +29,12 @@ struct commandInfo {
 	char *trigger;
 	char *syntax;
 	char *description;
-	int *cmdptr;
+	cmdfunc cmdptr;
 };
 
 struct commandInfo commands[MAX_COMMANDS];
 
 static void onprivmsg(struct user *from, struct user *to, char *msg);
-int *command_find(char *trigger);
+cmdfunc command_find(char *trigger);
 
 #endif

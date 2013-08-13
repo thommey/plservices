@@ -5,7 +5,7 @@
 #define BOTHOSTNAME "plservices.metairc.net"
 #define BOTMODES "+okr"
 #define BOTREALNAME "Lua Control Service"
-#define BOTDEBUGCHAN "#labspace"
+#define BOTDEBUGCHAN "#labspace3"
 
 #include "main.h"
 #include "luabase.h"
@@ -16,7 +16,7 @@ struct user *bot;
 
 int load() {
 	bot = module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTREALNAME);
-	module_join_channel(bot, BOTDEBUGCHAN, 1);
+	module_join_channel(bot, BOTDEBUGCHAN, 0);
 	module_describe(bot, BOTDEBUGCHAN, "enters on a chariot of fire.");
 	hook_hook("onprivmsg", onprivmsg);
 	logfmt(LOG_DEBUG, "(%s): Loaded.", MODNAME);
@@ -29,21 +29,26 @@ int unload() {
 	return luabase_unload();
 }
 
-static void onprivmsg(struct user *from, struct user *to, char *msg) {
-	struct args argz; 
-	struct args *arg;
-	argz = pack_words(msg);
-	arg = &argz;
-	if (command_find(argdata_str(&arg->v[0])) == NULL) { 
-		module_notice(bot, from->numericstr, "Unknown command %s. Use SHOWCOMMANDS to view all commands.", argdata_str(&arg->v[0]));
+void onprivmsg(struct user *from, struct user *to, char *msg) {
+	if (!strcmp(to->numericstr, bot->numericstr)) {
+		char message[513];
+		struct manyargs arg;
+		strbufcpy(message, msg);
+		split(&arg, message, ' ');
+		cmdfunc cmd = (arg.c == 0 ? NULL : command_find(arg.v[0]));
+		if (arg.c == 0 || !command_find(arg.v[0])) { 
+			module_notice(bot, from->numericstr, "Unknown command %s. Use SHOWCOMMANDS to view all commands.", arg.v[0]);
+		} else { 
+			cmd(from, to, &arg);
+		}
 	}
 }
 
 
 /* Commands */
-int *command_find(char *trigger) {
+cmdfunc command_find(char *trigger) {
         for (int x = 0; x < MAX_COMMANDS; x++) {
-                if (!strncmp(commands[x].trigger, trigger, strlen(trigger))) {
+                if (commands[x].trigger != NULL && strcmp(commands[x].trigger, trigger)) {
                         return commands[x].cmdptr;
                 }
         }
