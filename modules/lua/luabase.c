@@ -187,7 +187,7 @@ static void luabase_onpart(struct user *from, struct channel *chan, char *msg) {
 	jtableP_iterate(&luabase_states, (jtableP_cb)luabase_callluafunc, &arg);
 }
 
-int load(void) {
+int luabase_load(void) {
 	struct args arg;
 	lua_State *L = luabase_newstate();
 	luabase_loadscript(L, "stubs.lua");
@@ -204,7 +204,7 @@ int load(void) {
 	return luabase_callluafunc(L, &arg);
 }
 
-int unload(void) {
+int luabase_unload(void) {
 	/* TODO */
 	return 0;
 }

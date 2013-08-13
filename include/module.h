@@ -33,4 +33,5 @@ struct user *module_create_client_on(struct server *server, char *nick, const ch
 void module_destroy_client(struct user *from, const char *message);
 void module_privmsg(struct user *from, const char *target, const char *message, ...);
 void module_describe(struct user *from, const char *target, const char *message, ...);
+void module_notice(struct user *from, const char *target, const char *message, ...);
 #endif
