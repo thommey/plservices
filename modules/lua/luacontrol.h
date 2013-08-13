@@ -36,5 +36,7 @@ struct commandInfo commands[MAX_COMMANDS];
 
 static void onprivmsg(struct user *from, struct user *to, char *msg);
 cmdfunc command_find(char *trigger);
+void command_register(char *trigger, char *syntax, char *description, cmdfunc command);
+int command_version(struct user *from, struct user *to, struct manyargs args);
 
 #endif
