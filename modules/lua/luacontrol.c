@@ -18,8 +18,7 @@ int load() {
 	bot = module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTREALNAME);
 	module_join_channel(bot, BOTDEBUGCHAN, 0);
 	module_describe(bot, BOTDEBUGCHAN, "enters on a chariot of fire.");
-	cmdfunc yxx = &command_version;
-	command_register("version", "VERSION", "Shows version information.", yxx);
+	command_register("version", "VERSION", "Shows version information.", (cmdfunc)&command_version);
 	hook_hook("onprivmsg", onprivmsg);
 	logfmt(LOG_DEBUG, "(%s): Loaded.", MODNAME);
 	return luabase_load();
