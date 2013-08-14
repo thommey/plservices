@@ -47,6 +47,13 @@ void *jtableS_insert(jtableS *table, const char *key, void *data) {
 	return data;
 }
 
+void *jtableS_getptr(jtableS *table, const char *key) {
+	PWord_t PValue;
+	JSLG(PValue, table->t, (const uint8_t*)key);
+
+	return PValue ? (void *)PValue : NULL;
+}
+
 void *jtableS_get(jtableS *table, const char *key) {
 	PWord_t PValue;
 	JSLG(PValue, table->t, (const uint8_t*)key);

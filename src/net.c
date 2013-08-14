@@ -42,8 +42,6 @@
 #undef logtxt
 #undef logfmt
 
-#define POSIXERR(str) do { logfmt(LOG_FATAL, "POSIX error: %s", strerror(errno)); error(str); } while(0)
-
 static int conn;
 
 extern int now;

@@ -38,6 +38,9 @@ static void init(void) {
 	init_parse();
 	init_tokens();
 	init_modes();
+	load_config("plservices.conf");
+	print_config();
+	exit(0);
 //	init_burster();
 	hook_hook("onregistered", module_loadAll);
 }

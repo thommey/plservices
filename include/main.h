@@ -27,7 +27,9 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+#include <errno.h>
 
+#include "config.h"
 #include "utils.h"
 #include "args.h"
 #include "log.h"
