@@ -64,7 +64,6 @@ int main(int argc, char **argv) {
 
 	init();
 	load_config(configfile);
-	logfmt(LOG_DEBUG, "Loaded config file - %s", configfile);
 	now = time(NULL);
 	net_connect();
 

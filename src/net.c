@@ -64,7 +64,6 @@ void net_connect(void) {
 	struct hostent *hostname;
 	struct in_addr ip_addr;
 	int flag_set = 1;
-	printf("Test");
 	numeric = strtol(numericstr, NULL, 10);
 
 	if (!uplink || !port || !pass)
@@ -75,12 +74,11 @@ void net_connect(void) {
 
 	if ((conn = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 		POSIXERR("Could not create socket");
-	printf("Test.");
+
 	hostname = gethostbyname(uplink);
 	if (!hostname) 
 		POSIXERR("Could not resolve hostname.");
 	ip_addr = *(struct in_addr *)(hostname->h_addr_list[0]);
-	printf("Resolved - Uplink: %s", uplink);
 	setsockopt(conn, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
 	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
