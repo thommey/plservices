@@ -6,7 +6,7 @@ LUACFLAGS := $(shell pkg-config --cflags $(LUAPKG))
 LUALIBS   := $(shell pkg-config --libs $(LUAPKG))
 
 # Automatic rules
-HDRS = $(wildcard src/*.h)
+HDRS = $(wildcard include/*.h)
 SRCS = $(wildcard src/*.c)
 OBJS = $(SRCS:.c=.o)
 EXEC = plservices
