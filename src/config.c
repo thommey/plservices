@@ -82,7 +82,7 @@ void config_set(const char *section, const char *key, const char *value) {
 static int parse_configline(char *section, char *line) {
 	char *value;
 	/* skip leading spaces */
-	skip(&line, " ");
+	skip(&line, " \r\n");
 	/* ignore empty lines and comments */
 	if (!*line || *line == '#')
 		return 0;
@@ -94,7 +94,7 @@ static int parse_configline(char *section, char *line) {
 	/* first ' ' or '=' terminates key */
 	value = strpbrk(line, "= ");
 	*value++ = '\0';
-	skip(&value, " =");
+	skip(&value, " =\r\n");
 	if (!value) {
 		logfmt(LOG_WARNING, "Config file parser found malformed line: %s", line);
 		return -1;
