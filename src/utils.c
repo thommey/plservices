@@ -46,7 +46,7 @@ char *strtoupper(char *str){
     return newstr;
 }
 
-char *sstrdup(char *str) {
+char *sstrdup(const char *str) {
 	char *new;
 	size_t s = strlen(str);
 	new = smalloc(s+1);

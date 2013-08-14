@@ -48,13 +48,34 @@ static int set_section(char *section, char *line) {
 	return 0;
 }
 
-static void set_config(char *section, const char *key, char *value) {
+char *config_get(const char *section, const char *key) {
 	jtableS *sectiondata;
+	if (!section || !key || !section[0] || !key[0]) {
+		logtxt(LOG_WARNING, "Invalid config file get with empty data");
+		return NULL;
+	}
+	sectiondata = jtableS_getptr(&configdata, section);
+	if (!sectiondata)
+		return NULL;
+	return jtableS_get(sectiondata, key);
+}
+
+void config_set(const char *section, const char *key, const char *value) {
+	jtableS *sectiondata;
+	char *tmp;
+
+	if (!section || !key || !value || !section[0] || !key[0] || !value[0]) {
+		logtxt(LOG_WARNING, "Invalid config file insert with empty data");
+		return;
+	}
 	sectiondata = jtableS_getptr(&configdata, section);
 	if (!sectiondata) {
 		jtableS_insert(&configdata, section, NULL);
 		sectiondata = jtableS_getptr(&configdata, section);
 	}
+	tmp = jtableS_get(sectiondata, key);
+	/* if overwriting old value, free old string first */
+	sfree(tmp);
 	jtableS_insert(sectiondata, key, sstrdup(value));
 }
 
@@ -80,7 +101,7 @@ static int parse_configline(char *section, char *line) {
 	}
 	/* cut off at line end */
 	strtok(value, "\r\n");
-	set_config(section, line, value);
+	config_set(section, line, value);
 	return 0;
 }
 
