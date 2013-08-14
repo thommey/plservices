@@ -40,4 +40,6 @@ void logtxt(int loglevel, const char *text);
 #define logtxt(l, f) logtxt(l, f "\n")
 #define logfmt(l, f, ...) logfmt(l, f "\n", __VA_ARGS__)
 
+#define POSIXERR(str) do { logfmt(LOG_FATAL, "POSIX error: %s", strerror(errno)); error(str); } while(0)
+
 #endif /* LOG_H_ */

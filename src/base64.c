@@ -52,7 +52,7 @@ long base64_decode_long(const char *str, size_t len) {
 	return result;
 }
 
-char *base64_encode_padded(long num, char *buf, size_t bufsize) {
+char *base64_encode_padded(char *buf, size_t bufsize, unsigned long num) {
 	char *e;
 
 	if (bufsize < 2) {
@@ -101,18 +101,18 @@ unsigned long str2snum(const char *str) {
 
 const char *unum2str(unsigned long unum) {
 	static char buf[UNUMLEN+1];
-	base64_encode_padded(unum, buf, sizeof(buf));
+	base64_encode_padded(buf, sizeof(buf), unum);
 	return buf;
 }
 
 const char *snum2str(unsigned long snum) {
 	static char buf[SNUMLEN+1];
-	base64_encode_padded(snum, buf, sizeof(buf));
+	base64_encode_padded(buf, sizeof(buf), snum);
 	return buf;
 }
 
 const char *cnum2str(unsigned long snum, unsigned long cnum) {
 	static char buf[UNUMLEN+1];
-	base64_encode_padded(snum*64*64*64+cnum, buf, sizeof(buf));
+	base64_encode_padded(buf, sizeof(buf), snum*64*64*64+cnum);
 	return buf;
 }

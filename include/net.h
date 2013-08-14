@@ -23,7 +23,7 @@
 #ifndef NET_H_
 #define NET_H_
 
-void net_connect(const char *servername, const char *port, const char *pass, const char *sname, const char *sdescr);
+void net_connect(void);
 void send_format(const char *format, ...);
 void send_words(const char *first, ...);
 void send_raw(char *str);

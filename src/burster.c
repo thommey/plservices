@@ -126,7 +126,7 @@ void burster_burst_clients(int max) {
 		sprintf(nick, "fake%d", i);
 		sprintf(ident, "f%d", i);
 		sprintf(auth, "f%d:%ld:%d:0", i, now, i);
-		base64_encode_padded(16843009+rands[i], ip, 7);
+		base64_encode_padded(ip, 7, 16843009+rands[i]);
 		send_format("%s N %s 2 %ld %s %s %s %s %s :fake user number %d",
 					FAKESNUM, getnick(i), now, getident(i), gethost(i), getumode(i), ip, nextnum(), i);
 	}
@@ -149,7 +149,7 @@ static void burst_chanusers(int size, int id) {
 			*c++ = ',';
 		*c++ = FAKESNUM[0];
 		*c++ = FAKESNUM[1];
-		base64_encode_padded(rands[j], c, 4);
+		base64_encode_padded(c, 4, rands[j]);
 		c += 3;
 		if (c >= buf + sizeof(buf) - 10 || j == size - 1) {
 			send_format("%.*s", c-buf, buf);

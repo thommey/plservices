@@ -32,20 +32,27 @@
 #include "log.h"
 
 char *strtolower(char *str){
-    	char *newstr, *p;
-    	p = newstr = strdup(str);
-    	while(*p++=tolower(*p));
+    char *newstr, *p;
+    p = newstr = strdup(str);
+    while(*p++=tolower(*p));
 	return newstr;
 }
 
 
 char *strtoupper(char *str){
-    	char *newstr, *p;
-    	p = newstr = strdup(str);
-    	while(*p++=toupper(*p));
-    	return newstr;
+    char *newstr, *p;
+    p = newstr = strdup(str);
+    while(*p++=toupper(*p));
+    return newstr;
 }
 
+char *sstrdup(const char *str) {
+	char *new;
+	size_t s = strlen(str);
+	new = smalloc(s+1);
+	strcpy(new, str);
+	return new;
+}
 
 void sfree(void *p) {
 	free(p);
