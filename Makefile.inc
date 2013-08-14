@@ -1,6 +1,6 @@
 # Generic variables
 CC      = gcc
-CFLAGS  = -std=c99 -O0 -g -Wall -I./include -fPIC
+CFLAGS  = -std=c99 -D_POSIX_C_SOURCE=200112L -I./include -fPIC -Wall -g -O0
 LDFLAGS = -rdynamic
 LD      = $(CC)
 RM      = rm

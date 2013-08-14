@@ -22,10 +22,14 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "main.h"
+
+extern char *optarg;
 
 time_t now;
 
@@ -38,25 +42,31 @@ static void init(void) {
 	init_parse();
 	init_tokens();
 	init_modes();
-	load_config("plservices.conf");
-	print_config();
-	exit(0);
 //	init_burster();
 	hook_hook("onregistered", module_loadAll);
 }
 
 int main(int argc, char **argv) {
+	char configfile[64] = "./plservices.conf";
 	time_t last;
+	int opt;
 
-	if (argc != 6) {
-		fprintf(stderr, "Syntax: %s <IP> <Port> <Pass> <Servername> <Server description>\n", argv[0]);
-		return 1;
+	while ((opt = getopt(argc, argv, "c:")) != -1) {
+		switch (opt) {
+			case 'c':
+				strbufcpy(configfile, optarg);
+				break;
+			case '?':
+				fprintf(stderr, "Usage: %s [-c config]\n", argv[0]);
+				exit(EXIT_FAILURE);
+		}
 	}
 
 	init();
+	load_config(configfile);
 
 	now = time(NULL);
-	net_connect(argv[1], argv[2], argv[3], argv[4], argv[5]);
+	net_connect();
 
 	last = now = time(NULL);
 	while (1) {
