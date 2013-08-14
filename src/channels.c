@@ -113,7 +113,7 @@ void channel_mnsban(struct channel *c, struct entity *e, char *str) {
 		return;
 	}
 	jtableS_remove(&c->bans, str);
-	sfree(m);
+	free(m);
 }
 
 int channel_isop(struct channel *c, struct user *u) {

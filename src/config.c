@@ -75,8 +75,8 @@ void config_set(const char *section, const char *key, const char *value) {
 	}
 	tmp = jtableS_get(sectiondata, key);
 	/* if overwriting old value, free old string first */
-	sfree(tmp);
-	jtableS_insert(sectiondata, key, sstrdup(value));
+	free(tmp);
+	jtableS_insert(sectiondata, key, strdup(value));
 }
 
 static int parse_configline(char *section, char *line) {

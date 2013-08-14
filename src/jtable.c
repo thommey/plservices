@@ -39,6 +39,14 @@
  * jtableP = word keyed 0/1 bits
  */
 
+void *jtableS_insert_getptr(jtableS *table, const char *key, void *data) {
+	PWord_t PValue;
+
+	JSLI(PValue, table->t, (const uint8_t*)key);
+	*PValue = (Word_t)data;
+	return PValue;
+}
+
 void *jtableS_insert(jtableS *table, const char *key, void *data) {
 	PWord_t PValue;
 

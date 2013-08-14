@@ -30,10 +30,6 @@
 
 char * strtolower (char *str);
 char * strtoupper (char *str);
-char *sstrdup(const char *str);
-void sfree(void *p);
-void *smalloc(size_t s);
-void *zmalloc(size_t s);
 char *strncpyz(char *dest, const char *src, size_t n);
 long *randomset(int count, long max);
 

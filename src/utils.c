@@ -46,34 +46,6 @@ char *strtoupper(char *str){
     return newstr;
 }
 
-char *sstrdup(const char *str) {
-	char *new;
-	size_t s = strlen(str);
-	new = smalloc(s+1);
-	strcpy(new, str);
-	return new;
-}
-
-void sfree(void *p) {
-	free(p);
-}
-
-void *smalloc(size_t s) {
-	void *p = malloc(s);
-	if (!p) {
-		logfmt(LOG_FATAL, "Out of memory. Could not allocate %zd bytes.", s);
-		exit(1);
-	}
-	return p;
-}
-
-void *zmalloc(size_t s) {
-	void *p = smalloc(s);
-	if (p)
-		memset(p, 0, s);
-	return p;
-}
-
 char *strncpyz(char *dest, const char *src, size_t n) {
 	strncpy(dest, src, n);
 	if (n > 0)

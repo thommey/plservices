@@ -48,5 +48,6 @@
 #include "tokens.h"
 #include "burster.h"
 #include "module.h"
+#include "mem.h"
 
 #endif /* TYPES_H_ */

@@ -41,6 +41,7 @@ typedef void (*jtableL_cb)(unsigned long key, void *data, void *param);
 typedef void (*jtableP_cb)(void *key, void *param);
 
 /* string indexed table */
+void *jtableS_insert_getptr(jtableS *table, const char *key, void *data);
 void *jtableS_insert(jtableS *table, const char *key, void *data);
 void *jtableS_getptr(jtableS *table, const char *key);
 void *jtableS_get(jtableS *table, const char *key);

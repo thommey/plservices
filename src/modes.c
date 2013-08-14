@@ -252,7 +252,7 @@ struct modebuf *mode_pushmode(struct entity *from, struct channel *c, int plsmns
 	}
 
 	if (!m) {
-		m = smalloc(sizeof(*m));
+		m = malloc(sizeof(*m));
 		m->from = from;
 		m->chan = c;
 		m->lastplsmns = -1;

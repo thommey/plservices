@@ -114,6 +114,8 @@ void hBURST(struct server *from, char *chan, time_t *ts, struct manyargs *rest) 
 		chanusers_join(u, c);
 		channel_burstmode(c, u, burstmode);
 	}
+	logtxt(LOG_DEBUG, "Burst finished. Memory info to stdout.");
+	mem_print();
 }
 
 void hCLEARMODE(struct entity *from, struct channel *chan, char *modes) {
