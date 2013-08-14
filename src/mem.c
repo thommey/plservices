@@ -30,11 +30,11 @@
 static jtableS memorydata, totalmem;
 
 static void mem_print_mod(const char *modname, unsigned long total, void *nothing) {
-	printf("Memory allocated for %s: %lu", modname, total);
+	logfmt(LOG_MEMORY, "Memory allocated for %s: %lu", modname, total);
 }
 
 void mem_print(void) {
-	jtableS_iterate(&memorydata, (jtableS_cb)mem_print_mod, NULL);
+	jtableS_iterate(&totalmem, (jtableS_cb)mem_print_mod, NULL);
 }
 
 static void sub_total(const char *modname, unsigned long change) {

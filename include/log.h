@@ -27,6 +27,7 @@
 #define LOG_ERROR      0x0010
 #define LOG_WARNING    0x0100
 #define LOG_RAW        0x0400
+#define LOG_MEMORY     0x0800
 #define LOG_LUA        0x1000
 #define LOG_DEBUGIO    0x2000
 #define LOG_DEBUG      0x4000
