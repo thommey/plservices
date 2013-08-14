@@ -42,32 +42,45 @@
 #undef logtxt
 #undef logfmt
 
-#define POSIXERR(str) do { logfmt(LOG_FATAL, "POSIX error: %s", strerror(errno)); error(str); } while(0)
-
 static int conn;
 
 extern int now;
-
 extern struct server *me;
+extern char *base64chars;
 
-static void net_connected(const char*, const char*, const char*);
+static void net_greet(const char *pass, const char *sname, unsigned long numeric, const char *sdescr);
 
-void net_connect(const char *servername, const char *port, const char *pass, const char *sname, const char *sdescr) {
-	int flag = 1;
+void net_connect(void) {
+	const char *uplink = config_get("core.uplink", "host");
+	const char *port = config_get("core.uplink", "port");
+	const char *pass = config_get("core.uplink", "pass");
+	const char *numericstr = config_get("core.server", "numeric");
+	const char *servername= config_get("core.server", "name");
+	const char *descr = config_get("core.server", "description");
+	unsigned long numeric;
 	struct sockaddr_in server;
+	int flag_set = 1;
+
+	numeric = strtol(numericstr, NULL, 10);
+
+	if (!uplink || !port || !pass)
+		error("Invalid uplink specified in configfile. Need [core.uplink] host, port, pass");
+
+	if (!servername || !descr || !numeric || !numeric)
+		error("Invalid uplink specified in configfile. Need [core.server] numeric (1-4096), servername, descr");
 
 	if ((conn = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 		POSIXERR("Could not create socket");
 
-	setsockopt(conn, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
+	setsockopt(conn, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
 	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = inet_addr(servername);
+	server.sin_addr.s_addr = inet_addr(uplink);
 	server.sin_port = htons(atoi(port));       /* server port */
 
 	if (connect(conn, (struct sockaddr *) &server, sizeof(server)) < 0)
 		POSIXERR("Failed to connect to server");
-	net_connected(pass, sname, sdescr);
+	net_greet(pass, servername, numeric, descr);
 }
 
 void send_raw(char *str) {
@@ -110,9 +123,11 @@ void send_format(const char *fmt, ...) {
 	send_raw(buf);
 }
 
-static void net_connected(const char *pass, const char *name, const char *descr) {
+static void net_greet(const char *pass, const char *name, unsigned long numeric, const char *descr) {
+	char numericstr[SNUMLEN+1];
+	base64_encode_padded(numericstr, sizeof(numericstr), numeric);
 	send_format("PASS :%s\r\n", pass);
-	send_format("SERVER %s 1 %ld %ld J10 GE]]] +hsn :%s\r\n", name, now, now, descr);
+	send_format("SERVER %s 1 %ld %ld J10 %s]]] +hsn :%s\r\n", name, now, now, numericstr, descr);
 }
 
 void net_read(void) {

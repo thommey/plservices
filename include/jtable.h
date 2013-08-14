@@ -42,6 +42,7 @@ typedef void (*jtableP_cb)(void *key, void *param);
 
 /* string indexed table */
 void *jtableS_insert(jtableS *table, const char *key, void *data);
+void *jtableS_getptr(jtableS *table, const char *key);
 void *jtableS_get(jtableS *table, const char *key);
 int jtableS_remove(jtableS *table, const char *key);
 int jtableS_free(jtableS *table);

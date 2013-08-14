@@ -6,7 +6,7 @@
 
 void init_base64(void);
 long base64_decode_long(const char *str, size_t len);
-char *base64_encode_padded(long num, char *buf, size_t bufsize);
+char *base64_encode_padded(char *buf, size_t bufsize, unsigned long num);
 int base64_incr(char *buf, size_t bufsize);
 unsigned long str2unum(const char *str);
 unsigned long str2snum(const char *str);
