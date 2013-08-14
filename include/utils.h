@@ -30,6 +30,7 @@
 
 char * strtolower (char *str);
 char * strtoupper (char *str);
+char *sstrdup(char *str);
 void sfree(void *p);
 void *smalloc(size_t s);
 void *zmalloc(size_t s);
