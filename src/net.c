@@ -45,27 +45,40 @@
 static int conn;
 
 extern int now;
-
 extern struct server *me;
+extern char *base64chars;
 
-static void net_connected(const char*, const char*, const char*);
+static void net_greet(const char *pass, const char *sname, const char *sdescr);
 
-void net_connect(const char *servername, const char *port, const char *pass, const char *sname, const char *sdescr) {
-	int flag = 1;
+void net_connect(void) {
+	const char *uplink = config_get("core.uplink", "host");
+	const char *port = config_get("core.uplink", "port");
+	const char *pass = config_get("core.uplink", "pass");
+	const char *numeric = config_get("core.server", "numeric");
+	const char *servername= config_get("core.server", "name");
+	const char *descr = config_get("core.server", "description");
 	struct sockaddr_in server;
+	int flag_set = 1;
+
+	if (!uplink || !port || !pass)
+		error("Invalid uplink specified in configfile. Need [core.uplink] host, port, pass");
+
+	if (!servername || !descr || !numeric || strspn(numeric, base64chars) != 2)
+		error("Invalid uplink specified in configfile. Need [core.server] numeric (base64), servername, descr");
+
 
 	if ((conn = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 		POSIXERR("Could not create socket");
 
-	setsockopt(conn, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
+	setsockopt(conn, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
 	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = inet_addr(servername);
+	server.sin_addr.s_addr = inet_addr(uplink);
 	server.sin_port = htons(atoi(port));       /* server port */
 
 	if (connect(conn, (struct sockaddr *) &server, sizeof(server)) < 0)
 		POSIXERR("Failed to connect to server");
-	net_connected(pass, sname, sdescr);
+	net_greet(pass, servername, descr);
 }
 
 void send_raw(char *str) {
@@ -108,7 +121,7 @@ void send_format(const char *fmt, ...) {
 	send_raw(buf);
 }
 
-static void net_connected(const char *pass, const char *name, const char *descr) {
+static void net_greet(const char *pass, const char *name, const char *descr) {
 	send_format("PASS :%s\r\n", pass);
 	send_format("SERVER %s 1 %ld %ld J10 GE]]] +hsn :%s\r\n", name, now, now, descr);
 }

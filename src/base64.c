@@ -26,7 +26,7 @@
 #include "log.h"
 #include "base64.h"
 
-static char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789[]";
+char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789[]";
 static char base64table[256];
 
 #define encode_base64_digit(d) base64chars[(unsigned char)(d)]
