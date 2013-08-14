@@ -22,6 +22,7 @@
  */
 
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
@@ -33,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <netdb.h>
 
 #include "main.h"
 
@@ -51,7 +53,7 @@ extern char *base64chars;
 static void net_greet(const char *pass, const char *sname, unsigned long numeric, const char *sdescr);
 
 void net_connect(void) {
-	const char *uplink = config_get("core.uplink", "host");
+	char *uplink = config_get("core.uplink", "host");
 	const char *port = config_get("core.uplink", "port");
 	const char *pass = config_get("core.uplink", "pass");
 	const char *numericstr = config_get("core.server", "numeric");
@@ -59,8 +61,10 @@ void net_connect(void) {
 	const char *descr = config_get("core.server", "description");
 	unsigned long numeric;
 	struct sockaddr_in server;
+	struct hostent *hostname;
+	struct in_addr ip_addr;
 	int flag_set = 1;
-
+	printf("Test");
 	numeric = strtol(numericstr, NULL, 10);
 
 	if (!uplink || !port || !pass)
@@ -71,11 +75,16 @@ void net_connect(void) {
 
 	if ((conn = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 		POSIXERR("Could not create socket");
-
+	printf("Test.");
+	hostname = gethostbyname(uplink);
+	if (!hostname) 
+		POSIXERR("Could not resolve hostname.");
+	ip_addr = *(struct in_addr *)(hostname->h_addr_list[0]);
+	printf("Resolved - Uplink: %s", uplink);
 	setsockopt(conn, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
 	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = inet_addr(uplink);
+	server.sin_addr.s_addr = inet_addr(inet_ntoa(ip_addr));
 	server.sin_port = htons(atoi(port));       /* server port */
 
 	if (connect(conn, (struct sockaddr *) &server, sizeof(server)) < 0)
