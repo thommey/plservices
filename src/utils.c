@@ -26,9 +26,26 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "utils.h"
 #include "log.h"
+
+char *strtolower(char *str){
+    	char *newstr, *p;
+    	p = newstr = strdup(str);
+    	while(*p++=tolower(*p));
+	return newstr;
+}
+
+
+char *strtoupper(char *str){
+    	char *newstr, *p;
+    	p = newstr = strdup(str);
+    	while(*p++=toupper(*p));
+    	return newstr;
+}
+
 
 void sfree(void *p) {
 	free(p);

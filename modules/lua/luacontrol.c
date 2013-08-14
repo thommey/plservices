@@ -1,32 +1,21 @@
-#define MODNAME "lua"
-
-#define BOTNICK "L"
-#define BOTIDENT "luaserv"
-#define BOTHOSTNAME "plservices.metairc.net"
-#define BOTMODES "+okr"
-#define BOTREALNAME "Lua Control Service"
-#define BOTDEBUGCHAN "#labspace3"
-
 #include "main.h"
 #include "luabase.h"
 #include "luacontrol.h"
 #include <string.h>
 
-struct user *bot;
-
 int load() {
 	bot = module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTREALNAME);
 	module_join_channel(bot, BOTDEBUGCHAN, 0);
 	module_describe(bot, BOTDEBUGCHAN, "enters on a chariot of fire.");
-	command_register("version", "VERSION", "Shows version information.", (cmdfunc)&command_version);
 	hook_hook("onprivmsg", onprivmsg);
-	logfmt(LOG_DEBUG, "(%s): Loaded.", MODNAME);
+	commands_initialize();
+	logfmt(LOG_DEBUG, "(%s): Loaded.", MOD_NAME);
 	return luabase_load();
 }
 
 int unload() {
 	module_destroy_client(bot, "Module unloaded.");
-	logfmt(LOG_DEBUG, "(%s): Unloaded.", MODNAME);
+	logfmt(LOG_DEBUG, "(%s): Unloaded.", MOD_NAME);
 	return luabase_unload();
 }
 
@@ -65,9 +54,7 @@ void command_register(char *trigger, char *syntax, char *description, cmdfunc co
 	commands[x].cmdptr = command;
 }
 
-/* Basic command */
-
-int command_version (struct user *from, struct user *to, struct manyargs args) { 
-	module_notice(bot, from->numericstr, "VERSION The Lua Control Service by Phil");
-	return 0;
+void commands_initialize() {
+	command_register("showcommands", "SHOWCOMMANDS", "Shows the list of currently available commands.", (cmdfunc)&command_showcommands);
+	command_register("version", "VERSION", "Shows version information.", (cmdfunc)&command_version);
 }
