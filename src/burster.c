@@ -133,7 +133,7 @@ void burster_burst_clients(int max) {
 }
 
 /* values takes from freenode */
-static double data_freenode[21] = { 0, 0, 0, 2880, 1850, 1260, 1000, 870, 610, 517, 420, 360, 280, 280, 200, 200, 170, 160, 140, 140, 110 };
+//static double data_freenode[21] = { 0, 0, 0, 2880, 1850, 1260, 1000, 870, 610, 517, 420, 360, 280, 280, 200, 200, 170, 160, 140, 140, 110 };
 /* values taken from quakenet */
 static double data_quakenet[21] = { 0, 10000, 5660, 3660, 2000, 1200, 870, 640, 500, 330, 300, 250, 200, 140, 120, 120, 100, 90, 80, 80, 60 };
 
