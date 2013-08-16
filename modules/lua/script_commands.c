@@ -30,7 +30,7 @@ int command_unload (struct user *from, struct user *to, struct manyargs *args) {
         }
         char script[64];
         sprintf(script, "scripts/%s.lua", (char *)args->v[1]);
-        if (!luabase_valid_script(args->v[1])) {
+        if (!luabase_valid_script(script)) {
                 module_notice(bot, from->numericstr, "Unknown script %s.", args->v[1]);
                 return 0;
         } else {
