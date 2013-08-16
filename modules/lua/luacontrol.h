@@ -28,9 +28,9 @@
 #define MOD_VERSION "0.01"
 #define MOD_AUTHOR "Phil (modul8)"
 
-#define BOTNICK "L"
-#define BOTIDENT "luaserv"
-#define BOTHOSTNAME "plservices.metairc.net"
+#define BOTNICK "U"
+#define BOTIDENT "lua"
+#define BOTHOSTNAME "newserv.sucks"
 #define BOTMODES "+okr"
 #define BOTREALNAME "Lua Control Service"
 #define BOTDEBUGCHAN "#labspace3"
@@ -52,6 +52,8 @@ cmdfunc command_find(char *trigger);
 void command_register(char *trigger, char *syntax, char *description, cmdfunc command);
 void commands_initialize(void);
 /* Commands */
+int command_help (struct user *from, struct user *to, struct manyargs args);
+int command_load (struct user *from, struct user *to, struct manyargs args);
 int command_version(struct user *from, struct user *to, struct manyargs args);
 int command_showcommands (struct user *from, struct user *to, struct manyargs args);
 #endif

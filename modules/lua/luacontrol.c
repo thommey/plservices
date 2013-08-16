@@ -38,7 +38,7 @@ void onprivmsg(struct user *from, struct user *to, char *msg) {
 /* Commands */
 cmdfunc command_find(char *trigger) {
         for (int x = 0; x < MAX_COMMANDS; x++) {
-                if (commands[x].trigger != NULL && !strcmp(commands[x].trigger, trigger)) {
+                if (commands[x].trigger != NULL && !strcmp(strtolower(commands[x].trigger), strtolower(trigger))) {
                         return commands[x].cmdptr;
                 }
         }
@@ -55,6 +55,8 @@ void command_register(char *trigger, char *syntax, char *description, cmdfunc co
 }
 
 void commands_initialize() {
+	command_register("help", "HELP <command>", "Provides help such as syntaxes and descriptions for commands.", (cmdfunc)&command_help);
+	command_register("load", "LOAD <script>", "Loads a script file into the module.", (cmdfunc)&command_load);
 	command_register("showcommands", "SHOWCOMMANDS", "Shows the list of currently available commands.", (cmdfunc)&command_showcommands);
 	command_register("version", "VERSION", "Shows version information.", (cmdfunc)&command_version);
 }
