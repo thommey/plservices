@@ -52,8 +52,9 @@ cmdfunc command_find(char *trigger);
 void command_register(char *trigger, char *syntax, char *description, cmdfunc command);
 void commands_initialize(void);
 /* Commands */
-int command_help (struct user *from, struct user *to, struct manyargs args);
-int command_load (struct user *from, struct user *to, struct manyargs args);
-int command_version(struct user *from, struct user *to, struct manyargs args);
-int command_showcommands (struct user *from, struct user *to, struct manyargs args);
+int command_help (struct user *from, struct user *to, struct manyargs *args);
+int command_load (struct user *from, struct user *to, struct manyargs *args);
+int command_unload (struct user *from, struct user *to, struct manyargs *args);
+int command_version(struct user *from, struct user *to, struct manyargs *args);
+int command_showcommands (struct user *from, struct user *to, struct manyargs *args);
 #endif

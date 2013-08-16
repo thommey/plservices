@@ -68,6 +68,15 @@ static int luafunc_irc_localregisteruserid(lua_State *L) {
 	return 1;
 }
 
+static int luafunc_irc_localquituser(lua_State *L) { 
+	struct user *u;
+	const char *numeric = luaL_checkstring(L, 1);
+	const char *reason = luaL_checkstring(L, 2);
+	u = get_user_by_numericstr(numeric);
+	user_send(u, "Q", reason);
+	return 0;
+}
+
 static int luafunc_irc_localchanmsg(lua_State *L) {
 	const char *numeric = luaL_checkstring(L, 1);
 	const char *chan = luaL_checkstring(L, 2);
@@ -242,6 +251,7 @@ static const struct luaL_reg luafuncs[] = {
 	MKLFUNC(irc_localnotice),
 	MKLFUNC(irc_getuserchanmodes),
 	MKLFUNC(irc_getchaninfo),
+	MKLFUNC(irc_localquituser),
 	MKLFUNC(irctolower),
 	MKLFUNC(onstaff),
 	MKLFUNC(ontlz),

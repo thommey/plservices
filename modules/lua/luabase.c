@@ -31,6 +31,7 @@
 
 static jtableP luabase_states;
 static jtableL luabase_users;
+static jtableS luabase_states_by_script;
 
 extern time_t now;
 extern struct server *me;
@@ -76,11 +77,24 @@ lua_State *luabase_newstate(void) {
 		lua_register(L, luafuncs[i].name, luafuncs[i].func);
 
 	jtableP_set(&luabase_states, L);
+	int err;
+	err = luaL_loadfile(L, "stubs.lua");
+	if (!err)
+		err = lua_pcall(L, 0, 0, 0);
+        if (err) {
+                luabase_report(L, "initialization", err);
+                return NULL;
+        }
+	logtxt(LOG_ERROR, "Loaded base class.");
 	return L;
 }
 
 /* load a script in a seperate interpreter instance */
-int luabase_loadscript(lua_State *L, char *file) {
+int luabase_loadscript(char *file) {
+	struct args arg;
+        arg.c = 1;
+        arg.v[0] = arg_str("onload");
+	lua_State *L = luabase_newstate();
 	int err;
 	logfmt(LOG_DEBUG, "Loading lua script %s", file);
 	err = luaL_loadfile(L, file);
@@ -90,11 +104,24 @@ int luabase_loadscript(lua_State *L, char *file) {
 		luabase_report(L, "initialization", err);
 		return 1;
 	}
+	jtableS_insert(&luabase_states_by_script, file, L);
 	logfmt(LOG_DEBUG, "Loaded lua script %s", file);
+	return luabase_callluafunc(L, &arg);
+}
+
+int luabase_unloadscript(char *file) { 
+	lua_State *L;
+	L = luabase_get_interpreter(file);
+	logfmt(LOG_DEBUG, "Unloading lua script %s", file);
+	struct args arg = pack_words("onunload");
+	luabase_callluafunc(L, &arg);
+	lua_close(L);
+	jtableS_remove(&luabase_states_by_script, file);
+	jtableP_unset(&luabase_states, L);
 	return 0;
 }
 
-static int luabase_callluafunc(lua_State *L, struct args *arg) {
+int luabase_callluafunc(lua_State *L, struct args *arg) {
 	int err, i;
 
 	lua_getglobal(L, argdata_str(&arg->v[0]));
@@ -188,20 +215,14 @@ static void luabase_onpart(struct user *from, struct channel *chan, char *msg) {
 }
 
 int luabase_load(void) {
-	struct args arg;
-	lua_State *L = luabase_newstate();
-	luabase_loadscript(L, "stubs.lua");
-	luabase_loadscript(L, "labspace.lua");
+	//luabase_loadscript("labspace.lua");
 	hook_hook("ontick", luabase_ontick);
 	hook_hook("onchanmsg", luabase_onchanmsg);
 	hook_hook("onquit", luabase_onquit);
 	hook_hook("onpart", luabase_onpart);
 	hook_hook("onprivmsg", luabase_onprivmsg);
 	hook_hook("onprivnotc", luabase_onprivnotc);
-
-	arg.c = 1;
-	arg.v[0] = arg_str("onload");
-	return luabase_callluafunc(L, &arg);
+	return 0;
 }
 
 int luabase_unload(void) {
@@ -277,4 +298,15 @@ const char *luabase_getstringfromarray(lua_State *L, int tableidx, int idx) {
 	result = luaL_checkstring(L, -1);
 	lua_pop(L, 1);
 	return result;
+}
+
+lua_State *luabase_get_interpreter(const char *script) { 
+	return jtableS_get(&luabase_states_by_script, script);
+}
+
+int luabase_valid_script(const char *script) { 
+	if (jtableS_get(&luabase_states_by_script, script) != NULL) { 
+		return 1;
+	}
+	return 0;
 }

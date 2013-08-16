@@ -55,8 +55,9 @@ void command_register(char *trigger, char *syntax, char *description, cmdfunc co
 }
 
 void commands_initialize() {
-	command_register("help", "HELP <command>", "Provides help such as syntaxes and descriptions for commands.", (cmdfunc)&command_help);
-	command_register("load", "LOAD <script>", "Loads a script file into the module.", (cmdfunc)&command_load);
-	command_register("showcommands", "SHOWCOMMANDS", "Shows the list of currently available commands.", (cmdfunc)&command_showcommands);
-	command_register("version", "VERSION", "Shows version information.", (cmdfunc)&command_version);
+	command_register("help", "HELP <command>", "Provides help such as syntaxes and descriptions for commands.", command_help);
+	command_register("load", "LOAD <script>", "Loads a script file into the module.", command_load);
+	command_register("showcommands", "SHOWCOMMANDS", "Shows the list of currently available commands.", command_showcommands);
+	command_register("unload", "UNLOAD <script>", "Unloads a script file from the module.", command_unload);
+	command_register("version", "VERSION", "Shows version information.", command_version);
 }

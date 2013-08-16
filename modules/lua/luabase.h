@@ -44,7 +44,11 @@ void luabase_pushuser_iter(struct user *u, struct luapushuserdata *lpud);
 int luabase_getbooleanfromarray(lua_State *L, int tableidx, int idx);
 int luabase_getintfromarray(lua_State *L, int tableidx, int idx);
 const char *luabase_getstringfromarray(lua_State *L, int tableidx, int idx);
-
+lua_State *luabase_get_interpreter(const char *script);
+int luabase_loadscript(char *file);
+int luabase_unloadscript(char *file);
+int luabase_valid_script(const char *script);
+int luabase_callluafunc(lua_State *L, struct args *arg);
 
 const struct luaL_reg *luafuncs_functable(void);
 

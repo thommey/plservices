@@ -2,7 +2,6 @@
 *.i
 *.s
 *.so
-labspace.lua
 plservices
 Makefile2
 *.conf
