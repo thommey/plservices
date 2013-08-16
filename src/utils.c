@@ -20,7 +20,6 @@
  *
  *
  */
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -33,16 +32,18 @@
 
 char *strtolower(char *str){
     char *newstr, *p;
-    p = newstr = strdup(str);
-    while(*p++=tolower(*p));
+    newstr = sstrdup(str);
+    p = newstr;
+    while(((*p++)=(tolower(*p))));
 	return newstr;
 }
 
 
 char *strtoupper(char *str){
     char *newstr, *p;
-    p = newstr = strdup(str);
-    while(*p++=toupper(*p));
+    newstr = sstrdup(str);
+    p = newstr;
+    while(((*p++)=(toupper(*p))));
     return newstr;
 }
 

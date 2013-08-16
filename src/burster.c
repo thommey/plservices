@@ -168,21 +168,21 @@ static int burst_channels(int size, int count) {
 	return count;
 }
 
-static int size_1000(int size, int total) {
+/* static int size_1000(int size, int total) {
 	if (size < 1000)
 		return 0;
 	else
 		return 10;
-}
+} */
 
-static int chancount_freenode(int size, int total) {
+/* static int chancount_freenode(int size, int total) {
 	int chancount;
 	if (size < sizeof(data_freenode)/sizeof(*data_freenode))
 		chancount = (total*data_freenode[size]/14000);
 	else
 		chancount = rand()%2 ? rand()%25 : 0;
 	return chancount;
-}
+} */
 
 static int chancount_quakenet(int size, int total) {
 	int chancount;
