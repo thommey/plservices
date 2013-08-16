@@ -31,7 +31,7 @@
 
 static jtableP luabase_states;
 static jtableL luabase_users;
-extern jtableS luabase_states_by_script;
+static jtableS luabase_states_by_script;
 
 extern time_t now;
 extern struct server *me;
