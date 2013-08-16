@@ -10,7 +10,8 @@ int command_load (struct user *from, struct user *to, struct manyargs *args) {
 		module_notice(bot, from->numericstr, "Loads a lua script file into the engine.");
 		return 0;
 	}
-	char *script = sprintf("scripts/%s.lua", args->v[1]);
+	char script[512];
+	sprintf(script, "scripts/%s.lua", (char *)args->v[1]);
 	if (!luabase_loadscript(script)) { 
 		module_notice(bot, from->numericstr, "Done.");
 	} else { 
@@ -31,7 +32,8 @@ int command_unload (struct user *from, struct user *to, struct manyargs *args) {
                 module_notice(bot, from->numericstr, "Unknown script %s.", args->v[1]);
                 return 0;
         } else {
-		char *script = sprintf("scripts/%s.lua", args->v[1]);
+		char script[512];
+		sprintf(script, "scripts/%s.lua", (char *)args->v[1]);
                 if (!luabase_unloadscript(script)) {
                         module_notice(bot, from->numericstr, "Done.");
                 } else { 
