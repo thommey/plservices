@@ -200,7 +200,7 @@ void module_notice(struct user *from, const char *target, const char *message, .
 * @function: Creates a fake client on a specific server
 * @return: void
 */
-struct user *module_create_client_on(struct server *server, char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *realname) {
+struct user *module_create_client_on(struct server *server, const char *nick, const char *ident, const char *hostname, const char *modes, const char *account, const char *opername, const char *realname) {
 	unsigned long numeric = server_freenum(server);
 	if (!strlen(account) && strstr(modes, "r") != NULL) account = nick;
 	if (!strlen(opername) && strstr(modes, "o") != NULL) opername = nick;
@@ -213,7 +213,7 @@ struct user *module_create_client_on(struct server *server, char *nick, const ch
 * @function: Creates a fake client on the main server
 * @return: void
 */
-struct user *module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *realname) {
+struct user *module_create_client(const char *nick, const char *ident, const char *hostname, const char *modes, const char *account, const char *opername, const char *realname) {
 	return module_create_client_on(me, nick, ident, hostname, modes, account, opername, realname);
 }
 

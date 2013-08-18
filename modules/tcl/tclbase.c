@@ -2,50 +2,52 @@
 #include "main.h"
 #include "tclbase.h"
 
-int tcl_local_client_create(void *clientData, Tcl_Interp *interp, int argc, const char **argv) {
-	if (argc < 7) {
-		Tcl_AppendResult(interp, "wrong # args: should be \"", argv[0]," nickname ident hostname usermodes opername authname realname\"", (char *) NULL);
+int tcl_local_client_create(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) {
+	if (objc != 8) {
+		Tcl_WrongNumArgs(interp, 1, objv, "nickname ident hostname usermodes opername authname realname");
 		return TCL_ERROR;
 	}
-	char *nickname = argv[1];
-	char *ident = argv[2];
-	char *hostname = argv[3];
-	char *usermodes = argv[4];
-	char *opername = argv[6];
-	char *authname = argv[5];
-	char *realname = argv[7];
-	//struct user *module_create_client(char *nick, const char *ident, const char *hostname, char *modes, char *account, char *opername, const char *realname)
+	const char *nickname = Tcl_GetStringFromObj(objv[1], NULL);
+	const char *ident = Tcl_GetStringFromObj(objv[2], NULL);
+	const char *hostname = Tcl_GetStringFromObj(objv[3], NULL);
+	const char *usermodes = Tcl_GetStringFromObj(objv[4], NULL);
+	const char *opername = Tcl_GetStringFromObj(objv[5], NULL);
+	const char *authname = Tcl_GetStringFromObj(objv[6], NULL);
+	const char *realname = Tcl_GetStringFromObj(objv[7], NULL);
+
 	struct user *u = module_create_client(nickname, ident, hostname, usermodes, authname, opername, realname);
-	Tcl_SetResult (interp, u->numericstr, TCL_DYNAMIC);
+	Tcl_SetObjResult(interp, Tcl_NewStringObj(u->numericstr, -1));
 	return TCL_OK;
 }
 
-int tcl_local_client_destroy(void *clientData, Tcl_Interp *interp, int argc, const char **argv) {
-	if (argc != 2) {
-		Tcl_AppendResult(interp, "wrong # args: should be \"", argv[0]," numeric\"", (char *) NULL);
+int tcl_local_client_destroy(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) {
+	if (objc != 2) {
+		Tcl_WrongNumArgs(interp, 1, objv, "numeric");
 		return TCL_ERROR;
 	}
-	char *numeric = argv[1];
+	const char *numeric = Tcl_GetStringFromObj(objv[1], NULL);
 	module_destroy_client(get_user_by_numericstr(numeric), "Script unloaded.");
-	Tcl_SetResult (interp, NULL, TCL_DYNAMIC);
+	Tcl_ResetResult(interp);
 	return TCL_OK;
 }
 
-int tcl_local_client_join(void *clientData, Tcl_Interp *interp, int argc, const char **argv) {
-	if (argc != 3) {
-		Tcl_AppendResult(interp, "wrong # args: should be \"", argv[0]," numeric channel\"", (char *) NULL);
+int tcl_local_client_join(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) {
+	if (objc != 3 && objc != 4) {
+		Tcl_WrongNumArgs(interp, 1, objv, "numeric channel ?autoop?");
 		return TCL_ERROR;
 	}
-	char *numeric = argv[1];
-	char *channel = argv[2];
-	int autoop = (int)&argv[3];
+	const char *numeric = Tcl_GetStringFromObj(objv[1], NULL);
+	const char *channel = Tcl_GetStringFromObj(objv[2], NULL);
+	int autoop = 0;
+	if (objc == 4 && Tcl_GetBooleanFromObj(interp, objv[3], &autoop) != TCL_OK)
+		return TCL_ERROR;
 	struct user *u = get_user_by_numericstr(numeric);
 	module_join_channel(u, channel, autoop);
 	return 0;
 }
 
 void tcl_init_commands(Tcl_Interp *interp) {
-	Tcl_CreateCommand (interp, "localclient_create", tcl_local_client_create, (ClientData)NULL, (void (*)())NULL);
-	Tcl_CreateCommand (interp, "localclient_destroy", tcl_local_client_destroy, (ClientData)NULL, (void (*)())NULL);
-	Tcl_CreateCommand (interp, "localclient_join", tcl_local_client_destroy, (ClientData)NULL, (void (*)())NULL);
+	Tcl_CreateObjCommand(interp, "localclient_create", tcl_local_client_create, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "localclient_destroy", tcl_local_client_destroy, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "localclient_join", tcl_local_client_destroy, (ClientData)NULL, NULL);
 }

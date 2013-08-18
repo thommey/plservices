@@ -17,11 +17,9 @@ int tcl_init () {
 	return TCL_OK;
 }
 
-
 int script_load(char *fileName) {
 	return Tcl_EvalFile(interp, fileName);
 }
-
 
 int load() {
 	bot = module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTREALNAME);
