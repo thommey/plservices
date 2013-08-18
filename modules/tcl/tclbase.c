@@ -50,5 +50,5 @@ int tcl_local_client_join(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *
 void tcl_init_commands(Tcl_Interp *interp) {
 	Tcl_CreateObjCommand(interp, "localclient_create", tcl_local_client_create, (ClientData)NULL, NULL);
 	Tcl_CreateObjCommand(interp, "localclient_destroy", tcl_local_client_destroy, (ClientData)NULL, NULL);
-	Tcl_CreateObjCommand(interp, "localclient_join", tcl_local_client_destroy, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "localclient_join", tcl_local_client_join, (ClientData)NULL, NULL);
 }
