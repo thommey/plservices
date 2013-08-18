@@ -31,13 +31,16 @@ static int debuglvl = LOG_DEBUG|LOG_ERROR|LOG_FATAL|LOG_WARNING|LOG_LUA|LOG_RAW;
 #undef logfmt
 #undef logtxt
 
-void logfmt(int loglevel, const char *fmt, ...) {
-	va_list ap;
+void logfmtva(int loglevel, const char *fmt, va_list ap) {
 	if (!(debuglvl & loglevel))
 		return;
-
-	va_start(ap, fmt);
 	vfprintf(stderr, fmt, ap);
+}
+
+void logfmt(int loglevel, const char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	logfmtva(loglevel, fmt, ap);
 	va_end(ap);
 }
 

@@ -2,11 +2,25 @@
 #include "main.h"
 #include <tcl.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "tclbase.h"
 #include "tclcontrol.h"
 
 Tcl_Interp *interp;
+
+
+#define PANICPREFIX "Tcl Panic: "
+static void tclpanic(const char *format, ...) {
+	char *newfmt;
+	va_list ap;
+	va_start(ap, format);
+	newfmt = smalloc(strlen(format)+strlen(PANICPREFIX)+1);
+	strcpy(newfmt, PANICPREFIX);
+	strcat(newfmt, format);
+	logfmtva(LOG_ERROR, newfmt, ap);
+	va_end(ap);
+}
 
 int tcl_init () {
 	Tcl_FindExecutable(TCL_BASE);
@@ -14,6 +28,7 @@ int tcl_init () {
 	if (Tcl_Init(interp) != TCL_OK) {
 		return TCL_ERROR;
 	}
+	Tcl_SetPanicProc(tclpanic);
 	return TCL_OK;
 }
 

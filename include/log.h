@@ -23,6 +23,8 @@
 #ifndef LOG_H_
 #define LOG_H_
 
+#include <stdarg.h>
+
 #define LOG_FATAL      0x0001
 #define LOG_ERROR      0x0010
 #define LOG_WARNING    0x0100
@@ -34,6 +36,7 @@
 
 #define error(msg) do { logfmt(LOG_FATAL, "Fatal error at %s (line %d): %s\n", __FILE__, __LINE__, msg); exit(1); } while (0)
 
+void logfmtva(int loglevel, const char *fmt, va_list ap);
 void logfmt(int loglevel, const char *fmt, ...);
 void logtxt(int loglevel, const char *text);
 
