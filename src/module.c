@@ -204,7 +204,6 @@ struct user *module_create_client_on(struct server *server, const char *nick, co
 	unsigned long numeric = server_freenum(server);
 	if (!strlen(account) && strchr(modes, 'r') != NULL) account = nick;
 	if (!strlen(opername) && strchr(modes, 'o') != NULL) opername = nick;
-	char *line;
 	send_format("%s N %s 1 %ld %s %s %s%s%s%s%s %s %s :%s", server->numericstr, nick, now, ident, hostname, modes, (strchr(modes, 'r') == NULL ? "" : " "), (strchr(modes, 'r') == NULL ? "" : account), (strchr(modes, 'o') == NULL ? "" : " "), (strchr(modes, 'o') == NULL ? "" : opername), "B]AAAB", unum2str(numeric), realname);
 	return get_user_by_numeric(numeric);
 }
