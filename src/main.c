@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
 	char configfile[64] = "./plservices.conf";
 	time_t last;
 	int opt;
+	system_argv = argv[0];
 
 	while ((opt = getopt(argc, argv, "c:")) != -1) {
 		switch (opt) {

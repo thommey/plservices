@@ -49,4 +49,6 @@
 #include "burster.h"
 #include "module.h"
 
+char *system_argv;
+
 #endif /* TYPES_H_ */

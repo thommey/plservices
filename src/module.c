@@ -113,6 +113,7 @@ const char *module_get_description(const char *name) {
 
 void module_loadAll() {
 	module_load("modules/lua.so", "lua", "PLServices Lua Module.");
+	module_load("modules/tcl.so", "tcl", "PLServices TCL Module.");
 }
 
 

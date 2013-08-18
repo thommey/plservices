@@ -78,7 +78,7 @@ lua_State *luabase_newstate(void) {
 
 	jtableP_set(&luabase_states, L);
 	int err;
-	err = luaL_loadfile(L, "stubs.lua");
+	err = luaL_loadfile(L, "scripts/stubs.lua");
 	if (!err)
 		err = lua_pcall(L, 0, 0, 0);
         if (err) {
