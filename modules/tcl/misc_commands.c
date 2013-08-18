@@ -3,7 +3,7 @@
 #include <string.h>
 
 int command_version (struct user *from, struct user *to, struct manyargs *args) {
-        module_notice(bot, from->numericstr, "VERSION The Lua Control Service v%s by %s", MOD_VERSION, MOD_AUTHOR);
+        module_notice(bot, from->numericstr, "VERSION The TCL Control Service v%s by %s", MOD_VERSION, MOD_AUTHOR);
         module_notice(bot, from->numericstr, "VERSION Built on plservices by thommey");
         return 0;
 }
