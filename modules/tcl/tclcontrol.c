@@ -1,8 +1,10 @@
 #define TCL_BASE "plservices"
 #include "main.h"
 #include <tcl.h>
-#include "tclcontrol.h"
 #include <string.h>
+
+#include "tclbase.h"
+#include "tclcontrol.h"
 
 Tcl_Interp *interp; 
 
@@ -35,6 +37,7 @@ int load() {
 		logfmt(LOG_ERROR, "(%s): Error initializing TCL", MOD_NAME);
 		return 1;
 	}
+	tcl_init_commands(interp);
 	logfmt(LOG_DEBUG, "(%s): Loaded.", MOD_NAME);
 	script_load("scripts/stubs.tcl");
 	return 0;

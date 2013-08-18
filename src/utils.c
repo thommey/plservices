@@ -82,6 +82,16 @@ char *strncpyz(char *dest, const char *src, size_t n) {
 	return dest;
 }
 
+char* trimwhitespace(char *str_base) {
+    char* buffer = str_base;
+    while((buffer = strchr(str_base, ' '))) {
+        strcpy(buffer, buffer+1);
+    }
+
+    return str_base;
+}
+
+
 /* generates count random numbers from 0 to max-1 */
 /* Knuth's algorithm */
 long *randomset(int count, long max) {
