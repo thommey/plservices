@@ -43,6 +43,7 @@ int tcl_local_client_join(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *
 		return TCL_ERROR;
 	struct user *u = get_user_by_numericstr(numeric);
 	module_join_channel(u, channel, autoop);
+	Tcl_ResetResult(interp);
 	return 0;
 }
 
