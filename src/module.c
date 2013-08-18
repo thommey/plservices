@@ -202,10 +202,10 @@ void module_notice(struct user *from, const char *target, const char *message, .
 */
 struct user *module_create_client_on(struct server *server, const char *nick, const char *ident, const char *hostname, const char *modes, const char *account, const char *opername, const char *realname) {
 	unsigned long numeric = server_freenum(server);
-	if (!strlen(account) && strstr(modes, "r") != NULL) account = nick;
-	if (!strlen(opername) && strstr(modes, "o") != NULL) opername = nick;
+	if (!strlen(account) && strchr(modes, 'r') != NULL) account = nick;
+	if (!strlen(opername) && strchr(modes, 'o') != NULL) opername = nick;
 	char *line;
-	send_format("%s N %s 1 %ld %s %s %s%s%s %s %s :%s", server->numericstr, nick, now, ident, hostname, modes, (strstr(modes, "r") == NULL ? "" : account), (strstr(opername, "o") == NULL ? "" : opername), "B]AAAB", unum2str(numeric), realname);
+	send_format("%s N %s 1 %ld %s %s %s%s%s%s%s %s %s :%s", server->numericstr, nick, now, ident, hostname, modes, (strchr(modes, 'r') == NULL ? "" : " "), (strchr(modes, 'r') == NULL ? "" : account), (strchr(opername, 'o') == NULL ? "" : " "), (strchr(opername, 'o') == NULL ? "" : opername), "B]AAAB", unum2str(numeric), realname);
 	return get_user_by_numeric(numeric);
 }
 
