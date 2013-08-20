@@ -4,6 +4,10 @@
 #include <string.h>
 
 int command_load (struct user *from, struct user *to, struct manyargs *args) {
+	if (!user_isoper(from)) { 
+		module_notice(bot, from->numericstr, "Access denied.");
+		return 0;
+	}
         if (args->c == 1) {
 		module_notice(bot, from->numericstr, "You didn't specify enough parameters for LOAD.");
 		module_notice(bot, from->numericstr, "Usage: LOAD <script>");
@@ -22,6 +26,10 @@ int command_load (struct user *from, struct user *to, struct manyargs *args) {
 }
 
 int command_unload (struct user *from, struct user *to, struct manyargs *args) {
+        if (!user_isoper(from)) {
+                module_notice(bot, from->numericstr, "Access denied.");
+                return 0;
+        }
         if (args->c == 1) {
                 module_notice(bot, from->numericstr, "You didn't specify enough parameters for UNLOAD.");
                 module_notice(bot, from->numericstr, "Usage: UNLOAD <script>");

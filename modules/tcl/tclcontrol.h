@@ -33,7 +33,7 @@
 #define BOTHOSTNAME "newserv.sucks"
 #define BOTMODES "+okr"
 #define BOTREALNAME "TCL Control Service"
-#define BOTDEBUGCHAN "#labspace3"
+#define BOTDEBUGCHAN "#labspace"
 
 /* Structs */
 struct commandInfo {

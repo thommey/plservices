@@ -5,7 +5,7 @@
 
 int load() {
 	bot = module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTREALNAME);
-	module_join_channel(bot, BOTDEBUGCHAN, 0);
+	module_join_channel(bot, BOTDEBUGCHAN, 1);
 	module_describe(bot, BOTDEBUGCHAN, "enters on a chariot of fire.");
 	hook_hook("onprivmsg", onprivmsg);
 	commands_initialize();

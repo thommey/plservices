@@ -47,8 +47,52 @@ int tcl_local_client_join(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *
 	return 0;
 }
 
+int tcl_local_client_part(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) {
+        if (objc != 3) {
+                Tcl_WrongNumArgs(interp, 1, objv, "numeric channel");
+                return TCL_ERROR;
+        }
+        const char *numeric = Tcl_GetStringFromObj(objv[1], NULL);
+	const char *channel = Tcl_GetStringFromObj(objv[2], NULL);
+        struct user *u = get_user_by_numericstr(numeric);
+        module_part_channel(u, channel);
+        Tcl_ResetResult(interp);
+        return 0;
+}
+
+int tcl_local_client_privmsg(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) {
+        if (objc != 4) {
+                Tcl_WrongNumArgs(interp, 1, objv, "numeric target message");
+                return TCL_ERROR;
+        }
+        const char *numeric = Tcl_GetStringFromObj(objv[1], NULL);
+        const char *target = Tcl_GetStringFromObj(objv[2], NULL);
+	const char *message = Tcl_GetStringFromObj(objv[3], NULL);
+        struct user *u = get_user_by_numericstr(numeric);
+        module_privmsg(u, target, message);
+        Tcl_ResetResult(interp);
+        return 0;
+}
+
+int tcl_local_client_notice(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) {
+        if (objc != 4) {
+                Tcl_WrongNumArgs(interp, 1, objv, "numeric target message");
+                return TCL_ERROR;
+        }
+        const char *numeric = Tcl_GetStringFromObj(objv[1], NULL);
+        const char *target = Tcl_GetStringFromObj(objv[2], NULL);
+        const char *message = Tcl_GetStringFromObj(objv[3], NULL);
+        struct user *u = get_user_by_numericstr(numeric);
+        module_notice(u, target, message);
+        Tcl_ResetResult(interp);
+        return 0;
+}
+
 void tcl_init_commands(Tcl_Interp *interp) {
 	Tcl_CreateObjCommand(interp, "localclient_create", tcl_local_client_create, (ClientData)NULL, NULL);
 	Tcl_CreateObjCommand(interp, "localclient_destroy", tcl_local_client_destroy, (ClientData)NULL, NULL);
 	Tcl_CreateObjCommand(interp, "localclient_join", tcl_local_client_join, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "localclient_part", tcl_local_client_part, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "irc_privmsg", tcl_local_client_privmsg, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "irc_notice", tcl_local_client_notice, (ClientData)NULL, NULL);
 }
