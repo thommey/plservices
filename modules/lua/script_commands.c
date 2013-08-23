@@ -17,6 +17,10 @@ int command_load (struct user *from, struct user *to, struct manyargs *args) {
 		module_notice(bot, from->numericstr, "Loads a lua script file into the engine.");
 		return 0;
 	}
+	if (strpbrk(args->v[1], "./")) {
+		module_notice(bot, from->numericstr, "Invalid script name. Cannot contain '.' or '/'.");
+		return 0;
+	}
 	snprintf(script, sizeof(script), "scripts/%s.lua", args->v[1]);
 	if (!luabase_loadscript(script)) {
 		module_notice(bot, from->numericstr, "Done.");
@@ -37,6 +41,10 @@ int command_unload (struct user *from, struct user *to, struct manyargs *args) {
 		module_notice(bot, from->numericstr, "You didn't specify enough parameters for UNLOAD.");
 		module_notice(bot, from->numericstr, "Usage: UNLOAD <script>");
 		module_notice(bot, from->numericstr, "Unloads a load script file.");
+		return 0;
+	}
+	if (strpbrk(args->v[1], "./")) {
+		module_notice(bot, from->numericstr, "Invalid script name. Cannot contain '.' or '/'.");
 		return 0;
 	}
 	snprintf(script, sizeof(script), "scripts/%s.lua", args->v[1]);
