@@ -51,7 +51,6 @@ struct parserule {
 };
 
 void init_parse(void);
-char *rfc_tolower(char *buf, size_t bufsize, const char *str);
 struct manyargs *rfc_split(struct manyargs *arg, char *line);
 struct manyargs *split(struct manyargs *arg, char *line, char delim);
 char *rfc_join(char *buf, size_t bufsize, int argc, char **argv);

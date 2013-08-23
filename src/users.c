@@ -45,7 +45,7 @@ struct user *get_user_by_numericstr(const char *numeric) {
 
 struct user *get_user_by_nick(const char *nick) {
 	char buf[NICKLEN+1];
-	return jtableS_get(&userlist_nick, rfc_tolower(buf, sizeof(buf), nick));
+	return jtableS_get(&userlist_nick, strconv(rfc_tolower, buf, sizeof(buf), nick));
 }
 
 struct user *add_user(char *numeric, int hops, char *nick, const char *user, const char *host, const char *realname) {
@@ -68,7 +68,7 @@ struct user *add_user(char *numeric, int hops, char *nick, const char *user, con
 	server_add_user(s, u);
 	u->server = s;
 
-	jtableS_insert(&userlist_nick, rfc_tolower(buf, sizeof(buf), nick), u);
+	jtableS_insert(&userlist_nick, strconv(rfc_tolower, buf, sizeof(buf), nick), u);
 	return jtableL_insert(&userlist_num, u->numeric, u);
 }
 
@@ -82,7 +82,7 @@ void del_user(struct user *user) {
 	char buf[NICKLEN+1];
 	hook_call("onuserdel", pack_args(arg_ptr(user)));
 	server_del_user(user->server, user);
-	jtableS_remove(&userlist_nick, rfc_tolower(buf, sizeof(buf), user->nick));
+	jtableS_remove(&userlist_nick, strconv(rfc_tolower, buf, sizeof(buf), user->nick));
 	jtableL_remove(&userlist_num, user->numeric);
 	jtableP_unset(&opers, user);
 	free(user);
@@ -90,8 +90,8 @@ void del_user(struct user *user) {
 
 void user_nickchange(struct user *u, char *newnick) {
 	char buf[NICKLEN+1];
-	jtableS_remove(&userlist_nick, rfc_tolower(buf, sizeof(buf), u->nick));
-	jtableS_insert(&userlist_nick, rfc_tolower(buf, sizeof(buf), newnick), u);
+	jtableS_remove(&userlist_nick, strconv(rfc_tolower, buf, sizeof(buf), u->nick));
+	jtableS_insert(&userlist_nick, strconv(rfc_tolower, buf, sizeof(buf), newnick), u);
 	strbufcpy(u->nick, newnick);
 }
 

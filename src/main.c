@@ -39,7 +39,7 @@ void debug_print_users(void);
 static void init(void) {
 	init_hooks();
 	init_base64();
-	init_parse();
+	init_stringutils();
 	init_tokens();
 	init_modes();
 //	init_burster();

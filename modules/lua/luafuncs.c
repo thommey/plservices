@@ -68,7 +68,7 @@ static int luafunc_irc_localregisteruserid(lua_State *L) {
 	return 1;
 }
 
-static int luafunc_irc_localquituser(lua_State *L) { 
+static int luafunc_irc_localquituser(lua_State *L) {
 	struct user *u;
 	const char *numeric = luaL_checkstring(L, 1);
 	const char *reason = luaL_checkstring(L, 2);
@@ -215,12 +215,9 @@ static int luafunc_irc_getuserchanmodes(lua_State *L) {
 }
 
 static int luafunc_irctolower(lua_State *L) {
-	static char buf[513];
 	const char *src = luaL_checkstring(L, 1);
 
-	rfc_tolower(buf, sizeof(buf), src);
-
-	lua_pushstring(L, buf);
+	lua_pushstring(L, strconv(rfc_tolower, NULL, 0, src));
 	return 1;
 }
 

@@ -10,7 +10,6 @@
 
 Tcl_Interp *interp;
 
-
 #define PANICPREFIX "Tcl Panic: "
 static void tclpanic(const char *format, ...) {
 	char *newfmt;

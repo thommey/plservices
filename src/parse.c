@@ -27,28 +27,6 @@
 
 #include "main.h"
 
-static char rfc_tolower_table[256];
-static char *rfc_upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[])\\";
-static char *rfc_lower = "abcdefghijklmnopqrstuvwxyz{}|";
-
-void init_parse(void) {
-	int i;
-
-	for (i = 0; i < sizeof(rfc_tolower_table); i++)
-		rfc_tolower_table[i] = i;
-	for (i = 0; rfc_upper[i]; i++)
-		rfc_tolower_table[(unsigned char)rfc_upper[i]] = rfc_lower[i];
-}
-
-char *rfc_tolower(char *buf, size_t bufsize, const char *str) {
-	int i;
-
-	for (i = 0; i < bufsize - 1 && str[i]; i++)
-		buf[i] = rfc_tolower_table[(unsigned char)str[i]];
-	buf[i] = '\0';
-	return buf;
-}
-
 /* splits something (P10/RFC1459) into individual arguments.
  * ignores a leading ':', ':' at wordbeginning introduces last argument
  * otherwise whitespace splitting, stepping over multiple whitespaces
