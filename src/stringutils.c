@@ -39,7 +39,7 @@ void init_stringutils(void) {
 }
 
 char *strconv(int (*convert)(int), char *buf, size_t buflen, const char *str) {
-	char mybuf[BUFLEN+1];
+	static char mybuf[BUFLEN+1];
 	int i;
 
 	if (!buf) {

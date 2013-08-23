@@ -31,7 +31,7 @@ int command_showcommands (struct user *from, struct user *to, struct manyargs *a
 	module_notice(bot, from->numericstr, "Listing all available commands:");
 	for (int x = 0; x<MAX_COMMANDS; x++) {
 		if (commands[x].trigger != NULL) {
-			module_notice(bot, from->numericstr, "%s \t %s", strconv(toupper, NULL, 0, commands[x].trigger), commands[x].description);
+			module_notice(bot, from->numericstr, "%s %s", strconv(toupper, NULL, 0, commands[x].trigger), commands[x].description);
 		}
 	}
 	module_notice(bot, from->numericstr, "End of list.");
