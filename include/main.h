@@ -33,6 +33,7 @@
 #include "utils.h"
 #include "args.h"
 #include "log.h"
+#include "stringutils.h"
 #include "hooks.h"
 #include "base64.h"
 #include "parse.h"

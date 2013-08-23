@@ -1,7 +1,7 @@
 #include "main.h"
 #include "luabase.h"
 #include "luacontrol.h"
-#include <string.h>
+#include <strings.h>
 
 int load() {
 	bot = module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTREALNAME);
@@ -38,7 +38,7 @@ void onprivmsg(struct user *from, struct user *to, char *msg) {
 /* Commands */
 cmdfunc command_find(char *trigger) {
 	for (int x = 0; x < MAX_COMMANDS; x++) {
-		if (commands[x].trigger != NULL && !strcmp(strtolower(commands[x].trigger), strtolower(trigger))) {
+		if (commands[x].trigger != NULL && !strcasecmp(commands[x].trigger, trigger)) {
 			return commands[x].cmdptr;
 		}
 	}

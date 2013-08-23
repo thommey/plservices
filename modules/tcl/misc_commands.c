@@ -1,6 +1,7 @@
 #include "main.h"
 #include "tclcontrol.h"
 #include <string.h>
+#include <strings.h>
 
 int command_version (struct user *from, struct user *to, struct manyargs *args) {
 	module_notice(bot, from->numericstr, "VERSION The TCL Control Service v%s by %s", MOD_VERSION, MOD_AUTHOR);
@@ -15,12 +16,10 @@ int command_help (struct user *from, struct user *to, struct manyargs *args) {
 		return 0;
 	}
 	for (int x = 0; x<MAX_COMMANDS; x++) {
-		if (commands[x].trigger != NULL && !strcmp(strtolower(commands[x].trigger), strtolower(args->v[1]))) {
-			char *command = strtoupper(commands[x].trigger);
-			module_notice(bot, from->numericstr, "Showing help for command %s", args->v[1]);
+		if (commands[x].trigger != NULL && !strcasecmp(commands[x].trigger, args->v[1])) {
+			module_notice(bot, from->numericstr, "Showing help for command %s", strconv(toupper, NULL, 0, args->v[1]));
 			module_notice(bot, from->numericstr, "Usage: %s", commands[x].syntax);
 			module_notice(bot, from->numericstr, "%s", commands[x].description);
-			free(command);
 			return 0;
 		}
 	}
@@ -32,9 +31,7 @@ int command_showcommands (struct user *from, struct user *to, struct manyargs *a
 	module_notice(bot, from->numericstr, "Listing all available commands:");
 	for (int x = 0; x<MAX_COMMANDS; x++) {
 		if (commands[x].trigger != NULL) {
-			char *command = strtoupper(commands[x].trigger);
-			module_notice(bot, from->numericstr, "%s \t %s", command, commands[x].description);
-			free(command);
+			module_notice(bot, from->numericstr, "%s \t %s", strconv(toupper, NULL, 0, commands[x].trigger), commands[x].description);
 		}
 	}
 	module_notice(bot, from->numericstr, "End of list.");

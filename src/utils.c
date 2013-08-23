@@ -20,6 +20,7 @@
  *
  *
  */
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -29,23 +30,6 @@
 
 #include "utils.h"
 #include "log.h"
-
-char *strtolower(char *str){
-    char *newstr, *p;
-    newstr = sstrdup(str);
-    p = newstr;
-    while(((*p++)=(tolower(*p))));
-	return newstr;
-}
-
-
-char *strtoupper(char *str){
-    char *newstr, *p;
-    newstr = sstrdup(str);
-    p = newstr;
-    while(((*p++)=(toupper(*p))));
-    return newstr;
-}
 
 char *sstrdup(const char *str) {
 	char *new;
@@ -81,16 +65,6 @@ char *strncpyz(char *dest, const char *src, size_t n) {
 		dest[n-1] = '\0';
 	return dest;
 }
-
-char* trimwhitespace(char *str_base) {
-    char* buffer = str_base;
-    while((buffer = strchr(str_base, ' '))) {
-        strcpy(buffer, buffer+1);
-    }
-
-    return str_base;
-}
-
 
 /* generates count random numbers from 0 to max-1 */
 /* Knuth's algorithm */

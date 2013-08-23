@@ -1,6 +1,8 @@
 #ifndef BASE64_H_
 #define BASE64_H_
 
+#include <stddef.h>
+
 #define UNUMLEN 5
 #define SNUMLEN 2
 
