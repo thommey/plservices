@@ -26,9 +26,9 @@ void onprivmsg(struct user *from, struct user *to, char *msg) {
 		strbufcpy(message, msg);
 		split(&arg, message, ' ');
 		cmdfunc cmd = (arg.c == 0 ? NULL : command_find(arg.v[0]));
-		if (arg.c == 0 || !command_find(arg.v[0])) { 
+		if (arg.c == 0 || !command_find(arg.v[0])) {
 			module_notice(bot, from->numericstr, "Unknown command %s. Use SHOWCOMMANDS to view all commands.", arg.v[0]);
-		} else { 
+		} else {
 			cmd(from, to, &arg);
 		}
 	}
@@ -37,15 +37,15 @@ void onprivmsg(struct user *from, struct user *to, char *msg) {
 
 /* Commands */
 cmdfunc command_find(char *trigger) {
-        for (int x = 0; x < MAX_COMMANDS; x++) {
-                if (commands[x].trigger != NULL && !strcmp(strtolower(commands[x].trigger), strtolower(trigger))) {
-                        return commands[x].cmdptr;
-                }
-        }
+	for (int x = 0; x < MAX_COMMANDS; x++) {
+		if (commands[x].trigger != NULL && !strcmp(strtolower(commands[x].trigger), strtolower(trigger))) {
+			return commands[x].cmdptr;
+		}
+	}
 	return NULL;
 }
 
-void command_register(char *trigger, char *syntax, char *description, cmdfunc command) { 
+void command_register(char *trigger, char *syntax, char *description, cmdfunc command) {
 	int x = 0;
 	for (; commands[x].trigger != NULL; x++);
 	commands[x].trigger = trigger;

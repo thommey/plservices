@@ -81,10 +81,10 @@ lua_State *luabase_newstate(void) {
 	err = luaL_loadfile(L, "scripts/stubs.lua");
 	if (!err)
 		err = lua_pcall(L, 0, 0, 0);
-        if (err) {
-                luabase_report(L, "initialization", err);
-                return NULL;
-        }
+	if (err) {
+		luabase_report(L, "initialization", err);
+		return NULL;
+	}
 	logtxt(LOG_ERROR, "Loaded base class.");
 	return L;
 }
@@ -92,8 +92,8 @@ lua_State *luabase_newstate(void) {
 /* load a script in a seperate interpreter instance */
 int luabase_loadscript(char *file) {
 	struct args arg;
-        arg.c = 1;
-        arg.v[0] = arg_str("onload");
+	arg.c = 1;
+	arg.v[0] = arg_str("onload");
 	lua_State *L = luabase_newstate();
 	int err;
 	logfmt(LOG_DEBUG, "Loading lua script %s", file);
@@ -109,7 +109,7 @@ int luabase_loadscript(char *file) {
 	return luabase_callluafunc(L, &arg);
 }
 
-int luabase_unloadscript(char *file) { 
+int luabase_unloadscript(char *file) {
 	lua_State *L;
 	L = luabase_get_interpreter(file);
 	logfmt(LOG_DEBUG, "Unloading lua script %s", file);
@@ -300,12 +300,12 @@ const char *luabase_getstringfromarray(lua_State *L, int tableidx, int idx) {
 	return result;
 }
 
-lua_State *luabase_get_interpreter(const char *script) { 
+lua_State *luabase_get_interpreter(const char *script) {
 	return jtableS_get(&luabase_states_by_script, script);
 }
 
-int luabase_valid_script(const char *script) { 
-	if (jtableS_get(&luabase_states_by_script, script) != NULL) { 
+int luabase_valid_script(const char *script) {
+	if (jtableS_get(&luabase_states_by_script, script) != NULL) {
 		return 1;
 	}
 	return 0;
