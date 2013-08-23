@@ -240,6 +240,9 @@ void hMODE1(struct entity *from, struct user *user, struct manyargs *modechange)
 
 void hMODE2(struct entity *from, struct channel *chan, struct manyargs *modechange, time_t *ts) {
 	VERIFY_CHANNEL(chan);
+	/* remote has older channel */
+	if (ts < chan->ts)
+		chan->ts = ts;
 	channel_apply_mode(from, chan, modechange->v[0], modechange, 1);
 }
 

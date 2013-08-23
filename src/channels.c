@@ -42,7 +42,7 @@ struct channel *add_channel(char *name, time_t ts) {
 	strbufcpy(c->name, name);
 	c->ts = ts;
 
-	return jtableS_insert(&channels, name, c);
+	return jtableS_insert(&channels, strconv(rfc_tolower, NULL, 0, name), c);
 }
 
 void del_channel(struct channel *c) {
