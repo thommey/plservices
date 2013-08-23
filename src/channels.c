@@ -62,7 +62,7 @@ struct channel *get_channel(struct channel *c) {
 };
 
 struct channel *get_channel_by_name(const char *name) {
-	return jtableS_get(&channels, name);
+	return jtableS_get(&channels, strconv(rfc_tolower, NULL, 0, name));
 }
 
 void channel_plsprefix(struct channel *c, struct user *u, char mc) {
