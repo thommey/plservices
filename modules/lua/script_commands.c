@@ -3,7 +3,10 @@
 #include "luacontrol.h"
 #include <string.h>
 
+#define PATHLEN 255
+
 int command_load (struct user *from, struct user *to, struct manyargs *args) {
+	char script[PATHLEN+1];
 	if (!user_isoper(from)) {
 		module_notice(bot, from->numericstr, "Access denied.");
 		return 0;
@@ -14,8 +17,7 @@ int command_load (struct user *from, struct user *to, struct manyargs *args) {
 		module_notice(bot, from->numericstr, "Loads a lua script file into the engine.");
 		return 0;
 	}
-	char script[64];
-	sprintf(script, "scripts/%s.lua", (char *)args->v[1]);
+	snprintf(script, sizeof(script), "scripts/%s.lua", args->v[1]);
 	if (!luabase_loadscript(script)) {
 		module_notice(bot, from->numericstr, "Done.");
 	} else {
@@ -26,6 +28,7 @@ int command_load (struct user *from, struct user *to, struct manyargs *args) {
 }
 
 int command_unload (struct user *from, struct user *to, struct manyargs *args) {
+	char script[PATHLEN+1];
 	if (!user_isoper(from)) {
 		module_notice(bot, from->numericstr, "Access denied.");
 		return 0;
@@ -36,8 +39,7 @@ int command_unload (struct user *from, struct user *to, struct manyargs *args) {
 		module_notice(bot, from->numericstr, "Unloads a load script file.");
 		return 0;
 	}
-	char script[64];
-	sprintf(script, "scripts/%s.lua", (char *)args->v[1]);
+	snprintf(script, sizeof(script), "scripts/%s.lua", args->v[1]);
 	if (!luabase_valid_script(script)) {
 		module_notice(bot, from->numericstr, "Unknown script %s.", args->v[1]);
 		return 0;
