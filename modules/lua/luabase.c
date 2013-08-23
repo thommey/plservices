@@ -36,15 +36,6 @@ static jtableS luabase_states_by_script;
 extern time_t now;
 extern struct server *me;
 
-/* base libraries to inject into every interpreter */
-static const luaL_Reg luabase_libs[] = {
-	{ "base",       luaopen_base },
-	{ "string",     luaopen_string },
-	{ "table",      luaopen_table },
-	{ "math",       luaopen_math },
-	{ NULL,         NULL }
-};
-
 int luabase_report(lua_State *L, char *where, int status) {
 	const char *msg;
 	if (status) {
@@ -60,16 +51,11 @@ int luabase_report(lua_State *L, char *where, int status) {
 /* create a new lua interpteter */
 lua_State *luabase_newstate(void) {
 	lua_State *L;
-	const luaL_Reg *lib;
 	const struct luaL_Reg *luafuncs;
 	int i;
 
-	L = lua_open();
-
-	for (lib = luabase_libs; lib->func != NULL; lib++) {
-		lib->func(L);
-		lua_settop(L, 0);
-	}
+	L = luaL_newstate();
+	luaL_openlibs(L);
 
 	luafuncs = luafuncs_functable();
 
