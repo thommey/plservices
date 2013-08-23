@@ -235,7 +235,7 @@ static int luafunc_onstaff(lua_State *L) {
 
 #define MKLFUNC(name) { # name , luafunc_ ## name }
 
-static const struct luaL_reg luafuncs[] = {
+static const struct luaL_Reg luafuncs[] = {
 	MKLFUNC(irc_localregisteruser),
 	MKLFUNC(irc_localregisteruserid),
 	MKLFUNC(irc_localchanmsg),
@@ -256,6 +256,6 @@ static const struct luaL_reg luafuncs[] = {
 	{ NULL, NULL }
 };
 
-const struct luaL_reg *luafuncs_functable(void) {
+const struct luaL_Reg *luafuncs_functable(void) {
 	return luafuncs;
 };

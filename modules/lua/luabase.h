@@ -50,6 +50,6 @@ int luabase_unloadscript(char *file);
 int luabase_valid_script(const char *script);
 int luabase_callluafunc(lua_State *L, struct args *arg);
 
-const struct luaL_reg *luafuncs_functable(void);
+const struct luaL_Reg *luafuncs_functable(void);
 
 #endif /* LUA_H_ */

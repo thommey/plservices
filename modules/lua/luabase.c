@@ -37,7 +37,7 @@ extern time_t now;
 extern struct server *me;
 
 /* base libraries to inject into every interpreter */
-static const luaL_reg luabase_libs[] = {
+static const luaL_Reg luabase_libs[] = {
 	{ "base",       luaopen_base },
 	{ "string",     luaopen_string },
 	{ "table",      luaopen_table },
@@ -60,8 +60,8 @@ int luabase_report(lua_State *L, char *where, int status) {
 /* create a new lua interpteter */
 lua_State *luabase_newstate(void) {
 	lua_State *L;
-	const luaL_reg *lib;
-	const struct luaL_reg *luafuncs;
+	const luaL_Reg *lib;
+	const struct luaL_Reg *luafuncs;
 	int i;
 
 	L = lua_open();
