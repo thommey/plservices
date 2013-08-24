@@ -70,9 +70,7 @@ char *rfc_join(char *buf, size_t bufsize, int argc, char **argv) {
 			*pos++ = ' ';
 		if (i == argc - 1 && (argv[i][0] == ':' || strpbrk(argv[i], " ")))
 			*pos++ = ':';
-		len = strlen(argv[i]);
-		strncpy(pos, argv[i], bufsize-(pos-buf)-3);
-		pos += len;
+		pos = strncpyz(pos, argv[i], bufsize-(pos-buf)-3);
 	}
 	*pos++ = '\r';
 	*pos++ = '\n';

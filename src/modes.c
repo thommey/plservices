@@ -278,7 +278,7 @@ struct modebuf *mode_pushmode(struct entity *from, struct channel *c, int plsmns
 	/* write target */
 	if (target) {
 		*m->targetstrpos++ = ' ';
-		strncpy(m->targetstrpos, target, targetlen);
+		strncpyz(m->targetstrpos, target, targetlen);
 		m->targetstrpos += targetlen;
 		m->modecount++; /* only count modes with target, that's where the limit of 6 is at */
 	}

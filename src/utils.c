@@ -59,10 +59,11 @@ void *zmalloc(size_t s) {
 	return p;
 }
 
-char *strncpyz(char *dest, const char *src, size_t n) {
-	strncpy(dest, src, n);
-	if (n > 0)
-		dest[n-1] = '\0';
+char *strncpyz(char *dest, const char *src, size_t bufsize) {
+	char *destend = dest+bufsize-1;
+	while (dest < destend && *src)
+		*dest++ = *src++;
+	*dest = 0;
 	return dest;
 }
 
