@@ -76,7 +76,7 @@ void net_connect(void) {
 		POSIXERR("Could not create socket");
 
 	hostname = gethostbyname(uplink);
-	if (!hostname) 
+	if (!hostname)
 		POSIXERR("Could not resolve hostname.");
 	ip_addr = *(struct in_addr *)(hostname->h_addr_list[0]);
 	setsockopt(conn, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
@@ -96,13 +96,14 @@ void send_raw(char *str) {
 	tosend = strlen(str);
 
 	logfmt(LOG_RAW, "-> %s", str);
+	strbufcpy(buf, str);
 	while (tosend) {
 		sent = send(conn, str, tosend, 0);
 		if (sent < 0)
 			POSIXERR("Error in sending data");
 		tosend -= sent;
 	}
-	handle_input(strbufcpy(buf, str));
+	handle_input(buf);
 }
 
 void send_words(const char *first, ...) {
@@ -111,21 +112,24 @@ void send_words(const char *first, ...) {
 	char *word;
 	va_list ap;
 
+	memset(buf, 'o', sizeof(buf));
 	va_start(ap, first);
 	arg.c = 0;
 	arg.v[arg.c++] = (char *)first;
 	while ((word = va_arg(ap, char *)))
 		arg.v[arg.c++] = word;
 	va_end(ap);
-	send_raw(rfc_join(buf, sizeof(buf), arg.c, arg.v));
+	rfc_join(buf, sizeof(buf), arg.c, arg.v);
+	send_raw(buf);
 }
 
 void send_format(const char *fmt, ...) {
-	static char buf[512];
+	static char buf[513];
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsprintf(buf, fmt, ap);
+	if (vsnprintf(buf, sizeof(buf)-1, fmt, ap) == sizeof(buf)-1)
+		buf[sizeof(buf)-1] = '\0';
 	va_end(ap);
 	send_raw(buf);
 }

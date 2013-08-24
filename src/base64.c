@@ -62,10 +62,10 @@ char *base64_encode_padded(char *buf, size_t bufsize, unsigned long num) {
 
 	e = buf + bufsize - 1;
 	*e = '\0';
-	while (--e >= buf) {
-		*e = encode_base64_digit(num % 64);
+	do {
+		*(--e) = encode_base64_digit(num % 64);
 		num /= 64;
-	}
+	} while (e > buf);
 	return buf;
 }
 

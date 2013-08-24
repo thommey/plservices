@@ -58,7 +58,7 @@ struct user {
 };
 
 #define verify_user(e) (((struct entity *)(e))->magic == MAGIC_USER)
-#define user_send(u, ...) send_words(unum2str(u->numeric), __VA_ARGS__)
+#define user_send(u, ...) send_words(u->numericstr, __VA_ARGS__)
 
 struct channel;
 

@@ -47,7 +47,7 @@ struct server {
 };
 
 #define verify_server(e) (((struct entity *)(e))->magic == MAGIC_SERVER)
-#define server_send(s, ...) send_words(snum2str(s->numeric), __VA_ARGS__)
+#define server_send(s, ...) send_words(s->numericstr, __VA_ARGS__)
 struct server *get_server_by_numeric(unsigned long numeric);
 struct server *get_server_by_numericstr(const char *numeric);
 struct server *add_server(char *umeric, char *maxusers, char *name, int hops, time_t boot, time_t link, char *protocol, char *description);
