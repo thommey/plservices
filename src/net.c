@@ -112,7 +112,6 @@ void send_words(const char *first, ...) {
 	char *word;
 	va_list ap;
 
-	memset(buf, 'o', sizeof(buf));
 	va_start(ap, first);
 	arg.c = 0;
 	arg.v[arg.c++] = (char *)first;
