@@ -28,7 +28,7 @@ int tcl_init () {
 }
 
 /* Create a new TCL interpreter and load a script. */
-int tcl_load_script(char *script) { 
+int tcl_load_script(char *script) {
 	Tcl_Interp *interp;
 	interp = Tcl_CreateInterp();
 	// Export functions
@@ -60,7 +60,7 @@ int tcl_load_script(char *script) {
 }
 
 /* Unload a script - call unload then delete the interp. */
-int tcl_unload_script(char *script) { 
+int tcl_unload_script(char *script) {
 	if (!tcl_valid_script(script)) return TCL_ERROR;
 	Tcl_Interp *interp = tcl_find_interp_by_script(script);
 	int code;
@@ -76,14 +76,14 @@ int tcl_unload_script(char *script) {
     jtableP_unset(&tcl_interps, interp);
     jtableS_remove(&tcl_interps_by_script, script);
     Tcl_DeleteInterp(interp);
-    if (Tcl_InterpDeleted(interp)) { 
+    if (Tcl_InterpDeleted(interp)) {
     	return TCL_OK;
     }
     return TCL_ERROR;
 }
 
 /* Find an interpreter based on the script. */
-Tcl_Interp *tcl_find_interp_by_script(char *script) { 
+Tcl_Interp *tcl_find_interp_by_script(char *script) {
 	return jtableS_get(&tcl_interps_by_script, script);
 }
 
@@ -201,17 +201,13 @@ void tcl_init_commands(Tcl_Interp *interp) {
 	Tcl_CreateObjCommand(interp, "client_notice", tcl_local_client_notice, (ClientData)NULL, NULL);
 }
 
-void tcl_onprivmsg(struct user *from, struct user *to, char *msg) { 
-	logfmt(LOG_ERROR, "Sending '%s' from '%s' to tcl module", msg, from->nick);
+static int tcl_evalstr(Tcl_Interp *interp, char *cmd) {
+	return Tcl_Eval(interp, cmd);
+}
+
+void tcl_onprivmsg(struct user *from, struct user *to, char *msg) {
 	char cmd[513];
+	logfmt(LOG_ERROR, "Sending '%s' from '%s' to tcl module", msg, from->nick);
 	snprintf(cmd, sizeof(cmd), "irc_onprivmsg %s %s %s", from->numericstr, to->numericstr, msg);
-	PWord_t PValue;
-	uint8_t key[512];
-	key[0] = '\0';
-	JSLF(PValue, &tcl_interps_by_script, key);
-	while (PValue) { 
-		logfmt(LOG_ERROR, "Sending to script --> %s", cmd);
-		tcl_run_command((Tcl_Interp *)PValue, cmd);
-		JSLN(PValue, &tcl_interps_by_script, key);
-	}
+	jtableP_iterate(&tcl_interps, (jtableP_cb)tcl_evalstr, cmd);
 }
