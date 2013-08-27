@@ -1,3 +1,6 @@
+#include <tcl.h>
+#include <string.h>
+
 #if defined(__STDC__) || defined(HAS_STDARG)
 #   include <stdarg.h>
 #else

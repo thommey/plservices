@@ -1,4 +1,3 @@
-#define TCL_BASE "plservices"
 #include "main.h"
 #include <tcl.h>
 #include <string.h>
@@ -21,12 +20,13 @@ int load() {
 		return 1;
 	}
 	logfmt(LOG_DEBUG, "(%s): Loaded.", MOD_NAME);
+	tcl_load_script("lol");
 	return 0;
 }
 
 int unload() {
-	Tcl_Finalize();
 	module_destroy_client(bot, "Module unloaded.");
+	Tcl_Finalize();
 	logfmt(LOG_DEBUG, "(%s): Unloaded.", MOD_NAME);
 	return 0;
 }

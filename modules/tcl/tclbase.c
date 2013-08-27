@@ -31,33 +31,40 @@ int tcl_init () {
 int tcl_load_script(char *script) { 
 	Tcl_Interp *interp;
 	interp = Tcl_CreateInterp();
+	// Export functions
+	tcl_init_commands(interp);
 	// Load the default script.
-	tcl_insert_script(config_get("mod.tcl", "base_script"));
+	char base[PATHLEN+1];
+	snprintf(base, sizeof(base), "scripts/tcl/%s.tcl", config_get("mod.tcl", "base_script"));
+	int baseresult = tcl_insert_script(interp, base);
+	char *result = Tcl_GetString(Tcl_GetObjResult(interp));
+	if (baseresult == TCL_ERROR) { logfmt(LOG_ERROR, "Couldn't load '%s' - error: %s", base, result); }
 	// Try and resolve the path here.
 	char path[PATHLEN+1];
-	if (strpbrk(args->v[1], "./")) return TCL_ERROR;
+	if (strpbrk(script, "./")) return TCL_ERROR;
 	snprintf(path, sizeof(path), "scripts/tcl/%s.tcl", script);
 	// Export some commands to the TCL commands.
-	tcl_init_commands(interp);
-	if (tcl_script_insert(interp, path)) {
+	if (tcl_insert_script(interp, path)) {
 		jtableP_set(&tcl_interps, interp);
-		jtableS_insert(&luabase_states_by_script, script, interp);
+		jtableS_insert(&tcl_interps_by_script, script, interp);
 		if (Tcl_Init(interp) != TCL_OK) return TCL_ERROR;
-	    code = Tcl_Eval(interp, "load");
-	    result = Tcl_GetString(Tcl_GetObjResult(interp));
-	    if (code == TCL_ERROR) {
-	        logfmt(LOG_ERROR, "(tcl): ERROR in script(%s): %s\n", script, result);
-	        return TCL_ERROR;
-	    }
-	    return TCL_OK;
+		int code = Tcl_Eval(interp, "load");
+		char *result = Tcl_GetString(Tcl_GetObjResult(interp));
+		if (code == TCL_ERROR) {
+			logfmt(LOG_ERROR, "(tcl): ERROR in script(%s): %s\n", script, result);
+		    	return TCL_ERROR;
+	    	}
+		return TCL_OK;
 	}
 	return TCL_ERROR;
 }
 
 /* Unload a script - call unload then delete the interp. */
 int tcl_unload_script(char *script) { 
-	if (!tcl_valid_script(path)) return TCL_ERROR;
+	if (!tcl_valid_script(script)) return TCL_ERROR;
 	Tcl_Interp *interp = tcl_find_interp_by_script(script);
+	int code;
+	char *result;
     code = Tcl_Eval(interp, "unload");
     /* Retrieve the result... */
     result = Tcl_GetString(Tcl_GetObjResult(interp));
