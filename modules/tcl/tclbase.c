@@ -1,6 +1,102 @@
+#define PANICPREFIX "Tcl Panic: "
+
 #include <tcl.h>
 #include "main.h"
 #include "tclbase.h"
+
+static jtableP tcl_interps;
+static jtableS tcl_interps_by_script;
+
+/* Handler for any TCL panics that are raised. */
+static void tclpanic(const char *format, ...) {
+	char *newfmt;
+	va_list ap;
+	va_start(ap, format);
+	newfmt = smalloc(strlen(format)+strlen(PANICPREFIX)+1);
+	strcpy(newfmt, PANICPREFIX);
+	strcat(newfmt, format);
+	logfmtva(LOG_ERROR, newfmt, ap);
+	va_end(ap);
+}
+
+/* Create a new instance. */
+int tcl_init () {
+	Tcl_FindExecutable(TCL_BASE);
+	Tcl_SetPanicProc(tclpanic);
+	hook_hook("onprivmsg", tcl_onprivmsg);
+	return TCL_OK;
+}
+
+/* Create a new TCL interpreter and load a script. */
+int tcl_load_script(char *script) { 
+	Tcl_Interp *interp;
+	interp = Tcl_CreateInterp();
+	// Load the default script.
+	tcl_insert_script(config_get("mod.tcl", "base_script"));
+	// Try and resolve the path here.
+	char path[PATHLEN+1];
+	if (strpbrk(args->v[1], "./")) return TCL_ERROR;
+	snprintf(path, sizeof(path), "scripts/tcl/%s.tcl", script);
+	// Export some commands to the TCL commands.
+	tcl_init_commands(interp);
+	if (tcl_script_insert(interp, path)) {
+		jtableP_set(&tcl_interps, interp);
+		jtableS_insert(&luabase_states_by_script, script, interp);
+		if (Tcl_Init(interp) != TCL_OK) return TCL_ERROR;
+	    code = Tcl_Eval(interp, "load");
+	    result = Tcl_GetString(Tcl_GetObjResult(interp));
+	    if (code == TCL_ERROR) {
+	        logfmt(LOG_ERROR, "(tcl): ERROR in script(%s): %s\n", script, result);
+	        return TCL_ERROR;
+	    }
+	    return TCL_OK;
+	}
+	return TCL_ERROR;
+}
+
+/* Unload a script - call unload then delete the interp. */
+int tcl_unload_script(char *script) { 
+	if (!tcl_valid_script(path)) return TCL_ERROR;
+	Tcl_Interp *interp = tcl_find_interp_by_script(script);
+    code = Tcl_Eval(interp, "unload");
+    /* Retrieve the result... */
+    result = Tcl_GetString(Tcl_GetObjResult(interp));
+    /* Check for error! If an error, message is result. */
+    if (code == TCL_ERROR) {
+        logfmt(LOG_ERROR, "(tcl): ERROR in script(%s): %s\n", script, result);
+        return TCL_ERROR;
+    }
+    jtableP_unset(&tcl_interps, interp);
+    jtableS_remove(&tcl_interps_by_script, script);
+    Tcl_DeleteInterp(interp);
+    if (Tcl_InterpDeleted(interp)) { 
+    	return TCL_OK;
+    }
+    return TCL_ERROR;
+}
+
+/* Find an interpreter based on the script. */
+Tcl_Interp *tcl_find_interp_by_script(char *script) { 
+	return jtableS_get(&tcl_interps_by_script, script);
+}
+
+/* Returns 1 if the script is loaded, 0 if not */
+int tcl_valid_script(const char *script) {
+	if (jtableS_get(&tcl_interps_by_script, script) != NULL) {
+		return 1;
+	}
+	return 0;
+}
+
+/* Run a TCL command in an interpreter */
+int tcl_run_command(Tcl_Interp *interp, char *command) {
+	return Tcl_Invoke(interp, command);
+}
+
+/* Load a script into an interp */
+int tcl_insert_script(Tcl_Interp *interp, char *fileName) {
+	return Tcl_EvalFile(interp, fileName);
+}
 
 int tcl_local_client_create(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) {
 	if (objc != 8) {
@@ -89,10 +185,24 @@ int tcl_local_client_notice(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj
 }
 
 void tcl_init_commands(Tcl_Interp *interp) {
-	Tcl_CreateObjCommand(interp, "localclient_create", tcl_local_client_create, (ClientData)NULL, NULL);
-	Tcl_CreateObjCommand(interp, "localclient_destroy", tcl_local_client_destroy, (ClientData)NULL, NULL);
-	Tcl_CreateObjCommand(interp, "localclient_join", tcl_local_client_join, (ClientData)NULL, NULL);
-	Tcl_CreateObjCommand(interp, "localclient_part", tcl_local_client_part, (ClientData)NULL, NULL);
-	Tcl_CreateObjCommand(interp, "irc_privmsg", tcl_local_client_privmsg, (ClientData)NULL, NULL);
-	Tcl_CreateObjCommand(interp, "irc_notice", tcl_local_client_notice, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "client_create", tcl_local_client_create, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "client_destroy", tcl_local_client_destroy, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "client_join", tcl_local_client_join, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "client_part", tcl_local_client_part, (ClientData)NULL, NULL);
+
+	Tcl_CreateObjCommand(interp, "client_privmsg", tcl_local_client_privmsg, (ClientData)NULL, NULL);
+	Tcl_CreateObjCommand(interp, "client_notice", tcl_local_client_notice, (ClientData)NULL, NULL);
+}
+
+void tcl_onprivmsg(struct user *from, struct user *to, char *msg) { 
+	char cmd[513];
+	snprintf(cmd, sizeof(cmd), "%s %s %s", from->numericstr, to->numericstr, msg);
+	PWord_t PValue;
+	uint8_t key[512];
+	key[0] = '\0';
+	JSLF(PValue, &tcl_interps_by_script, key);
+	while (PValue) { 
+		tcl_run_command((Tcl_Interp *)PValue, cmd);
+		JSLN(PValue, &tcl_interps_by_script, key);
+	}
 }

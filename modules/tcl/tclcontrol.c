@@ -8,34 +8,6 @@
 #include "tclbase.h"
 #include "tclcontrol.h"
 
-Tcl_Interp *interp;
-
-#define PANICPREFIX "Tcl Panic: "
-static void tclpanic(const char *format, ...) {
-	char *newfmt;
-	va_list ap;
-	va_start(ap, format);
-	newfmt = smalloc(strlen(format)+strlen(PANICPREFIX)+1);
-	strcpy(newfmt, PANICPREFIX);
-	strcat(newfmt, format);
-	logfmtva(LOG_ERROR, newfmt, ap);
-	va_end(ap);
-}
-
-int tcl_init () {
-	Tcl_FindExecutable(TCL_BASE);
-	interp = Tcl_CreateInterp();
-	if (Tcl_Init(interp) != TCL_OK) {
-		return TCL_ERROR;
-	}
-	Tcl_SetPanicProc(tclpanic);
-	return TCL_OK;
-}
-
-int script_load(char *fileName) {
-	return Tcl_EvalFile(interp, fileName);
-}
-
 int load() {
 	bot = module_create_client(BOTNICK, BOTIDENT, BOTHOSTNAME, BOTMODES, BOTNICK, BOTNICK, BOTREALNAME);
 	module_join_channel(bot, BOTDEBUGCHAN, 1);
@@ -48,9 +20,7 @@ int load() {
 		logfmt(LOG_ERROR, "(%s): Error initializing TCL", MOD_NAME);
 		return 1;
 	}
-	tcl_init_commands(interp);
 	logfmt(LOG_DEBUG, "(%s): Loaded.", MOD_NAME);
-	script_load("scripts/stubs.tcl");
 	return 0;
 }
 
