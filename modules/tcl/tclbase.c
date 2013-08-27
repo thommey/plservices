@@ -201,8 +201,9 @@ void tcl_init_commands(Tcl_Interp *interp) {
 	Tcl_CreateObjCommand(interp, "client_notice", tcl_local_client_notice, (ClientData)NULL, NULL);
 }
 
-static int tcl_evalstr(Tcl_Interp *interp, char *cmd) {
-	return Tcl_Eval(interp, cmd);
+static void tcl_evalstr(Tcl_Interp *interp, char *cmd) {
+	if (Tcl_Eval(interp, cmd) != TCL_OK)
+		Tcl_BackgroundError(inter);
 }
 
 void tcl_onprivmsg(struct user *from, struct user *to, char *msg) {
