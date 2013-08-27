@@ -4,13 +4,18 @@ snircd.
 Requirements:
   * Judy - "C library that provides a state-of-the-art core technology that implements a sparse dynamic array."
       @ http://judy.sourceforge.net/ (LGPL 2.1)
-  * Lua - "a powerful, fast, lightweight, embeddable scripting language."
+
+Module requirements:
+  Lua - "a powerful, fast, lightweight, embeddable scripting language."
       @ http://www.lua.org (MIT license)
+  Tcl - "a very powerful but easy to learn dynamic programming language"
+      @ http://www.tcl.tk (Tcl/Tk license)
 
 Compiling:
   make
 
-Runtime arguments: ./plservices <ip> <port> <pass> <servername> <server description>.
+Runtime arguments: ./plservices -c configfile.conf.
 
-At the moment it instantly attempts to load ./labspace.lua after ./stubs.lua into the same lua interpreter.
-stubs.lua is included, labspace.lua is over at http://hg.quakenet.org/lua-labspace/ - put it into the working directory.
+Modules included:
+  * Lua - Loads lua scripts, an example lua script that can be loaded can be found on http://hg.quakenet.org/lua-labspace/
+  * Tcl - Loads tcl scripts
