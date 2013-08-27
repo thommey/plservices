@@ -202,13 +202,15 @@ void tcl_init_commands(Tcl_Interp *interp) {
 }
 
 void tcl_onprivmsg(struct user *from, struct user *to, char *msg) { 
+	logfmt(LOG_ERROR, "Sending '%s' from '%s' to tcl module", msg, from->nick);
 	char cmd[513];
-	snprintf(cmd, sizeof(cmd), "%s %s %s", from->numericstr, to->numericstr, msg);
+	snprintf(cmd, sizeof(cmd), "irc_onprivmsg %s %s %s", from->numericstr, to->numericstr, msg);
 	PWord_t PValue;
 	uint8_t key[512];
 	key[0] = '\0';
 	JSLF(PValue, &tcl_interps_by_script, key);
 	while (PValue) { 
+		logfmt(LOG_ERROR, "Sending to script --> %s", cmd);
 		tcl_run_command((Tcl_Interp *)PValue, cmd);
 		JSLN(PValue, &tcl_interps_by_script, key);
 	}

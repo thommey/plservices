@@ -1,3 +1,7 @@
+proc irc_onprivmsg {args} { 
+	puts "Oh noes --> $args"
+}
+
 set numeric [client_create "tcl" "tickle" "newserv.sucks" "+i" "tcl" "tcl" "TCL Woohoo!"]
 puts "Numeric: $numeric"
 client_join $numeric #labspace 0
